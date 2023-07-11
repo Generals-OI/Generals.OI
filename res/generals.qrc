@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qss/WindowWidgets.qss</file>
+        <file>qss/GameWindowWidgets.qss</file>
+        <file>font/Quicksand-Medium.ttf</file>
+        <file>font/Quicksand-Bold.ttf</file>
+        <file>font/Quicksand-Regular.ttf</file>
+        <file>aud/GongSound.mp3</file>
+        <file>img/Arrow-Down.png</file>
+        <file>img/Arrow-Left.png</file>
+        <file>img/Arrow-Right.png</file>
+        <file>img/Arrow-Up.png</file>
+        <file>img/City.png</file>
+        <file>img/Crown.png</file>
+        <file>img/Crown-Lost.png</file>
+        <file>img/Crown-Won.png</file>
+        <file>img/CloseButton.png</file>
+        <file>img/CloseButton-Clicked.png</file>
+        <file>img/CloseButton-Hover.png</file>
+        <file>img/Focus.png</file>
+        <file>img/Icon.ico</file>
+        <file>img/Icon.png</file>
+        <file>img/MinimizeButton.png</file>
+        <file>img/MinimizeButton-Clicked.png</file>
+        <file>img/MinimizeButton-Hover.png</file>
+        <file>img/Mountain.png</file>
+        <file>img/Obstacle.png</file>
+        <file>img/StartWindow-Background.png</file>
+    </qresource>
+</RCC>

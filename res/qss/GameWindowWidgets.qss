@@ -1,0 +1,50 @@
+#Background {
+    background-color: rgb(56, 56, 56);
+}
+
+#Obstacle {
+    border-image: url(":/img/Obstacle.png");
+}
+
+#Mountain {
+    border-image: url(":/img/Mountain.png");
+}
+
+#Castle, #City {
+    border-image: url(":/img/City.png");
+}
+
+#Crown {
+    border-image: url(":/img/Crown.png");
+}
+
+#Land, .QPushButton {
+    background-color: transparent;
+}
+
+#Rank {
+    background-color: rgb(255, 255, 255);
+}
+
+#Shadow {
+    background-color: rgba(0, 0, 0, 127);
+}
+
+#Focus {
+    border-image: url(":/img/Focus.png");
+}
+
+.QLineEdit, .QTextEdit {
+    background-color: rgb(17, 17, 17);
+    border-style: dashed;
+    color: rgb(255, 255, 255);
+}
+
+.QTextEdit {
+    qproperty-readOnly: true;
+}
+
+.QLabel {
+    qproperty-focusPolicy: NoFocus;
+    qproperty-alignment: AlignCenter;
+}

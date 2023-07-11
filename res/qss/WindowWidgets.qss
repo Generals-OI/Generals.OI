@@ -1,0 +1,61 @@
+.QPushButton {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 128, 128);
+    text-align: center;
+}
+
+.QPushButton:hover {
+    background-color: rgb(187, 187, 187);
+}
+
+.QPushButton:pressed {
+    background-color: rgb(127, 187, 187);
+}
+
+.QLabel, .QLineEdit {
+    background-color: transparent;
+    border-style: dashed;
+    color: rgb(0, 128, 128);
+    qproperty-alignment: AlignCenter;
+}
+
+.QLineEdit {
+    qproperty-clearButtonEnabled: false;
+    qproperty-maxLength: 16;
+}
+
+#Background {
+    border-image: url(":/img/StartWindow-Background.png");
+}
+
+#CloseButton {
+    border-image: url(":/img/CloseButton.png");
+    background-color: transparent;
+    qproperty-focusPolicy: NoFocus;
+}
+
+#CloseButton:hover {
+    border-image: url(":/img/CloseButton-Hover.png");
+    background-color: transparent;
+}
+
+#CloseButton:pressed {
+    border-image: url(":/img/CloseButton-Clicked.png");
+    background-color: transparent;
+}
+
+#MinimizeButton {
+    border-image: url(":/img/MinimizeButton.png");
+    background-color: transparent;
+    qproperty-focusPolicy: NoFocus;
+}
+
+#MinimizeButton:hover {
+    border-image: url(":/img/MinimizeButton-Hover.png");
+    background-color: transparent;
+}
+
+#MinimizeButton:pressed {
+    border-image: url(":/img/MinimizeButton-Clicked.png");
+    background-color: transparent;
+}
