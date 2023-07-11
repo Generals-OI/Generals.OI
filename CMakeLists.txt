@@ -130,11 +130,13 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Multimedia
 )
 
-set_target_properties(
-        Generals.OI PROPERTIES
-        WIN32_EXECUTABLE TRUE
-        MACOSX_BUNDLE TRUE
-)
+if (CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
+    set_target_properties(
+            Generals.OI PROPERTIES
+            WIN32_EXECUTABLE TRUE
+            MACOSX_BUNDLE TRUE
+    )
+endif ()
 
 install(
         TARGETS Generals.OI
