@@ -105,7 +105,7 @@ endif ()
 add_executable(
         Test-Generate
 
-        src/test000.cpp
+        src/test-generate.cpp
 
         src/point/point.cpp
         src/point/point.h
