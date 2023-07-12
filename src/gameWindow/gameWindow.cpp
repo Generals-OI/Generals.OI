@@ -55,7 +55,8 @@ void GameWindow::init() {
     int totWidth = width + rnkWidth + itvWidth;
     unitSize = std::min(int(screenWidth / totWidth), int(screenHeight / height));
     rnkUnitWidth = unitSize * 2;
-    chatFontSize = std::min(width / 80, height / 64);
+    chatFontSize = unitSize / 3;
+    minUnitSize = int(unitSize * 0.75);
 
     mapLeft = (screenWidth - unitSize * totWidth) / 2;
     mapTop = (screenHeight - unitSize * height) / 2;
@@ -80,10 +81,7 @@ void GameWindow::init() {
     QPalette lbMainPalette;
     lbMainPalette.setColor(QPalette::WindowText, Qt::white);
 
-    for (int i = 0; i < 4; i++) {
-        mapFont[i].setFamily(strFontMedium);
-        mapFont[i].setPointSize(int(unitSize * mapFontSizePct[i] / dpi));
-    }
+    calcMapFontSize();
     boardFont.setFamily(strFontBold);
     boardFont.setPointSize(int(unitSize * mapFontSizePct[0] / dpi));
     boardFont.setStyleStrategy(QFont::PreferAntialias);
@@ -91,10 +89,22 @@ void GameWindow::init() {
     chatFont.setPointSize(int(chatFontSize / dpi));
     chatFont.setStyleStrategy(QFont::PreferAntialias);
 
+    wgtMap = new QWidget(this);
+    wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+    mapLayout = new QGridLayout(wgtMap);
+//    rankLayout = new QGridLayout(this);
+//    chatLayout = new QVBoxLayout(this);
+
+    QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+    mapLayout->setSpacing(1);
+    mapLayout->setContentsMargins(0, 0, 0, 0);
+
     lbMapBgd = new QLabel(this);
-    lbMapBgd->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
     lbMapBgd->setObjectName("Background");
+    lbMapBgd->setSizePolicy(spMap);
     lbMapBgd->show();
+    mapLayout->addWidget(lbMapBgd, 1, 1, height, width);
 
     const QString strCell[] = {"Land", "Crown", "Castle", "Mountain"};
     const QString strArrow[] = {"Up", "Down", "Left", "Right"};
@@ -102,20 +112,19 @@ void GameWindow::init() {
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
             Cell *cell = &globMap.info[i][j];
-            QLabel *lbO = lbObstacle[i][j] = new QLabel(this);
-            QLabel *lbC = lbColor[i][j] = new QLabel(this);
-            QLabel *lbM = lbMain[i][j] = new QLabel(this);
-            QPushButton *btnF = btnFocus[i][j] = new QPushButton(this);
+            QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
+            QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
+            QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
+            QPushButton *btnF = btnFocus[i][j] = new QPushButton(wgtMap);
 
-            QRect pos = mapPosition(i, j);
-            lbO->setGeometry(pos);
-            lbC->setGeometry(pos.x() + 1, pos.y() + 1, pos.width() - 1, pos.height() - 1);
-            lbM->setGeometry(pos);
-            btnF->setGeometry(pos);
+            lbO->setSizePolicy(spMap);
+            lbC->setSizePolicy(spMap);
+            lbM->setSizePolicy(spMap);
+            btnF->setSizePolicy(spMap);
 
             for (int k = 0; k < 4; k++) {
-                QLabel *lbA = lbArrow[k][i][j] = new QLabel(this);
-                lbA->setGeometry(pos);
+                QLabel *lbA = lbArrow[k][i][j] = new QLabel(wgtMap);
+                lbA->setSizePolicy(spMap);
                 lbA->setStyleSheet(QString("border-image: url(:/img/Arrow-%1.png);").arg(strArrow[k]));
                 lbA->hide();
             }
@@ -131,7 +140,14 @@ void GameWindow::init() {
 
             lbC->show();
             lbO->show();
+            lbM->show();
             btnF->show();
+
+            mapLayout->addWidget(lbO, i, j, 1, 1);
+            mapLayout->addWidget(lbC, i, j, 1, 1);
+            mapLayout->addWidget(lbM, i, j, 1, 1);
+            for (auto &k: lbArrow) mapLayout->addWidget(k[i][j], i, j, 1, 1);
+            mapLayout->addWidget(btnF, i, j, 1, 1);
         }
     }
 
@@ -197,6 +213,7 @@ void GameWindow::init() {
 
 void GameWindow::keyPressEvent(QKeyEvent *event) {
     int idDirection = -1;
+    bool resized = false;
 
     switch (event->key()) {
         case Qt::Key_Up:
@@ -233,14 +250,36 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
                 lbFocus->setFocus();
             }
             break;
+        case Qt::Key_0:
+            mapLeft -= width / 2;
+            mapTop -= height / 2;
+            unitSize += 1;
+            resized = true;
+            break;
+        case Qt::Key_9:
+            if (unitSize <= minUnitSize)
+                break;
+            mapLeft += width / 2;
+            mapTop += height / 2;
+            unitSize -= 1;
+            resized = true;
+            break;
     }
 
-    if (0 <= idDirection) {
+    if (idDirection != -1) {
         updateFocus(false, idDirection);
         flagHalf = false;
     }
 
-    updateWindow();
+    if (resized) {
+        calcMapFontSize();
+        wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+        updateFocus(true, -1, focus->x, focus->y);
+        flagHalf ^= 1;
+        qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
+    }
+
+    updateWindow(resized);
 }
 
 QRect GameWindow::mapPosition(const int x, const int y) const {
@@ -265,7 +304,7 @@ void GameWindow::clearMove() {
 }
 
 void GameWindow::updateFocus(const bool flag, const int id, const int x, const int y) {
-    int delta = unitSize / 10;
+    int delta = unitSize / 15;
     const int dir[4][2] = {{-1, 0},
                            {0,  -1},
                            {1,  0},
@@ -300,7 +339,7 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     lbFocus->setFocus();
 }
 
-void GameWindow::updateWindow(bool force) {
+void GameWindow::updateWindow(bool forced) {
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
             auto cell = &globMap.info[i][j];
@@ -348,21 +387,20 @@ void GameWindow::updateWindow(bool force) {
             if (flagType)
                 lbM->setStyleSheet("border-image: url(:/img/City.png);");
 
-            if (vis) {
-                if (flagNum || flagVis || force) {
-                    if (cell->type == CellType::castle || cell->type == CellType::crown || cell->belonging) {
-                        lbM->setText(QString::number(cell->number));
-
-                        auto fType = calcFontType(cell->number);
-                        if (fType != fontType[i][j]) {
-                            fontType[i][j] = fType;
-                            lbM->setFont(mapFont[fType]);
-                        }
-                    } else
-                        lbM->setText("");
+            if (flagNum || flagVis || forced) {
+                auto fType = calcFontType(cell->number);
+                if (fType != fontType[i][j] || forced) {
+                    fontType[i][j] = fType;
+                    lbM->setFont(mapFont[fType]);
                 }
+                if (cell->type == CellType::castle || cell->type == CellType::crown || cell->belonging)
+                    lbM->setText(QString::number(cell->number));
+                else
+                    lbM->setText("");
+            }
 
-                if (flagBelonging || flagVis || force) {
+            if (vis) {
+                if (flagBelonging || flagVis || forced) {
                     if (cell->belonging || cell->type == CellType::land)
                         lbC->setStyleSheet(QString("background-color:%1;").arg(strColor[cell->belonging]));
                     else if (cell->type == CellType::mountain)
@@ -471,6 +509,13 @@ void GameWindow::processMessage(const QString &msg) {
 
             moved = move;
         }
+    }
+}
+
+void GameWindow::calcMapFontSize() {
+    for (int i = 0; i < 4; i++) {
+        mapFont[i].setFamily(strFontMedium);
+        mapFont[i].setPointSize(int(unitSize * mapFontSizePct[i] / dpi));
     }
 }
 

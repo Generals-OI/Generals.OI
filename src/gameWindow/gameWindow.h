@@ -19,6 +19,9 @@
 #include <QTextCharFormat>
 #include <QTextDocument>
 #include <QRegularExpression>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QSizePolicy>
 
 #if (QT_VERSION_MAJOR == 6)
 #include <QAudioOutput>
@@ -66,6 +69,8 @@ public:
 private:
     void init();
 
+    void calcMapFontSize();
+
     void transfer();
 
     void processMessage(const QString &);
@@ -112,7 +117,7 @@ public:
     QLabel *lbMapBgd{};
     int screenWidth{}, screenHeight{};
     int width{}, height{};
-    int unitSize{};
+    int unitSize{}, minUnitSize{};
     int chatFontSize{};
 
     QFont mapFont[4]{}, boardFont{}, chatFont{};
@@ -128,6 +133,10 @@ public:
     std::vector<std::vector<QPushButton *>> btnFocus;
 
     GlobalMap globMap{}, _globMap{};
+
+    QWidget *wgtMap{}, *wgtRank{}, *wgtChat{};
+    QGridLayout *mapLayout{}, *rankLayout{};
+    QVBoxLayout *chatLayout{};
 
     std::vector<std::vector<QLabel *>> lbArrow[4];
     std::vector<std::vector<int>> cntArrow[4];
