@@ -5,17 +5,6 @@
 #include <iostream>
 #include <random>
 
-const int maxPlayerNum = 8;
-const int sizeRange[maxPlayerNum + 1][2][2] = {{},
-                                               {},
-                                               {{16, 19}, {19, 21}},
-                                               {{17, 20}, {20, 22}},
-                                               {{18, 21}, {21, 23}},
-                                               {{20, 23}, {23, 25}},
-                                               {{21, 24}, {24, 26}},
-                                               {{23, 26}, {26, 28}},
-                                               {{24, 27}, {27, 29}}};
-
 GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelonging) {
     using std::pair;
     using std::make_pair;
@@ -31,7 +20,6 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
     using std::vector;
     using std::mt19937;
     using std::uniform_int_distribution;
-
 
     const int direction4[4][2] = {{-1, 0},
                                   {1,  0},
@@ -52,7 +40,6 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
     bool bugged = false;
 
     const auto seed = time(nullptr);
-//    const auto seed = 1686817522;
     cout << seed << endl;
     mt19937 rnd(seed);
     auto randInt = [&rnd](int rangeL, int rangeR) -> int {
@@ -61,9 +48,16 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
     };
 
     vector<Point> posList;
-    GlobalMap globalMap(randInt(sizeRange[playerCnt][0][0], sizeRange[playerCnt][0][1]),
-                        randInt(sizeRange[playerCnt][1][0], sizeRange[playerCnt][1][1]), teamCnt, playerCnt,
-                        teamBelonging);
+    int lBound,rBound;
+    if(playerCnt<=8) {
+        lBound=int(1.2857*playerCnt+11.7143);
+        rBound=2*playerCnt+15;
+    }
+    else {
+        lBound=int(3.7738*playerCnt-10.2976);
+        rBound=int(3.6309*playerCnt+1.7381);
+    }
+    GlobalMap globalMap(randInt(lBound,rBound),randInt(lBound,rBound), teamCnt, playerCnt, teamBelonging);
 
     for (int i = 1; i <= globalMap.width; i++)
         for (int j = 1; j <= globalMap.length; j++)
