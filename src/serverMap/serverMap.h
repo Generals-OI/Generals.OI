@@ -3,10 +3,7 @@
 
 #include "globalMap.h"
 
-class ServerMap {
-public:
-    GlobalMap gMap;
-
+class ServerMap : public GlobalMap {
     // Move troops
     void move(int, Point, int, int, bool);
 

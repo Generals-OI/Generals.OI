@@ -84,7 +84,7 @@ void Server::onNewConnection() {
                                                                  it.second.nickName));
                     }
                     socket->sendTextMessage(QString("InitMap:%1")
-                                            .arg(QString::fromStdString(serMap->gMap.export2Str(true))));
+                                            .arg(QString::fromStdString(serMap->export2Str(true))));
                 }
             } else {
                 auto idTeam = msg.section(":", 1, 1).toInt();
@@ -119,11 +119,11 @@ void Server::onNewConnection() {
                     qDebug() << "[server.cpp] Start generating.";
 
                     serMap = new ServerMap;
-                    serMap->gMap = generate(cntPlayer, cntPlayer, teamInfo);
+                    serMap = generate(cntPlayer, cntPlayer, teamInfo);
 
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    QString mapInfo = QString::fromStdString(serMap->gMap.export2Str(true));
+                    QString mapInfo = QString::fromStdString(serMap->export2Str(true));
                     emit sendMessage(QString("InitMap:%1").arg(mapInfo));
 
                     auto *gameTimer = new QTimer(this);
@@ -154,7 +154,7 @@ void Server::onNewConnection() {
 
 void Server::broadcastMessage() {
     serMap->addRound();
-    auto mapInfo = QString::fromStdString(serMap->gMap.export2Str(false));
+    auto mapInfo = QString::fromStdString(serMap->export2Str(false));
     emit sendMessage(QString("UpdateMap:%1").arg(mapInfo));
     qDebug() << "[server.cpp] Message sent.";
 }
