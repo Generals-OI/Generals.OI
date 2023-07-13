@@ -288,7 +288,8 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     updateWindow(resized);
 }
 
-QRect GameWindow::mapPosition(const int x, const int y) const {
+QRect GameWindow::mapPosition(const int x, const int y) {
+    mapLeft = wgtMap->x(), mapTop = wgtMap->y();
     return {mapLeft + (y - 1) * unitSize, mapTop + (x - 1) * unitSize, unitSize, unitSize};
 }
 

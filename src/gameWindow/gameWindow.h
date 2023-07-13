@@ -86,7 +86,7 @@ private:
 
     void updateFocus(bool, int, int = 0, int = 0);
 
-    QRect mapPosition(int, int) const;
+    QRect mapPosition(const int, const int);
 
     void updateWindow(bool = false);
 

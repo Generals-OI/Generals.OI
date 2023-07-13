@@ -19,18 +19,18 @@ signals:
     void focused(const int &, const int &);
 
 protected:
-//    void mousePressEvent(QMouseEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
 
-//    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
 
-//    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
 
     void onClicked();
 
 private:
-//    bool mPressed{};
-//    QPoint pStart{};
-//    QWidget *wTarget{};
+    bool mPressed{};
+    QPoint pStart{};
+    QWidget *wTarget{};
     Point btnPos;
 };
 
