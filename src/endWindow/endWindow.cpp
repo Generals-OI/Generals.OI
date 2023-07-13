@@ -47,7 +47,7 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
     btnWatch = new QPushButton(this);
     btnExit = new QPushButton(this);
 
-    lbInfo->setText(flag ? "You Won!" : "Game Over.");
+    lbInfo->setText(flag ? "You Won!" : "You Lost.");
     btnWatch->setText("Watch");
     btnExit->setText("Exit");
 

@@ -472,21 +472,14 @@ void GameWindow::processMessage(const QString &msg) {
                 show();
             }
 
-            // TODO: Change this
-            if (globMap.stat[idTeam].first.land == 0) {
-                emit gameEnded(false);
-                endWindow = new EndWindow(this, false);
+            if (globMap.gameOver()) {
+                bool flagWon = globMap.stat[0].first.id == idTeam;
+                emit gameEnded(flagWon);
+                endWindow = new EndWindow(this, flagWon);
                 endWindow->show();
-                ended = true;
-            } else if (!globMap.stat[1].first.land) {
-                emit gameEnded(true);
-                endWindow = new EndWindow(this, true);
-                endWindow->show();
-                ended = true;
-            }
-            if (ended) {
                 endWindow->btnWatch->setDisabled(true);
                 connect(endWindow->btnExit, &QPushButton::clicked, qApp, &QApplication::quit);
+                ended = true;
             }
 
             if (moved)
