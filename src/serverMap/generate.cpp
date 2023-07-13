@@ -119,6 +119,8 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                 minDist -= 2;
         }
 
+    cout << "In function generate: pntCenter has been set" << endl;
+
     for (auto t: teamList) {
         int minEnemyDist = randInt(min(18, servMap.length), max(35, servMap.width + servMap.length));
         int maxCenterDist = randInt(3, minDist);
@@ -212,6 +214,8 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
             servMap.info[pntCrown[i].x][pntCrown[i].y] = Cell{0, i + 1, CellType::crown};
     }
 
+    cout << "In function generate: crowns have been set" << endl;
+
     // Set mountain positions while ensuring that crowns can reach each other
 
     vector<RealPoint> pntGeoCenter(teamCnt);
@@ -226,7 +230,7 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         if (teamMbr[t].size() == 1) {
             Point crown = pntCrown[teamMbr[t][0]];
             pntGeoCenter[t] = crown;
-            idxTeamChunk[crown.x][crown.y] = t;
+            idxTeamChunk[crown.x][crown.y] = t + 1;
             for (auto d: direction8) {
                 Point p(crown.x + d[0], crown.y + d[1]);
                 if (valid(p)) {
@@ -271,15 +275,17 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
 
         for (int i = 1; i <= servMap.width; i++)
             for (int j = 1; j <= servMap.length; j++)
-                if (idxTeamChunk[i][j] != t)
+                if (idxTeamChunk[i][j] != t + 1)
                     for (auto d: direction8) {
                         Point point(i + d[0], j + d[1]);
-                        if (valid(point) && idxTeamChunk[point.x][point.y] == t) {
+                        if (valid(point) && idxTeamChunk[point.x][point.y] == t + 1) {
                             isCrucialPath[i][j] = true;
                             teamBorder[t].emplace_back(i, j);
                         }
                     }
     }
+
+    cout << "In function generate: finished calculating idxTeamChunk" << endl;
 
     struct Edge {
         int u{}, v{};
@@ -292,15 +298,7 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
     };
 
     vector<Edge> edges;
-    vector<int> parent(teamCnt);
-
-    auto cmpEdges = [servMap](Edge a, Edge b) -> bool {
-        if (a.value == b.value)
-            return a.u == b.u ?
-                   a.v < b.v :
-                   a.u < b.u;
-        return a.value < b.value;
-    };
+    vector<int> parent(teamCnt + 1);
 
     auto findParent = [&parent](int k) -> int {
         int par = k, temp;
@@ -344,19 +342,25 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
     };
 
     for (int i = 0; i < teamCnt; i++) {
-        parent[i] = i;
+        parent[i + 1] = i + 1;
         for (int j = i + 1; j < teamCnt; j++)
             edges.emplace_back(i, j, ::manhattanDistance(pntGeoCenter[i], pntGeoCenter[j]));
     }
-    sort(edges.begin(), edges.end(), cmpEdges);
+    sort(edges.begin(), edges.end(), [](Edge a, Edge b) -> bool {
+        if (a.value == b.value)
+            return a.u == b.u ?
+                   a.v < b.v :
+                   a.u < b.u;
+        return a.value < b.value;
+    });
     for (auto e: edges) {
-        int parU = findParent(e.u), parV = findParent(e.v);
+        int parU = findParent(e.u + 1), parV = findParent(e.v + 1);
         if (parU != parV) {
             parent[parU] = parV;
             Point pntStart = teamBorder[e.u][randInt(0, (int) teamBorder[e.u].size() - 1)],
                     pntEnd = teamBorder[e.v][randInt(0, (int) teamBorder[e.v].size() - 1)];
-            vector<Point> temp = rndPath(pntStart, pntEnd);
-            for (auto p: temp)
+            vector<Point> path = rndPath(pntStart, pntEnd);
+            for (auto p: path)
                 isCrucialPath[p.x][p.y] = true;
         }
     }
@@ -364,6 +368,8 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         for (int j = 1; j <= servMap.length; j++)
             if (!isCrucialPath[i][j] && rnd() % 7 <= 3)
                 mountainToBe[i][j] = true;
+
+    cout << "In function generate: mountainToBe has been set" << endl;
 
     vector<vector<int>> root(servMap.width + 2, vector<int>(servMap.length + 2));
     auto depth = root;
@@ -513,6 +519,9 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                 expandMountains();
             }
         }
+
+    cout << "In function generate: obstacles have been placed" << endl;
+
 
     // Change some mountains into castles
 
