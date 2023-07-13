@@ -69,9 +69,9 @@ void GlobalMap::import(const std::string &strInfo) {
         } else
             num = num * 10 + strInfo[i] - '0';
 
-    if (numbers[0] && numbers.size() != 2 * numbers[4] + 6 + width * length * 3 ||
+    if (numbers[0] && numbers.size() != 2 * numbers[4] + 6 + numbers[1] * numbers[2] * 3 ||
         !numbers[0] && numbers.size() != 2 + crownCnt + width * length * 3) {
-        std::cout << "In function GlobalMap::import: Input is invalid" << std::endl;
+        std::cout << "In function GlobalMap::import: input is invalid" << std::endl;
         return;
     }
 
