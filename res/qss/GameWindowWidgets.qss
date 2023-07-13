@@ -18,8 +18,9 @@
     border-image: url(":/img/Crown.png");
 }
 
-#Land, .QPushButton {
+#Land, QPushButton {
     background-color: transparent;
+    qproperty-focusPolicy: NoFocus;
 }
 
 #Rank {

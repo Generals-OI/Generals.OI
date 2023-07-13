@@ -15,6 +15,7 @@ include_directories(
         src
         src/endWindow
         src/gameWindow
+        src/gameButton
         src/geometry
         src/globalMap
         src/playerInfo
@@ -87,6 +88,9 @@ set(
 
         src/geometry/geometry.cpp
         src/geometry/geometry.h
+
+        src/gameButton/gameButton.cpp
+        src/gameButton/gameButton.h
 )
 set(
         PROJECT_RESOURCES

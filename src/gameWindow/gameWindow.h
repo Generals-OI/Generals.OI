@@ -24,13 +24,16 @@
 #include <QSizePolicy>
 
 #if (QT_VERSION_MAJOR == 6)
+
 #include <QAudioOutput>
+
 #endif
 
 #include <utility>
 #include <queue>
 
 #include "point.h"
+#include "gameButton.h"
 #include "globalMap.h"
 #include "playerInfo.h"
 #include "endWindow.h"
@@ -41,16 +44,19 @@
 
 struct Focus;
 struct MoveInfo;
+
 class Highlighter;
+
 class GameWindow;
 
 const QString strColor[] = {
-    "#dcdcdc",
-    "#ff0000", "#4363d8", "#008000", "#008080",
-    "#800080", "#0000ff", "#f58231", "#483d8b",
-    "#b09f30", "#f032e6", "#9a6324", "#7ab78c",
-    "#800000"
+        "#dcdcdc",
+        "#ff0000", "#4363d8", "#008000", "#008080",
+        "#800080", "#0000ff", "#f58231", "#483d8b",
+        "#b09f30", "#f032e6", "#9a6324", "#7ab78c",
+        "#800000"
 };
+
 /*
 const QString strColor[] = {
     "#dcdcdc",
@@ -61,6 +67,7 @@ const QString strColor[] = {
 
 class GameWindow : public QWidget {
 Q_OBJECT
+
 public:
     explicit GameWindow(QWebSocket *, QString, QWidget * = nullptr);
 
@@ -98,6 +105,10 @@ signals:
 
     void gameEnded(bool);
 
+public slots:
+
+    void onGameButtonFocused(const int &, const int &);
+
 public:
     const Point dtDirection[4] = {Point(-1, 0), Point(1, 0), Point(0, -1), Point(0, 1)};
     const double mapFontSizePct[4] = {0.36, 0.3, 0.25, 0.2};
@@ -130,7 +141,8 @@ public:
 
     Focus *focus{};
     QLabel *lbFocus{}, *lbShadow[4]{};
-    std::vector<std::vector<QPushButton *>> btnFocus;
+    std::vector<std::vector<GameButton *>> btnFocus;
+//    std::vector<std::vector<QPushButton *>> btnFocus;
 
     GlobalMap globMap{}, _globMap{};
 
@@ -164,20 +176,27 @@ struct Focus : public Point {
     int width{}, height{};
 
     Focus();
+
     bool valid(int, int);
+
     void init(int, int);
+
     bool move(int, int);
+
     bool set(int, int);
 };
 
 class Highlighter : public QSyntaxHighlighter {
-    Q_OBJECT
+Q_OBJECT
+
 public:
     explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &);
+
     ~Highlighter() override = default;
 
 protected:
     void highlightBlock(const QString &) override;
+
     QString transExpr(const QString &);
 
 private:

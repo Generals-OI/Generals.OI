@@ -2,10 +2,13 @@ QT += core gui websockets widgets multimedia
 
 CONFIG += c++11 utf8_source
 
+TARGET = Generals.OI
+
 INCLUDEPATH += \
     src \
     src/endWindow \
     src/gameWindow \
+    src/gameButton \
     src/geometry \
     src/globalMap \
     src/playerInfo \
@@ -35,7 +38,8 @@ SOURCES += \
     src/serverMap/generate.cpp \
     src/serverMap/serverMap.cpp \
     src/globalMap/globalMap.cpp \
-    src/geometry/geometry.cpp
+    src/geometry/geometry.cpp \
+    src/gameButton/gameButton.cpp
 
 HEADERS += \
     src/gameWindow/gameWindow.h \
@@ -47,7 +51,8 @@ HEADERS += \
     src/point/point.h \
     src/serverMap/serverMap.h \
     src/globalMap/globalMap.h \
-    src/geometry/geometry.h
+    src/geometry/geometry.h \
+    src/gameButton/gameButton.h
 
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

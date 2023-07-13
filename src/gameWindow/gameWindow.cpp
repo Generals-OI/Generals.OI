@@ -68,7 +68,8 @@ void GameWindow::init() {
     focus = new Focus;
     focus->init(width, height);
 
-    btnFocus = std::vector<std::vector<QPushButton *>>(height + 1, std::vector<QPushButton *>(width + 1));
+    btnFocus = std::vector<std::vector<GameButton *>>(height + 1, std::vector<GameButton *>(width + 1));
+//    btnFocus = std::vector<std::vector<QPushButton *>>(height + 1, std::vector<QPushButton *>(width + 1));
     lbObstacle = lbMain = lbColor = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
     visMain = std::vector<std::vector<bool>>(height + 1, std::vector<bool>(width + 1));
     for (int i = 0; i < 4; i++) {
@@ -115,7 +116,8 @@ void GameWindow::init() {
             QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
             QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
             QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
-            QPushButton *btnF = btnFocus[i][j] = new QPushButton(wgtMap);
+            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtMap);
+//            QPushButton *btnF = btnFocus[i][j] = new QPushButton(wgtMap);
 
             lbO->setSizePolicy(spMap);
             lbC->setSizePolicy(spMap);
@@ -131,9 +133,11 @@ void GameWindow::init() {
 
             lbO->setObjectName((int) cell->type >= 2 ? "Obstacle" : "Land");
             lbM->setObjectName(strCell[(int) cell->type]);
-            connect(btnF, &QPushButton::clicked, [i, j, this] {
-                updateFocus(true, -1, i, j);
-            });
+
+            connect(btnF, &GameButton::focused, this, &GameWindow::onGameButtonFocused);
+//            connect(btnF, &QPushButton::clicked, [i, j, this] {
+//                updateFocus(true, -1, i, j);
+//            });
 
             lbM->setPalette(lbMainPalette);
             lbM->setFont(mapFont[0]);
@@ -148,6 +152,8 @@ void GameWindow::init() {
             mapLayout->addWidget(lbM, i, j, 1, 1);
             for (auto &k: lbArrow) mapLayout->addWidget(k[i][j], i, j, 1, 1);
             mapLayout->addWidget(btnF, i, j, 1, 1);
+
+            btnF->raise();
         }
     }
 
@@ -419,20 +425,12 @@ void GameWindow::updateWindow(bool forced) {
         }
     }
 
-    // TODO: update rank
-    // TODO: complete structure `playerInfo`
-
-    std::vector<std::pair<Statistics, int>> ranks;
-    for (int i = 1; i <= globMap.crownCnt; i++)
-        ranks.emplace_back(globMap.statPlayer[i], i);
-    std::sort(ranks.begin(), ranks.end(), std::greater<std::pair<Statistics, int>>());
-
     for (int i = 1; i <= globMap.crownCnt; i++) {
-        auto p = ranks[i - 1];
-        lbName[i]->setText(playersInfo[p.second].nickName);
-        lbName[i]->setStyleSheet(QString("background-color: %1").arg(strColor[p.second]));
-        lbLand[i]->setText(QString::number(p.first.land));
-        lbArmy[i]->setText(QString::number(p.first.army));
+        auto p = globMap.stat[i - 1].second[0];
+        lbName[i]->setText(playersInfo[p.id].nickName);
+        lbName[i]->setStyleSheet(QString("background-color: %1").arg(strColor[p.id]));
+        lbLand[i]->setText(QString::number(p.land));
+        lbArmy[i]->setText(QString::number(p.army));
     }
     lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
 }
@@ -475,12 +473,12 @@ void GameWindow::processMessage(const QString &msg) {
             }
 
             // TODO: Change this
-            if (globMap.statPlayer[idPlayer].land == 0) {
+            if (globMap.stat[idTeam].first.land == 0) {
                 emit gameEnded(false);
                 endWindow = new EndWindow(this, false);
                 endWindow->show();
                 ended = true;
-            } else if ((int) globMap.idLoser.size() + 1 >= globMap.crownCnt) {
+            } else if (!globMap.stat[1].first.land) {
                 emit gameEnded(true);
                 endWindow = new EndWindow(this, true);
                 endWindow->show();
@@ -510,6 +508,10 @@ void GameWindow::processMessage(const QString &msg) {
             moved = move;
         }
     }
+}
+
+void GameWindow::onGameButtonFocused(const int &x, const int &y) {
+    updateFocus(true, -1, x, y);
 }
 
 void GameWindow::calcMapFontSize() {
