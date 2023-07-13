@@ -5,7 +5,7 @@
 #include <iostream>
 #include <random>
 
-GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelonging) {
+ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
     using std::pair;
     using std::make_pair;
     using std::max;
@@ -37,57 +37,56 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
     if (playerCnt < 2 || playerCnt > maxPlayerNum)
         cout << "In function generate: Wrong Player Cnt" << endl;
 
-    bool bugged = false;
-
     const auto seed = time(nullptr);
-    cout << seed << endl;
+    cout << "In function generate: Random seed=" << seed << endl;
     mt19937 rnd(seed);
     auto randInt = [&rnd](int rangeL, int rangeR) -> int {
         uniform_int_distribution<> range(rangeL, rangeR);
         return range(rnd);
     };
 
-    vector<Point> posList;
-    int lBound,rBound;
-    if(playerCnt<=8) {
-        lBound=int(1.2857*playerCnt+11.7143);
-        rBound=2*playerCnt+15;
+    int lBound, rBound;
+    if (playerCnt <= 8) {
+        lBound = int(1.2857 * playerCnt + 11.7143);
+        rBound = 2 * playerCnt + 15;
+    } else {
+        lBound = int(3.7738 * playerCnt - 10.2976);
+        rBound = int(3.6309 * playerCnt + 1.7381);
     }
-    else {
-        lBound=int(3.7738*playerCnt-10.2976);
-        rBound=int(3.6309*playerCnt+1.7381);
-    }
-    GlobalMap globalMap(randInt(lBound,rBound),randInt(lBound,rBound), teamCnt, playerCnt, teamBelonging);
+    ServerMap servMap{GlobalMap(randInt(lBound, rBound), randInt(lBound, rBound), teamCnt, playerCnt, team)};
 
-    for (int i = 1; i <= globalMap.width; i++)
-        for (int j = 1; j <= globalMap.length; j++)
-            posList.emplace_back(i, j);
-    shuffle(posList.begin(), posList.end(), rnd);
-
-    auto valid = [globalMap](Point p) -> bool {
-        return p.x > 0 && p.x <= globalMap.width && p.y > 0 && p.y <= globalMap.length;
+    auto valid = [servMap](Point p) -> bool {
+        return p.x > 0 && p.x <= servMap.width && p.y > 0 && p.y <= servMap.length;
     };
 
     auto manhattanDistance = [](Point p, Point q) -> int {
         return abs(p.x - q.x) + abs(p.y - q.y);
     };
 
-    // Set crown position randomly
+    // Initialize some arrays
 
-    vector<vector<int>> teamMbr(teamCnt + 1);
-    vector<int> teamList;
-    vector<Point> pntCenter(teamCnt + 1), pntCrown(playerCnt + 1);
+    vector<Point> posList;
+    vector<vector<int>> teamMbr(teamCnt);
+    vector<int> teamList(teamCnt);
+    vector<Point> pntCenter(teamCnt), pntCrown(playerCnt);
 
-    for (int i = 1; i <= playerCnt; i++)
-        teamMbr[teamBelonging[i]].push_back(i);
-    for (int i = 1; i <= teamCnt; i++)
+    for (int i = 1; i <= servMap.width; i++)
+        for (int j = 1; j <= servMap.length; j++)
+            posList.emplace_back(i, j);
+    shuffle(posList.begin(), posList.end(), rnd);
+
+    for (int i = 0; i < playerCnt; i++)
+        teamMbr[team[i] - 1].push_back(i);
+    for (int i = 0; i < teamCnt; i++)
         teamList.push_back(i);
     shuffle(teamList.begin(), teamList.end(), rnd);
-    for (int i = 1; i <= teamCnt; i++)
+    for (int i = 0; i < teamCnt; i++)
         shuffle(teamMbr[i].begin(), teamMbr[i].end(), rnd);
     shuffle(posList.begin(), posList.end(), rnd);
 
-    int minDist = randInt(min(globalMap.length, 38), max(globalMap.width + globalMap.length - 2, 57));
+    // Set crown position randomly
+
+    int minDist = randInt(min(servMap.length, 38), max(servMap.width + servMap.length - 2, 57));
     for (auto t: teamList)
         while (true) {
             bool flagBreak = false;
@@ -110,8 +109,7 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                 break;
 
             if (minDist == 1) {
-                cout << "In function generate: Unable to set team center" << endl;
-                bugged = true;
+                cout << "In function generate: Unable to set _team center" << endl;
                 break;
             }
 
@@ -122,7 +120,7 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
         }
 
     for (auto t: teamList) {
-        int minEnemyDist = randInt(min(18, globalMap.length), max(35, globalMap.width + globalMap.length));
+        int minEnemyDist = randInt(min(18, servMap.length), max(35, servMap.width + servMap.length));
         int maxCenterDist = randInt(3, minDist);
         int minCenterDist = randInt(1, maxCenterDist);
         const int tSize = (int) teamMbr[t].size();
@@ -130,13 +128,13 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
 
         if (tSize == 1) {
             pntCrown[teamMbr[t][0]] = pntCenter[t];
-            globalMap.info[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0], CellType::crown);
+            servMap.info[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0] + 1, CellType::crown);
             continue;
         }
 
         while (!pntCrown[teamMbr[t][tSize - 1]].x) {
             queue<pair<Point, int>> q;
-            vector<vector<bool>> visited(globalMap.width + 1, vector<bool>(globalMap.length + 1));
+            vector<vector<bool>> visited(servMap.width + 1, vector<bool>(servMap.length + 1));
             q.emplace(pntCenter[t], 0);
             visited[pntCenter[t].x][pntCenter[t].y] = true;
             while (!q.empty()) {
@@ -196,7 +194,6 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
 
             if (minEnemyDist == 5 && maxCenterDist == USHRT_MAX && !pntCrown[teamMbr[t][tSize - 1]].x) {
                 cout << "In function generate: Unable to set crown pos" << std::endl;
-                bugged = true;
                 break;
             }
 
@@ -211,30 +208,30 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
             }
         }
 
-        for (auto player: teamMbr[t])
-            globalMap.info[pntCrown[player].x][pntCrown[player].y] = Cell(0, player, CellType::crown);
+        for (auto i: teamMbr[t])
+            servMap.info[pntCrown[i].x][pntCrown[i].y] = Cell{0, i + 1, CellType::crown};
     }
 
-    // Set mountain positions while keeping crowns continuous
+    // Set mountain positions while ensuring that crowns can reach each other
 
-    vector<RealPoint> pntGeoCenter(teamCnt + 1);
-    vector<vector<int>> idxWithinTeam(globalMap.width + 1, vector<int>(globalMap.length + 1));
-    vector<vector<Point>> teamBorder(teamCnt + 1);
-    vector<vector<bool>> isCrucialPath(globalMap.width + 1,
-                                       vector<bool>(globalMap.length + 1)), mountainToBe = isCrucialPath;
+    vector<RealPoint> pntGeoCenter(teamCnt);
+    vector<vector<int>> idxTeamChunk(servMap.width + 1, vector<int>(servMap.length + 1));
+    vector<vector<Point>> teamBorder(teamCnt);
+    vector<vector<bool>> isCrucialPath(servMap.width + 1, vector<bool>(servMap.length + 1));
+    auto mountainToBe = isCrucialPath;
 
-    for (int i = 1; i <= playerCnt; i++)
-        isCrucialPath[pntCrown[i].x][pntCrown[i].y] = true;
+    for (auto p: pntCrown)
+        isCrucialPath[p.x][p.y] = true;
     for (auto t: teamList) {
         if (teamMbr[t].size() == 1) {
             Point crown = pntCrown[teamMbr[t][0]];
             pntGeoCenter[t] = crown;
-            idxWithinTeam[crown.x][crown.y] = t;
+            idxTeamChunk[crown.x][crown.y] = t;
             for (auto d: direction8) {
-                Point point(crown.x + d[0], crown.y + d[1]);
-                if (valid(point)) {
-                    isCrucialPath[point.x][point.y] = true;
-                    teamBorder[t].push_back(point);
+                Point p(crown.x + d[0], crown.y + d[1]);
+                if (valid(p)) {
+                    isCrucialPath[p.x][p.y] = true;
+                    teamBorder[t].push_back(p);
                 }
             }
             continue;
@@ -248,14 +245,14 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
         pntGeoCenter[t].x /= (int) teamMbr[t].size();
         pntGeoCenter[t].y /= (int) teamMbr[t].size();
 
-        bool flag = false;
-        for (int i = 1; i <= globalMap.width && !flag; i++)
-            for (int j = 1; j <= globalMap.length; j++) {
+        for (int i = 1; i <= servMap.width; i++)
+            for (int j = 1; j <= servMap.length; j++) {
+                bool flag = false;
                 LineSegment l1(RealPoint(i - 0.5, j - 0.5), RealPoint(i + 0.5, j - 0.5)),
                         l2(RealPoint(i - 0.5, j - 0.5), RealPoint(i - 0.5, j + 0.5)),
                         l3(RealPoint(i - 0.5, j + 0.5), RealPoint(i + 0.5, j + 0.5)),
                         l4(RealPoint(i + 0.5, j - 0.5), RealPoint(i + 0.5, j + 0.5));
-                for (auto p1 = teamMbr[t].begin(); p1 != teamMbr[t].end(); p1++)
+                for (auto p1 = teamMbr[t].begin(); p1 != teamMbr[t].end() && !flag; p1++)
                     for (auto p2 = p1 + 1; p2 != teamMbr[t].end(); p2++) {
                         LineSegment a(pntCrown[*p1], pntCrown[*p2]),
                                 b(pntCrown[*p1], pntGeoCenter[t]),
@@ -265,19 +262,19 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                             intersect(l2, a) || intersect(l2, b) || intersect(l2, c) ||
                             intersect(l3, a) || intersect(l3, b) || intersect(l3, c) ||
                             intersect(l4, a) || intersect(l4, b) || intersect(l4, c)) {
-                            idxWithinTeam[i][j] = t;
+                            idxTeamChunk[i][j] = t + 1;
                             flag = true;
                             break;
                         }
                     }
             }
 
-        for (int i = 1; i <= globalMap.width; i++)
-            for (int j = 1; j <= globalMap.length; j++)
-                if (idxWithinTeam[i][j] != t)
+        for (int i = 1; i <= servMap.width; i++)
+            for (int j = 1; j <= servMap.length; j++)
+                if (idxTeamChunk[i][j] != t)
                     for (auto d: direction8) {
                         Point point(i + d[0], j + d[1]);
-                        if (valid(point) && idxWithinTeam[point.x][point.y] == t) {
+                        if (valid(point) && idxTeamChunk[point.x][point.y] == t) {
                             isCrucialPath[i][j] = true;
                             teamBorder[t].emplace_back(i, j);
                         }
@@ -295,9 +292,9 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
     };
 
     vector<Edge> edges;
-    vector<int> parent(teamCnt + 1);
+    vector<int> parent(teamCnt);
 
-    auto cmpEdges = [globalMap](Edge a, Edge b) -> bool {
+    auto cmpEdges = [servMap](Edge a, Edge b) -> bool {
         if (a.value == b.value)
             return a.u == b.u ?
                    a.v < b.v :
@@ -317,14 +314,14 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
         return par;
     };
 
-    auto rndPath = [globalMap, manhattanDistance, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
+    auto rndPath = [servMap, manhattanDistance, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
         const int k = manhattanDistance(pntStart, pntEnd) / 8;
-        const int uBound = max(1, min(pntStart.x, pntEnd.x) - k), dBound = min(globalMap.width,
-                                                                               max(pntStart.x, pntEnd.x) + k);
-        const int lBound = max(1, min(pntStart.y, pntEnd.y) - k), rBound = min(globalMap.length,
-                                                                               max(pntStart.y, pntEnd.y) + k);
+        const int uBound = max(1, min(pntStart.x, pntEnd.x) - k);
+        const int dBound = min(servMap.width, max(pntStart.x, pntEnd.x) + k);
+        const int lBound = max(1, min(pntStart.y, pntEnd.y) - k);
+        const int rBound = min(servMap.length, max(pntStart.y, pntEnd.y) + k);
 
-        vector <Point> pntPath;
+        vector <Point> path;
         Point cur = pntStart;
 
         for (int i = 1; i <= k + 1; i++) {
@@ -334,21 +331,21 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
             else
                 target = Point(randInt(uBound, dBound), randInt(lBound, rBound));
             while (cur != target) {
-                pntPath.push_back(cur);
+                path.push_back(cur);
                 if ((cur.y == target.y || randInt(0, 1)) && cur.x != target.x)
                     cur.x += (target.x - cur.x) / abs(target.x - cur.x);
                 else
                     cur.y += (target.y - cur.y) / abs(target.y - cur.y);
             }
         }
-        pntPath.push_back(cur);
+        path.push_back(cur);
 
-        return pntPath;
+        return path;
     };
 
-    for (int i = 1; i <= teamCnt; i++) {
+    for (int i = 0; i < teamCnt; i++) {
         parent[i] = i;
-        for (int j = i + 1; j <= teamCnt; j++)
+        for (int j = i + 1; j < teamCnt; j++)
             edges.emplace_back(i, j, ::manhattanDistance(pntGeoCenter[i], pntGeoCenter[j]));
     }
     sort(edges.begin(), edges.end(), cmpEdges);
@@ -363,18 +360,19 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                 isCrucialPath[p.x][p.y] = true;
         }
     }
-    for (int i = 1; i <= globalMap.width; i++)
-        for (int j = 1; j <= globalMap.length; j++)
+    for (int i = 1; i <= servMap.width; i++)
+        for (int j = 1; j <= servMap.length; j++)
             if (!isCrucialPath[i][j] && rnd() % 7 <= 3)
                 mountainToBe[i][j] = true;
 
-    vector<vector<int>> root(globalMap.width + 2, vector<int>(globalMap.length + 2)), depth = root;
-    vector<vector<bool>> considered(globalMap.width + 2, vector<bool>(globalMap.length + 2));
-    vector<vector<vector<Point>>> ancestor(globalMap.width + 2, vector<vector<Point>>(globalMap.length + 2));
+    vector<vector<int>> root(servMap.width + 2, vector<int>(servMap.length + 2));
+    auto depth = root;
+    vector<vector<bool>> considered(servMap.width + 2, vector<bool>(servMap.length + 2));
+    vector<vector<vector<Point>>> ancestor(servMap.width + 2, vector<vector<Point>>(servMap.length + 2));
     queue<Point> q;
     int cntRoot = 0;
 
-    // Applying algorithm "Binary Lifting LCA"
+    // Apply algorithm "Binary Lifting LCA"
     auto circleLength = [&ancestor, &root, &depth](Point p, Point q) -> int {
         if (root[p.x][p.y] != root[q.x][q.y])
             return USHRT_MAX;
@@ -419,11 +417,11 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                             Point a(nxt.x + direction8[i][0], nxt.y + direction8[i][1]);
                             Point b(nxt.x + direction8[j][0], nxt.y + direction8[j][1]);
                             if (valid(a) && valid(b) &&
-                                globalMap.info[a.x][a.y].type == CellType::mountain &&
-                                globalMap.info[b.x][b.y].type == CellType::mountain) {
+                                servMap.info[a.x][a.y].type == CellType::mountain &&
+                                servMap.info[b.x][b.y].type == CellType::mountain) {
                                 int dist = circleLength(a, b);
-                                if (!idxWithinTeam[nxt.x][nxt.y] && dist > 10 ||
-                                    idxWithinTeam[nxt.x][nxt.y] && dist > 5) {
+                                if (!idxTeamChunk[nxt.x][nxt.y] && dist > 8 ||
+                                    idxTeamChunk[nxt.x][nxt.y] && dist > 5) {
                                     flag = false;
                                     break;
                                 }
@@ -436,12 +434,12 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                 if (flag) {
                     for (auto i: direction4) {
                         Point crown(nxt.x + i[0], nxt.y + i[1]);
-                        if (valid(crown) && globalMap.info[crown.x][crown.y].type == CellType::crown) {
+                        if (valid(crown) && servMap.info[crown.x][crown.y].type == CellType::crown) {
                             bool surrounded = true;
                             for (auto j: direction4)
                                 if (valid(Point(crown.x + j[0], crown.y + j[1])))
                                     surrounded = surrounded &&
-                                                 globalMap.info[crown.x + j[0]][crown.y + j[1]].type != CellType::land;
+                                                 servMap.info[crown.x + j[0]][crown.y + j[1]].type != CellType::land;
                             if (surrounded) {
                                 flag = false;
                                 break;
@@ -454,7 +452,7 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                     q.push(nxt);
                     depth[nxt.x][nxt.y] = depth[cur.x][cur.y] + 1;
                     root[nxt.x][nxt.y] = root[cur.x][cur.y];
-                    globalMap.info[nxt.x][nxt.y].type = CellType::mountain;
+                    servMap.info[nxt.x][nxt.y].type = CellType::mountain;
                     int cntAncestor = (int) log2(depth[nxt.x][nxt.y]) + 1;
                     ancestor[nxt.x][nxt.y].resize(cntAncestor);
                     ancestor[nxt.x][nxt.y][0] = cur;
@@ -466,27 +464,27 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
         }
     };
 
-    deque<Point> qInit;
-    for (int i = 1; i <= globalMap.width; i++) {
+    deque<Point> dqInit;
+    for (int i = 1; i <= servMap.width; i++) {
         root[i][0] = ++cntRoot;
-        qInit.emplace_back(i, 0);
-        root[i][globalMap.length + 1] = ++cntRoot;
-        qInit.emplace_back(i, globalMap.length + 1);
+        dqInit.emplace_back(i, 0);
+        root[i][servMap.length + 1] = ++cntRoot;
+        dqInit.emplace_back(i, servMap.length + 1);
     }
-    for (int j = 1; j <= globalMap.length; j++) {
+    for (int j = 1; j <= servMap.length; j++) {
         root[0][j] = ++cntRoot;
-        qInit.emplace_back(0, j);
-        root[globalMap.width + 1][j] = ++cntRoot;
-        qInit.emplace_back(globalMap.width + 1, j);
+        dqInit.emplace_back(0, j);
+        root[servMap.width + 1][j] = ++cntRoot;
+        dqInit.emplace_back(servMap.width + 1, j);
     }
-    shuffle(qInit.begin(), qInit.end(), rnd);
-    q = queue<Point>(qInit);
+    shuffle(dqInit.begin(), dqInit.end(), rnd);
+    q = queue<Point>(dqInit);
 
     expandMountains();
 
     shuffle(posList.begin(), posList.end(), rnd);
     for (auto p: posList)
-        if (p.x >= 4 && p.y >= 4 && p.x <= globalMap.width - 3 && p.y <= globalMap.length - 3 &&
+        if (p.x >= 4 && p.y >= 4 && p.x <= servMap.width - 3 && p.y <= servMap.length - 3 &&
             mountainToBe[p.x][p.y] && !considered[p.x][p.y]) {
             considered[p.x][p.y] = true;
             bool flagLegal = true;
@@ -495,10 +493,10 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                     Point a(p.x + direction8[i][0], p.y + direction8[i][1]);
                     Point b(p.x + direction8[j][0], p.y + direction8[j][1]);
                     if (valid(a) && valid(b) &&
-                        globalMap.info[a.x][a.y].type == CellType::mountain &&
-                        globalMap.info[b.x][b.y].type == CellType::mountain) {
+                        servMap.info[a.x][a.y].type == CellType::mountain &&
+                        servMap.info[b.x][b.y].type == CellType::mountain) {
                         int dist = circleLength(a, b);
-                        if (!idxWithinTeam[p.x][p.y] && dist > 10 || idxWithinTeam[p.x][p.y] && dist > 5) {
+                        if (!idxTeamChunk[p.x][p.y] && dist > 10 || idxTeamChunk[p.x][p.y] && dist > 5) {
                             flagLegal = false;
                             break;
                         }
@@ -509,7 +507,7 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
                 q.emplace(p.x, p.y);
                 depth[p.x][p.y] = 1;
                 root[p.x][p.y] = ++cntRoot;
-                globalMap.info[p.x][p.y].type = CellType::mountain;
+                servMap.info[p.x][p.y].type = CellType::mountain;
                 ancestor[p.x][p.y].emplace_back(p.x, p.y);
 
                 expandMountains();
@@ -518,15 +516,14 @@ GlobalMap generate(int playerCnt, int teamCnt, const std::vector<int> &teamBelon
 
     // Change some mountains into castles
 
-    for (int i = 1; i <= globalMap.width; i++)
-        for (int j = 1; j <= globalMap.length; j++)
-            if (globalMap.info[i][j].type == CellType::mountain && rnd() % 13 <= 1) {
-                globalMap.info[i][j].type = CellType::castle;
-                globalMap.info[i][j].number = randInt(40, 50);
+    for (int i = 1; i <= servMap.width; i++)
+        for (int j = 1; j <= servMap.length; j++)
+            if (servMap.info[i][j].type == CellType::mountain && rnd() % 13 <= 1) {
+                servMap.info[i][j].type = CellType::castle;
+                servMap.info[i][j].number = randInt(40, 50);
             }
 
-    if (bugged)
-        cout << "Random seed: " << seed << endl;
+    servMap.calcStat();
 
-    return globalMap;
+    return servMap;
 }
