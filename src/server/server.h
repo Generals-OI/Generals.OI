@@ -7,6 +7,7 @@
 #include <QWebSocket>
 #include <QWebSocketServer>
 #include <QWidget>
+#include <QApplication>
 #include <QTimer>
 
 class Server : public QWidget {
@@ -34,9 +35,10 @@ private:
     QWebSocketServer *server;
     QHostAddress address;
     ServerMap *serMap{};
+    QTimer *gameTimer{};
 
     int cntPlayer{}, cntReadied{};
-    bool flagGameStarted{};
+    bool flagGameStarted{}, flagGameOvered{};
 
     std::map<QWebSocket *, PlayerInfo> clients;
 };

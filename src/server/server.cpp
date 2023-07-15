@@ -108,26 +108,20 @@ void Server::onNewConnection() {
                                                               it.second.nickName));
                     }
 
-                    // BUG: sort playerList first
-                    // emit sendMessage(msgPlayerList);
-
                     // TODO: Add team information
                     std::vector<int> teamInfo;
                     for (int i = 1; i <= cntPlayer; i++)
                         teamInfo.push_back(i);
 
                     qDebug() << "[server.cpp] Start generating.";
-//                    serMap = new ServerMap;
-//                    *serMap = generateMap(cntPlayer, cntPlayer, idTeam);
                     serMap = new ServerMap(generateMap(cntPlayer, cntPlayer, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
                     QString mapInfo = QString::fromStdString(serMap->exportMap(true));
                     emit sendMessage(QString("InitMap:%1").arg(mapInfo));
 
-                    auto *gameTimer = new QTimer(this);
-                    connect(gameTimer, SIGNAL(timeout()), this, SLOT(broadcastMessage()));
-                    // TODO: Find a proper way to stop the timer
+                    gameTimer = new QTimer(this);
+                    connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
                     gameTimer->start(20); // Debug - Xx faster
                 }
             }
@@ -156,4 +150,12 @@ void Server::broadcastMessage() {
     auto mapInfo = QString::fromStdString(serMap->exportMap(false));
     emit sendMessage(QString("UpdateMap:%1").arg(mapInfo));
     qDebug() << "[server.cpp] Message sent.";
+
+    if (flagGameOvered) {
+        disconnect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
+        // emit something
+        // transfer replay files
+        qApp->quit();
+    }
+    flagGameOvered = serMap->gameOver();
 }
