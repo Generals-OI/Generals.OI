@@ -6,38 +6,39 @@
 
 #include "point.h"
 
-struct RealPoint {
+struct PointLf {
     double x{}, y{};
 
-    RealPoint() = default;
+    PointLf() = default;
 
-    RealPoint(Point p) : x(p.x), y(p.y) {}
+    // This constructor is not marked explicit for convenience, BEWARE!
+    PointLf(Point p) : x(p.x), y(p.y) {}
 
-    RealPoint(double x, double y) : x(x), y(y) {}
+    PointLf(double x, double y) : x(x), y(y) {}
 };
 
-double distance(RealPoint A, RealPoint B);
+double distance(PointLf A, PointLf B);
 
-double manhattanDistance(RealPoint A,RealPoint B);
+double mDistance(PointLf A, PointLf B);
 
 struct Line {
     double a{}, b{}, c{};
 
     Line() = default;
 
-    Line(RealPoint A, RealPoint B);
+    Line(PointLf A, PointLf B);
 };
 
 struct LineSegment : public Line {
-    RealPoint A, B;
+    PointLf A, B;
 
-    LineSegment(RealPoint A, RealPoint B);
+    LineSegment(PointLf A, PointLf B);
 };
 
 bool intersect(LineSegment l1, LineSegment l2);
 
-double triangleArea(RealPoint A, RealPoint B, RealPoint C);
+double triangleArea(PointLf A, PointLf B, PointLf C);
 
-bool inTriangle(RealPoint A, RealPoint B, RealPoint C, RealPoint X);
+bool inTriangle(PointLf A, PointLf B, PointLf C, PointLf X);
 
 #endif // GEOMETRY_H

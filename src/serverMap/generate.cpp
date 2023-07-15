@@ -5,7 +5,7 @@
 #include <iostream>
 #include <random>
 
-ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
+ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam) {
     using std::pair;
     using std::make_pair;
     using std::max;
@@ -34,11 +34,11 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                                   {-1, 0},
                                   {-1, -1}};
 
-    if (playerCnt < 2 || playerCnt > maxPlayerNum)
-        cout << "In function generate: Wrong Player Cnt" << endl;
+    if (cntPlayer < 2 || cntPlayer > maxPlayerNum)
+        cout << "In function generateMap: wrong cntPlayer" << endl;
 
     const auto seed = time(nullptr);
-    cout << "In function generate: Random seed=" << seed << endl;
+    cout << "In function generateMap: Random seed=" << seed << endl;
     mt19937 rnd(seed);
     auto randInt = [&rnd](int rangeL, int rangeR) -> int {
         uniform_int_distribution<> range(rangeL, rangeR);
@@ -46,60 +46,63 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
     };
 
     int lBound, rBound;
-    if (playerCnt <= 8) {
-        lBound = int(1.2857 * playerCnt + 11.7143);
-        rBound = 2 * playerCnt + 15;
+    if (cntPlayer <= 8) {
+        lBound = int(1.2857 * cntPlayer + 11.7143);
+        rBound = 2 * cntPlayer + 15;
     } else {
-        lBound = int(3.7738 * playerCnt - 10.2976);
-        rBound = int(3.6309 * playerCnt + 1.7381);
+        lBound = int(3.7738 * cntPlayer - 10.2976);
+        rBound = int(3.6309 * cntPlayer + 1.7381);
     }
-    ServerMap servMap{GlobalMap(randInt(lBound, rBound), randInt(lBound, rBound), teamCnt, playerCnt, team)};
+    ServerMap servMap{GlobalMap(randInt(lBound, rBound), randInt(lBound, rBound), cntTeam, cntPlayer, idTeam)};
 
     auto valid = [servMap](Point p) -> bool {
         return p.x > 0 && p.x <= servMap.width && p.y > 0 && p.y <= servMap.length;
     };
 
-    auto manhattanDistance = [](Point p, Point q) -> int {
+    /* Manhattan distance for **class `Point`**
+     * Distinguish this with mDistance: mDistance is for `PointLf`, which can be implicitly converted from `Point`
+     */
+    auto mDistanceI = [](Point p, Point q) -> int {
         return abs(p.x - q.x) + abs(p.y - q.y);
     };
 
     // Initialize some arrays
 
     vector<Point> posList;
-    vector<vector<int>> teamMbr(teamCnt);
-    vector<int> teamList(teamCnt);
-    vector<Point> pntCenter(teamCnt), pntCrown(playerCnt);
+    vector<vector<int>> teamMbr(cntTeam);
+    vector<int> teamList(cntTeam);
+    vector<Point> pntCenter(cntTeam), pntGeneral(cntPlayer);
 
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)
             posList.emplace_back(i, j);
     shuffle(posList.begin(), posList.end(), rnd);
 
-    for (int i = 0; i < playerCnt; i++)
-        teamMbr[team[i] - 1].push_back(i);
-    for (int i = 0; i < teamCnt; i++)
+    for (int i = 0; i < cntPlayer; i++)
+        teamMbr[idTeam[i] - 1].push_back(i);
+    for (int i = 0; i < cntTeam; i++)
         teamList.push_back(i);
     shuffle(teamList.begin(), teamList.end(), rnd);
-    for (int i = 0; i < teamCnt; i++)
+    for (int i = 0; i < cntTeam; i++)
         shuffle(teamMbr[i].begin(), teamMbr[i].end(), rnd);
     shuffle(posList.begin(), posList.end(), rnd);
 
-    // Set crown position randomly
+    // Set general position randomly
 
     int minDist = randInt(min(servMap.length, 38), max(servMap.width + servMap.length - 2, 57));
     for (auto t: teamList)
         while (true) {
             bool flagBreak = false;
             for (auto cur: posList) {
-                bool flag = true;
+                bool flagValid = true;
                 for (auto k: teamList)
                     if (t == k)
                         break;
-                    else if (manhattanDistance(pntCenter[k], cur) < minDist) {
-                        flag = false;
+                    else if (mDistanceI(pntCenter[k], cur) < minDist) {
+                        flagValid = false;
                         break;
                     }
-                if (flag && rnd() % minDist <= 10) {
+                if (flagValid && rnd() % minDist <= 10) {
                     pntCenter[t] = cur;
                     flagBreak = true;
                     break;
@@ -109,7 +112,7 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                 break;
 
             if (minDist == 1) {
-                cout << "In function generate: Unable to set _team center" << endl;
+                cout << "In function generateMap: Unable to set pntCenter" << endl;
                 break;
             }
 
@@ -119,22 +122,22 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                 minDist -= 2;
         }
 
-    cout << "In function generate: pntCenter has been set" << endl;
+    cout << "In function generateMap: pntCenter has been set" << endl;
 
     for (auto t: teamList) {
         int minEnemyDist = randInt(min(18, servMap.length), max(35, servMap.width + servMap.length));
-        int maxCenterDist = randInt(3, minDist);
-        int minCenterDist = randInt(1, maxCenterDist);
+        int maxCtrDist = randInt(3, minDist);
+        int minCtrDist = randInt(1, maxCtrDist);
         const int tSize = (int) teamMbr[t].size();
-        auto pPlayer = teamMbr[t].begin();
+        auto itPlayer = teamMbr[t].begin();
 
         if (tSize == 1) {
-            pntCrown[teamMbr[t][0]] = pntCenter[t];
-            servMap.info[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0] + 1, CellType::crown);
+            pntGeneral[teamMbr[t][0]] = pntCenter[t];
+            servMap.map[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0] + 1, CellType::general);
             continue;
         }
 
-        while (!pntCrown[teamMbr[t][tSize - 1]].x) {
+        while (!pntGeneral[teamMbr[t][tSize - 1]].x) {
             queue<pair<Point, int>> q;
             vector<vector<bool>> visited(servMap.width + 1, vector<bool>(servMap.length + 1));
             q.emplace(pntCenter[t], 0);
@@ -144,44 +147,44 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                 int dist = q.front().second;
                 q.pop();
 
-                if (dist > maxCenterDist)
+                if (dist > maxCtrDist)
                     break;
 
-                if (dist >= minCenterDist) {
-                    bool flag = true;
-                    for (auto j = teamMbr[t].begin(); j != pPlayer; j++)
+                if (dist >= minCtrDist) {
+                    bool flagValid = true;
+                    for (auto it = teamMbr[t].begin(); it != itPlayer; it++)
                         for (auto d: direction8)
                             if (valid(Point(cur.x + d[0], cur.y + d[1])) &&
-                                pntCrown[*j] == Point(cur.x + d[0], cur.y + d[1])) {
-                                flag = false;
+                                pntGeneral[*it] == Point(cur.x + d[0], cur.y + d[1])) {
+                                flagValid = false;
                                 break;
                             }
-                    if (flag) {
-                        for (auto enemyTeam: teamList) {
-                            if (enemyTeam == t)
+                    if (flagValid) {
+                        for (auto tEnemy: teamList) {
+                            if (tEnemy == t)
                                 break;
-                            for (auto enemy: teamMbr[enemyTeam])
-                                if (manhattanDistance(pntCrown[enemy], cur) < minEnemyDist) {
-                                    flag = false;
+                            for (auto enemy: teamMbr[tEnemy])
+                                if (mDistanceI(pntGeneral[enemy], cur) < minEnemyDist) {
+                                    flagValid = false;
                                     break;
                                 }
-                            if (!flag)
+                            if (!flagValid)
                                 break;
                         }
                     }
-                    if (flag && rnd() % minEnemyDist <= 15) {
-                        pntCrown[*pPlayer] = cur;
-                        pPlayer++;
-                        if (pPlayer == teamMbr[t].end())
+                    if (flagValid && rnd() % minEnemyDist <= 15) {
+                        pntGeneral[*itPlayer] = cur;
+                        itPlayer++;
+                        if (itPlayer == teamMbr[t].end())
                             break;
                         if (tSize >= 10)
-                            minCenterDist += 4;
+                            minCtrDist += 4;
                         else if (tSize >= 6)
-                            minCenterDist += 3;
+                            minCtrDist += 3;
                         else if (tSize >= 3)
-                            minCenterDist += 2;
+                            minCtrDist += 2;
                         else
-                            minCenterDist++;
+                            minCtrDist++;
                     }
                 }
 
@@ -194,80 +197,79 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
                 }
             }
 
-            if (minEnemyDist == 5 && maxCenterDist == USHRT_MAX && !pntCrown[teamMbr[t][tSize - 1]].x) {
-                cout << "In function generate: Unable to set crown pos" << std::endl;
+            if (minEnemyDist == 5 && maxCtrDist == USHRT_MAX && !pntGeneral[teamMbr[t][tSize - 1]].x) {
+                cout << "In function generateMap: Unable to set general" << std::endl;
                 break;
             }
 
             if (minEnemyDist <= 15) {
                 minEnemyDist--;
-                minCenterDist = 0;
-                maxCenterDist = USHRT_MAX;
+                minCtrDist = 0;
+                maxCtrDist = USHRT_MAX;
             } else {
                 minEnemyDist = max(minEnemyDist - randInt(4, 9), 15);
-                minCenterDist = tSize >= 6 ? maxCenterDist : int(maxCenterDist * (0.4 + tSize * 0.1));
-                maxCenterDist += randInt(3, 10);
+                minCtrDist = tSize >= 6 ? maxCtrDist : int(maxCtrDist * (0.4 + tSize * 0.1));
+                maxCtrDist += randInt(3, 10);
             }
         }
 
         for (auto i: teamMbr[t])
-            servMap.info[pntCrown[i].x][pntCrown[i].y] = Cell{0, i + 1, CellType::crown};
+            servMap.map[pntGeneral[i].x][pntGeneral[i].y] = Cell{0, i + 1, CellType::general};
     }
 
-    cout << "In function generate: crowns have been set" << endl;
+    cout << "In function generateMap: generals have been set" << endl;
 
-    // Set mountain positions while ensuring that crowns can reach each other
+    // Place mountains while ensuring that generals can reach each other
 
-    vector<RealPoint> pntGeoCenter(teamCnt);
-    vector<vector<int>> idxTeamChunk(servMap.width + 1, vector<int>(servMap.length + 1));
-    vector<vector<Point>> teamBorder(teamCnt);
-    vector<vector<bool>> isCrucialPath(servMap.width + 1, vector<bool>(servMap.length + 1));
-    auto mountainToBe = isCrucialPath;
+    vector<PointLf> pntGeomCtr(cntTeam);
+    vector<vector<int>> idTeamChunk(servMap.width + 1, vector<int>(servMap.length + 1));
+    vector<vector<Point>> pntChunkBdr(cntTeam); // the border points of each team chunk
+    vector<vector<bool>> possibleMtn(servMap.width + 1, vector<bool>(servMap.length + 1, true));
 
-    for (auto p: pntCrown)
-        isCrucialPath[p.x][p.y] = true;
+    for (auto p: pntGeneral)
+        possibleMtn[p.x][p.y] = false;
     for (auto t: teamList) {
         if (teamMbr[t].size() == 1) {
-            Point crown = pntCrown[teamMbr[t][0]];
-            pntGeoCenter[t] = crown;
-            idxTeamChunk[crown.x][crown.y] = t + 1;
+            Point crown = pntGeneral[teamMbr[t][0]];
+            pntGeomCtr[t] = crown;
+            idTeamChunk[crown.x][crown.y] = t + 1;
             for (auto d: direction8) {
                 Point p(crown.x + d[0], crown.y + d[1]);
                 if (valid(p)) {
-                    isCrucialPath[p.x][p.y] = true;
-                    teamBorder[t].push_back(p);
+                    possibleMtn[p.x][p.y] = false;
+                    pntChunkBdr[t].push_back(p);
                 }
             }
             continue;
         }
 
         for (auto p: teamMbr[t]) {
-            pntGeoCenter[t].x += pntCrown[p].x;
-            pntGeoCenter[t].y += pntCrown[p].y;
-            isCrucialPath[pntCrown[p].x][pntCrown[p].y] = true;
+            pntGeomCtr[t].x += pntGeneral[p].x;
+            pntGeomCtr[t].y += pntGeneral[p].y;
+            possibleMtn[pntGeneral[p].x][pntGeneral[p].y] = false;
         }
-        pntGeoCenter[t].x /= (int) teamMbr[t].size();
-        pntGeoCenter[t].y /= (int) teamMbr[t].size();
+        pntGeomCtr[t].x /= (int) teamMbr[t].size();
+        pntGeomCtr[t].y /= (int) teamMbr[t].size();
 
         for (int i = 1; i <= servMap.width; i++)
             for (int j = 1; j <= servMap.length; j++) {
-                bool flag = false;
-                LineSegment l1(RealPoint(i - 0.5, j - 0.5), RealPoint(i + 0.5, j - 0.5)),
-                        l2(RealPoint(i - 0.5, j - 0.5), RealPoint(i - 0.5, j + 0.5)),
-                        l3(RealPoint(i - 0.5, j + 0.5), RealPoint(i + 0.5, j + 0.5)),
-                        l4(RealPoint(i + 0.5, j - 0.5), RealPoint(i + 0.5, j + 0.5));
-                for (auto p1 = teamMbr[t].begin(); p1 != teamMbr[t].end() && !flag; p1++)
+                bool flagInChunk = false;
+                LineSegment l1(PointLf(i - 0.5, j - 0.5), PointLf(i + 0.5, j - 0.5)),
+                        l2(PointLf(i - 0.5, j - 0.5), PointLf(i - 0.5, j + 0.5)),
+                        l3(PointLf(i - 0.5, j + 0.5), PointLf(i + 0.5, j + 0.5)),
+                        l4(PointLf(i + 0.5, j - 0.5), PointLf(i + 0.5, j + 0.5));
+                for (auto p1 = teamMbr[t].begin(); p1 != teamMbr[t].end() && !flagInChunk; p1++)
                     for (auto p2 = p1 + 1; p2 != teamMbr[t].end(); p2++) {
-                        LineSegment a(pntCrown[*p1], pntCrown[*p2]),
-                                b(pntCrown[*p1], pntGeoCenter[t]),
-                                c(pntCrown[*p2], pntGeoCenter[t]);
-                        if (inTriangle(pntCrown[*p1], pntCrown[*p2], pntGeoCenter[t], RealPoint(i - 0.5, j - 0.5)) ||
+                        LineSegment a(pntGeneral[*p1], pntGeneral[*p2]),
+                                b(pntGeneral[*p1], pntGeomCtr[t]),
+                                c(pntGeneral[*p2], pntGeomCtr[t]);
+                        if (inTriangle(pntGeneral[*p1], pntGeneral[*p2], pntGeomCtr[t], PointLf(i - 0.5, j - 0.5)) ||
                             intersect(l1, a) || intersect(l1, b) || intersect(l1, c) ||
                             intersect(l2, a) || intersect(l2, b) || intersect(l2, c) ||
                             intersect(l3, a) || intersect(l3, b) || intersect(l3, c) ||
                             intersect(l4, a) || intersect(l4, b) || intersect(l4, c)) {
-                            idxTeamChunk[i][j] = t + 1;
-                            flag = true;
+                            idTeamChunk[i][j] = t + 1;
+                            flagInChunk = true;
                             break;
                         }
                     }
@@ -275,17 +277,17 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
 
         for (int i = 1; i <= servMap.width; i++)
             for (int j = 1; j <= servMap.length; j++)
-                if (idxTeamChunk[i][j] != t + 1)
+                if (idTeamChunk[i][j] != t + 1)
                     for (auto d: direction8) {
                         Point point(i + d[0], j + d[1]);
-                        if (valid(point) && idxTeamChunk[point.x][point.y] == t + 1) {
-                            isCrucialPath[i][j] = true;
-                            teamBorder[t].emplace_back(i, j);
+                        if (valid(point) && idTeamChunk[point.x][point.y] == t + 1) {
+                            possibleMtn[i][j] = false;
+                            pntChunkBdr[t].emplace_back(i, j);
                         }
                     }
     }
 
-    cout << "In function generate: finished calculating idxTeamChunk" << endl;
+    cout << "In function generateMap: finished calculating idTeamChunk" << endl;
 
     struct Edge {
         int u{}, v{};
@@ -298,7 +300,7 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
     };
 
     vector<Edge> edges;
-    vector<int> parent(teamCnt + 1);
+    vector<int> parent(cntTeam + 1);
 
     auto findParent = [&parent](int k) -> int {
         int par = k, temp;
@@ -312,8 +314,8 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         return par;
     };
 
-    auto rndPath = [servMap, manhattanDistance, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
-        const int k = manhattanDistance(pntStart, pntEnd) / 8;
+    auto rndPath = [servMap, mDistanceI, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
+        const int k = mDistanceI(pntStart, pntEnd) / 8;
         const int uBound = max(1, min(pntStart.x, pntEnd.x) - k);
         const int dBound = min(servMap.width, max(pntStart.x, pntEnd.x) + k);
         const int lBound = max(1, min(pntStart.y, pntEnd.y) - k);
@@ -323,17 +325,17 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         Point cur = pntStart;
 
         for (int i = 1; i <= k + 1; i++) {
-            Point target;
+            Point nxt;
             if (i == k + 1)
-                target = pntEnd;
+                nxt = pntEnd;
             else
-                target = Point(randInt(uBound, dBound), randInt(lBound, rBound));
-            while (cur != target) {
+                nxt = Point(randInt(uBound, dBound), randInt(lBound, rBound));
+            while (cur != nxt) {
                 path.push_back(cur);
-                if ((cur.y == target.y || randInt(0, 1)) && cur.x != target.x)
-                    cur.x += (target.x - cur.x) / abs(target.x - cur.x);
+                if ((cur.y == nxt.y || randInt(0, 1)) && cur.x != nxt.x)
+                    cur.x += (nxt.x - cur.x) / abs(nxt.x - cur.x);
                 else
-                    cur.y += (target.y - cur.y) / abs(target.y - cur.y);
+                    cur.y += (nxt.y - cur.y) / abs(nxt.y - cur.y);
             }
         }
         path.push_back(cur);
@@ -341,10 +343,10 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         return path;
     };
 
-    for (int i = 0; i < teamCnt; i++) {
+    for (int i = 0; i < cntTeam; i++) {
         parent[i + 1] = i + 1;
-        for (int j = i + 1; j < teamCnt; j++)
-            edges.emplace_back(i, j, ::manhattanDistance(pntGeoCenter[i], pntGeoCenter[j]));
+        for (int j = i + 1; j < cntTeam; j++)
+            edges.emplace_back(i, j, mDistance(pntGeomCtr[i], pntGeomCtr[j]));
     }
     sort(edges.begin(), edges.end(), [](Edge a, Edge b) -> bool {
         if (a.value == b.value)
@@ -357,29 +359,28 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         int parU = findParent(e.u + 1), parV = findParent(e.v + 1);
         if (parU != parV) {
             parent[parU] = parV;
-            Point pntStart = teamBorder[e.u][randInt(0, (int) teamBorder[e.u].size() - 1)],
-                    pntEnd = teamBorder[e.v][randInt(0, (int) teamBorder[e.v].size() - 1)];
+            Point pntStart = pntChunkBdr[e.u][randInt(0, (int) pntChunkBdr[e.u].size() - 1)],
+                    pntEnd = pntChunkBdr[e.v][randInt(0, (int) pntChunkBdr[e.v].size() - 1)];
             vector<Point> path = rndPath(pntStart, pntEnd);
             for (auto p: path)
-                isCrucialPath[p.x][p.y] = true;
+                possibleMtn[p.x][p.y] = false;
         }
     }
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)
-            if (!isCrucialPath[i][j] && rnd() % 7 <= 3)
-                mountainToBe[i][j] = true;
+            possibleMtn[i][j] = possibleMtn[i][j] && rnd() % 7 <= 3;
 
-    cout << "In function generate: mountainToBe has been set" << endl;
+    cout << "In function generateMap: possibleMtn has been set" << endl;
 
     vector<vector<int>> root(servMap.width + 2, vector<int>(servMap.length + 2));
     auto depth = root;
-    vector<vector<bool>> considered(servMap.width + 2, vector<bool>(servMap.length + 2));
+    vector<vector<bool>> visited(servMap.width + 2, vector<bool>(servMap.length + 2));
     vector<vector<vector<Point>>> ancestor(servMap.width + 2, vector<vector<Point>>(servMap.length + 2));
     queue<Point> q;
     int cntRoot = 0;
 
     // Apply algorithm "Binary Lifting LCA"
-    auto circleLength = [&ancestor, &root, &depth](Point p, Point q) -> int {
+    auto cycleLength = [&ancestor, &root, &depth](Point p, Point q) -> int {
         if (root[p.x][p.y] != root[q.x][q.y])
             return USHRT_MAX;
         if (depth[p.x][p.y] > depth[q.x][q.y])
@@ -403,66 +404,66 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
         return dP + dQ - 2 * depth[p.x][p.y] + 4;
     };
 
-    auto expandMountains = [&]() -> void {
+    auto expandMountains = [&]() {
         while (!q.empty()) {
             Point cur = q.front(), nxt;
             q.pop();
             for (auto d: direction8) {
                 nxt = Point(cur.x + d[0], cur.y + d[1]);
-                if (!valid(nxt) || !mountainToBe[nxt.x][nxt.y] || considered[nxt.x][nxt.y])
+                if (!valid(nxt) || !possibleMtn[nxt.x][nxt.y] || visited[nxt.x][nxt.y])
                     continue;
 
-                considered[nxt.x][nxt.y] = true;
-                bool flag = false;
+                visited[nxt.x][nxt.y] = true;
+                bool flagExpand = false;
                 if (depth[nxt.x][nxt.y] <= 3) {
-                    flag = rnd() % 2 == 1;
+                    flagExpand = rnd() % 2 == 1;
                 } else {
-                    flag = true;
-                    for (int i = 0; i < 8 && flag; i++)
+                    flagExpand = true;
+                    for (int i = 0; i < 8 && flagExpand; i++)
                         for (int j = i + 1; j < 8; j++) {
                             Point a(nxt.x + direction8[i][0], nxt.y + direction8[i][1]);
                             Point b(nxt.x + direction8[j][0], nxt.y + direction8[j][1]);
                             if (valid(a) && valid(b) &&
-                                servMap.info[a.x][a.y].type == CellType::mountain &&
-                                servMap.info[b.x][b.y].type == CellType::mountain) {
-                                int dist = circleLength(a, b);
-                                if (!idxTeamChunk[nxt.x][nxt.y] && dist > 8 ||
-                                    idxTeamChunk[nxt.x][nxt.y] && dist > 5) {
-                                    flag = false;
+                                servMap.map[a.x][a.y].type == CellType::mountain &&
+                                servMap.map[b.x][b.y].type == CellType::mountain) {
+                                int dist = cycleLength(a, b);
+                                if (!idTeamChunk[nxt.x][nxt.y] && dist > 8 ||
+                                    idTeamChunk[nxt.x][nxt.y] && dist > 5) {
+                                    flagExpand = false;
                                     break;
                                 }
                             }
                         }
 
-                    flag = flag || rnd() % 7 <= 4;
+                    flagExpand = flagExpand || rnd() % 7 <= 4;
                 }
 
-                if (flag) {
+                if (flagExpand) {
                     for (auto i: direction4) {
-                        Point crown(nxt.x + i[0], nxt.y + i[1]);
-                        if (valid(crown) && servMap.info[crown.x][crown.y].type == CellType::crown) {
+                        Point p(nxt.x + i[0], nxt.y + i[1]);
+                        if (valid(p) && servMap.map[p.x][p.y].type == CellType::general) {
                             bool surrounded = true;
                             for (auto j: direction4)
-                                if (valid(Point(crown.x + j[0], crown.y + j[1])))
+                                if (valid(Point(p.x + j[0], p.y + j[1])))
                                     surrounded = surrounded &&
-                                                 servMap.info[crown.x + j[0]][crown.y + j[1]].type != CellType::land;
+                                                 servMap.map[p.x + j[0]][p.y + j[1]].type != CellType::land;
                             if (surrounded) {
-                                flag = false;
+                                flagExpand = false;
                                 break;
                             }
                         }
                     }
                 }
 
-                if (flag) {
+                if (flagExpand) {
                     q.push(nxt);
                     depth[nxt.x][nxt.y] = depth[cur.x][cur.y] + 1;
                     root[nxt.x][nxt.y] = root[cur.x][cur.y];
-                    servMap.info[nxt.x][nxt.y].type = CellType::mountain;
-                    int cntAncestor = (int) log2(depth[nxt.x][nxt.y]) + 1;
-                    ancestor[nxt.x][nxt.y].resize(cntAncestor);
+                    servMap.map[nxt.x][nxt.y].type = CellType::mountain;
+                    int cnt = (int) log2(depth[nxt.x][nxt.y]) + 1;
+                    ancestor[nxt.x][nxt.y].resize(cnt);
                     ancestor[nxt.x][nxt.y][0] = cur;
-                    for (int i = 1; i < cntAncestor; i++)
+                    for (int i = 1; i < cnt; i++)
                         ancestor[nxt.x][nxt.y][i] = ancestor[ancestor[nxt.x][nxt.y][i - 1].x]
                         [ancestor[nxt.x][nxt.y][i - 1].y][i - 1];
                 }
@@ -491,45 +492,44 @@ ServerMap generate(int playerCnt, int teamCnt, const std::vector<int> &team) {
     shuffle(posList.begin(), posList.end(), rnd);
     for (auto p: posList)
         if (p.x >= 4 && p.y >= 4 && p.x <= servMap.width - 3 && p.y <= servMap.length - 3 &&
-            mountainToBe[p.x][p.y] && !considered[p.x][p.y]) {
-            considered[p.x][p.y] = true;
-            bool flagLegal = true;
-            for (int i = 0; i < 8 && flagLegal; i++)
+            possibleMtn[p.x][p.y] && !visited[p.x][p.y]) {
+            visited[p.x][p.y] = true;
+            bool flagValid = true;
+            for (int i = 0; i < 8 && flagValid; i++)
                 for (int j = i + 1; j < 8; j++) {
                     Point a(p.x + direction8[i][0], p.y + direction8[i][1]);
                     Point b(p.x + direction8[j][0], p.y + direction8[j][1]);
                     if (valid(a) && valid(b) &&
-                        servMap.info[a.x][a.y].type == CellType::mountain &&
-                        servMap.info[b.x][b.y].type == CellType::mountain) {
-                        int dist = circleLength(a, b);
-                        if (!idxTeamChunk[p.x][p.y] && dist > 10 || idxTeamChunk[p.x][p.y] && dist > 5) {
-                            flagLegal = false;
+                        servMap.map[a.x][a.y].type == CellType::mountain &&
+                        servMap.map[b.x][b.y].type == CellType::mountain) {
+                        int dist = cycleLength(a, b);
+                        if (!idTeamChunk[p.x][p.y] && dist > 10 || idTeamChunk[p.x][p.y] && dist > 5) {
+                            flagValid = false;
                             break;
                         }
                     }
                 }
 
-            if (flagLegal) {
+            if (flagValid) {
                 q.emplace(p.x, p.y);
                 depth[p.x][p.y] = 1;
                 root[p.x][p.y] = ++cntRoot;
-                servMap.info[p.x][p.y].type = CellType::mountain;
+                servMap.map[p.x][p.y].type = CellType::mountain;
                 ancestor[p.x][p.y].emplace_back(p.x, p.y);
 
                 expandMountains();
             }
         }
 
-    cout << "In function generate: obstacles have been placed" << endl;
-
+    cout << "In function generateMap: obstacles have been placed" << endl;
 
     // Change some mountains into castles
 
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)
-            if (servMap.info[i][j].type == CellType::mountain && rnd() % 13 <= 1) {
-                servMap.info[i][j].type = CellType::castle;
-                servMap.info[i][j].number = randInt(40, 50);
+            if (servMap.map[i][j].type == CellType::mountain && rnd() % 13 <= 1) {
+                servMap.map[i][j].type = CellType::city;
+                servMap.map[i][j].number = randInt(40, 50);
             }
 
     servMap.calcStat();

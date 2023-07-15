@@ -11,7 +11,7 @@ public:
 
     ServerMap() = default;
 
-    std::string export2Str(bool);
+    std::string exportMap(bool);
 
     // Moves army after checking validity
     bool move(int, Point, int, int, bool);
@@ -27,6 +27,6 @@ public:
 };
 
 // Generate random and valid ServerMap
-ServerMap generate(int, int, const std::vector<int> &);
+ServerMap generateMap(int, int, const std::vector<int> &);
 
 #endif // SERVER_MAP_H

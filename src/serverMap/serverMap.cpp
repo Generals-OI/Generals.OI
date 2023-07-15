@@ -1,15 +1,15 @@
 #include "serverMap.h"
 
 bool
-ServerMap::move(const int playerId, const Point pntStart, const int deltaX, const int deltaY, const bool flagHalf) {
+ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, const int deltaY, const bool flagHalf) {
     Point pntEnd(pntStart.x + deltaX, pntStart.y + deltaY);
 
     if (pntEnd.x < 1 || pntEnd.x > width || pntEnd.y < 1 || pntEnd.y > length || abs(deltaX) + abs(deltaY) != 1)
         return false;
 
-    const Cell cStart = info[pntStart.x][pntStart.y], cEnd = info[pntEnd.x][pntEnd.y];
+    const Cell cStart = map[pntStart.x][pntStart.y], cEnd = map[pntEnd.x][pntEnd.y];
 
-    if (!playerId || cStart.belonging != playerId || cEnd.type == CellType::mountain)
+    if (!idPlayer || cStart.belonging != idPlayer || cEnd.type == CellType::mountain)
         return false;
 
     const int num = flagHalf ? cStart.number / 2 : cStart.number - 1;
@@ -17,17 +17,17 @@ ServerMap::move(const int playerId, const Point pntStart, const int deltaX, cons
     if (num < 0)
         return false;
 
-    info[pntStart.x][pntStart.y].number -= num;
-    Cell &cell = info[pntEnd.x][pntEnd.y];
+    map[pntStart.x][pntStart.y].number -= num;
+    Cell &cell = map[pntEnd.x][pntEnd.y];
 
     if (!cEnd.belonging) {
         cell = Cell{abs(num - cEnd.number),
                     num > cEnd.number ? cStart.belonging : 0,
                     cEnd.type};
     } else {
-        if (teamInfo[cStart.belonging] == teamInfo[cEnd.belonging]) {
+        if (idTeam[cStart.belonging] == idTeam[cEnd.belonging]) {
             cell = Cell{num + cEnd.number,
-                        cEnd.type == CellType::crown ? cEnd.belonging : cStart.belonging,
+                        cEnd.type == CellType::general ? cEnd.belonging : cStart.belonging,
                         cEnd.type};
         } else {
             if (num <= cEnd.number) {
@@ -35,17 +35,17 @@ ServerMap::move(const int playerId, const Point pntStart, const int deltaX, cons
             } else {
                 switch (cEnd.type) {
                     case CellType::land:
-                    case CellType::castle: {
+                    case CellType::city: {
                         cell = Cell{num - cEnd.number, cStart.belonging, cEnd.type};
                         break;
                     }
-                    case CellType::crown: {
-                        cell = Cell{num - cEnd.number, cStart.belonging, CellType::castle};
+                    case CellType::general: {
+                        cell = Cell{num - cEnd.number, cStart.belonging, CellType::city};
                         for (int i = 1; i <= width; i++)
                             for (int j = 1; j <= length; j++)
-                                if (info[i][j].belonging == cEnd.belonging)
-                                    info[i][j] = Cell{(info[i][j].number + 1) / 2, cStart.belonging,
-                                                      info[i][j].type};
+                                if (map[i][j].belonging == cEnd.belonging)
+                                    map[i][j] = Cell{(map[i][j].number + 1) / 2, cStart.belonging,
+                                                     map[i][j].type};
                         roundLose[cEnd.belonging - 1] = round;
                         break;
                     }
@@ -65,14 +65,14 @@ void ServerMap::addRound() {
     if (round % 2 == 0)
         for (int i = 1; i <= width; i++)
             for (int j = 1; j <= length; j++)
-                if ((info[i][j].type == CellType::crown || info[i][j].type == CellType::castle) &&
-                    info[i][j].belonging)
-                    info[i][j].number++;
+                if ((map[i][j].type == CellType::general || map[i][j].type == CellType::city) &&
+                    map[i][j].belonging)
+                    map[i][j].number++;
     if (round % 50 == 0)
         for (int i = 1; i <= width; i++)
             for (int j = 1; j <= length; j++)
-                if (info[i][j].belonging)
-                    info[i][j].number++;
+                if (map[i][j].belonging)
+                    map[i][j].number++;
 
     GlobalMap::calcStat(roundLose);
     round++;
@@ -84,22 +84,22 @@ void ServerMap::surrender(int id) {
 }
 
 ServerMap::ServerMap(const GlobalMap &globMap) : GlobalMap(globMap) {
-    roundLose = std::vector<int>(crownCnt, INT_MAX);
+    roundLose = std::vector<int>(cntGnl, INT_MAX);
 }
 
-std::string ServerMap::export2Str(bool fetchFullInfo) {
+std::string ServerMap::exportMap(bool flagComplete) {
     using std::string;
     using std::vector;
 
     vector<int> numbers;
 
-    numbers.push_back(fetchFullInfo);
-    if (fetchFullInfo) {
+    numbers.push_back(flagComplete);
+    if (flagComplete) {
         numbers.push_back(width);
         numbers.push_back(length);
-        numbers.push_back(teamCnt);
-        numbers.push_back(crownCnt);
-        for (const auto i: teamInfo)
+        numbers.push_back(cntTeam);
+        numbers.push_back(cntGnl);
+        for (const auto i: idTeam)
             numbers.push_back(i);
     }
 
@@ -108,22 +108,22 @@ std::string ServerMap::export2Str(bool fetchFullInfo) {
         numbers.push_back(i);
     for (int i = 1; i <= width; i++)
         for (int j = 1; j <= length; j++) {
-            switch (info[i][j].type) {
+            switch (map[i][j].type) {
                 case CellType::land:
                     numbers.push_back(0);
                     break;
-                case CellType::crown:
+                case CellType::general:
                     numbers.push_back(1);
                     break;
-                case CellType::castle:
+                case CellType::city:
                     numbers.push_back(2);
                     break;
                 case CellType::mountain:
                     numbers.push_back(3);
                     break;
             }
-            numbers.push_back(info[i][j].belonging);
-            numbers.push_back(info[i][j].number);
+            numbers.push_back(map[i][j].belonging);
+            numbers.push_back(map[i][j].number);
         }
 
     string result;

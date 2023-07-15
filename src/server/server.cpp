@@ -84,7 +84,7 @@ void Server::onNewConnection() {
                                                                  it.second.nickName));
                     }
                     socket->sendTextMessage(QString("InitMap:%1")
-                                                    .arg(QString::fromStdString(serMap->export2Str(true))));
+                                                    .arg(QString::fromStdString(serMap->exportMap(true))));
                 }
             } else {
                 auto idTeam = msg.section(":", 1, 1).toInt();
@@ -111,18 +111,18 @@ void Server::onNewConnection() {
                     // BUG: sort playerList first
                     // emit sendMessage(msgPlayerList);
 
-                    // TODO: Add team info
+                    // TODO: Add team information
                     std::vector<int> teamInfo;
                     for (int i = 1; i <= cntPlayer; i++)
                         teamInfo.push_back(i);
 
                     qDebug() << "[server.cpp] Start generating.";
 //                    serMap = new ServerMap;
-//                    *serMap = generate(cntPlayer, cntPlayer, teamInfo);
-                    serMap = new ServerMap(generate(cntPlayer, cntPlayer, teamInfo));
+//                    *serMap = generateMap(cntPlayer, cntPlayer, idTeam);
+                    serMap = new ServerMap(generateMap(cntPlayer, cntPlayer, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    QString mapInfo = QString::fromStdString(serMap->export2Str(true));
+                    QString mapInfo = QString::fromStdString(serMap->exportMap(true));
                     emit sendMessage(QString("InitMap:%1").arg(mapInfo));
 
                     auto *gameTimer = new QTimer(this);
@@ -153,7 +153,7 @@ void Server::onNewConnection() {
 
 void Server::broadcastMessage() {
     serMap->addRound();
-    auto mapInfo = QString::fromStdString(serMap->export2Str(false));
+    auto mapInfo = QString::fromStdString(serMap->exportMap(false));
     emit sendMessage(QString("UpdateMap:%1").arg(mapInfo));
     qDebug() << "[server.cpp] Message sent.";
 }

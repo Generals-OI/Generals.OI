@@ -77,7 +77,7 @@ void GameWindow::init() {
         cntArrow[i] = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
     }
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
-    lbName = lbArmy = lbLand = std::vector<QLabel *>(globMap.crownCnt);
+    lbName = lbArmy = lbLand = std::vector<QLabel *>(globMap.cntGnl);
 
     QPalette lbMainPalette;
     lbMainPalette.setColor(QPalette::WindowText, Qt::white);
@@ -112,7 +112,7 @@ void GameWindow::init() {
 
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
-            Cell *cell = &globMap.info[i][j];
+            Cell *cell = &globMap.map[i][j];
             QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
             QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
             QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
@@ -157,7 +157,7 @@ void GameWindow::init() {
         }
     }
 
-    for (int i = 0; i <= globMap.crownCnt; i++) {
+    for (int i = 0; i <= globMap.cntGnl; i++) {
         auto lbN = lbName[i] = new QLabel(this);
         auto lbA = lbArmy[i] = new QLabel(this);
         auto lbL = lbLand[i] = new QLabel(this);
@@ -181,7 +181,7 @@ void GameWindow::init() {
     lbLand[0]->setText("Land");
 
     lbRound = new QLabel(this);
-    lbRound->setGeometry(rnkLeft, rnkTop + unitSize * (globMap.crownCnt + 1), rnkUnitWidth * 4, unitSize);
+    lbRound->setGeometry(rnkLeft, rnkTop + unitSize * (globMap.cntGnl + 1), rnkUnitWidth * 4, unitSize);
     lbRound->setObjectName("Rank");
     lbRound->setFont(boardFont);
     lbRound->show();
@@ -190,7 +190,7 @@ void GameWindow::init() {
     leChat = new QLineEdit(this);
     highlighter = new Highlighter(teChats->document(), cntPlayer, playersInfo);
 
-    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = rnkTop + unitSize * (globMap.crownCnt + 3);
+    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = rnkTop + unitSize * (globMap.cntGnl + 3);
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
     leChat->setGeometry(teLeft, screenHeight - unitSize, screenWidth - teLeft, unitSize);
 
@@ -331,7 +331,7 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
 
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
-        if (pos.move(dir[i][0], dir[i][1]) && globMap.info[pos.x][pos.y].type != CellType::mountain) {
+        if (pos.move(dir[i][0], dir[i][1]) && globMap.map[pos.x][pos.y].type != CellType::mountain) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
@@ -349,8 +349,8 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
 void GameWindow::updateWindow(bool forced) {
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
-            auto cell = &globMap.info[i][j];
-            auto _cell = &_globMap.info[i][j];
+            auto cell = &globMap.map[i][j];
+            auto _cell = &_globMap.map[i][j];
             auto lbO = lbObstacle[i][j];
             auto lbM = lbMain[i][j];
             auto lbC = lbColor[i][j];
@@ -371,7 +371,7 @@ void GameWindow::updateWindow(bool forced) {
                     int x = i + k[0], y = j + k[1];
                     if (focus->valid(x, y)) {
                         // TODO: Change idPlayer to idTeam (short_int)
-                        if (idPlayer == globMap.info[x][y].belonging ||
+                        if (idPlayer == globMap.map[x][y].belonging ||
                             idPlayer == -1) // All information are visible to spectators
                             return true;
                     }
@@ -400,7 +400,7 @@ void GameWindow::updateWindow(bool forced) {
                     fontType[i][j] = fType;
                     lbM->setFont(mapFont[fType]);
                 }
-                if (cell->type == CellType::castle || cell->type == CellType::crown || cell->belonging)
+                if (cell->type == CellType::city || cell->type == CellType::general || cell->belonging)
                     lbM->setText(QString::number(cell->number));
                 else
                     lbM->setText("");
@@ -412,7 +412,7 @@ void GameWindow::updateWindow(bool forced) {
                         lbC->setStyleSheet(QString("background-color:%1;").arg(strColor[cell->belonging]));
                     else if (cell->type == CellType::mountain)
                         lbC->setStyleSheet("background-color: rgb(187, 187, 187);");
-                    else // if (cell->type == CellType::castle)
+                    else // if (cell->type == CellType::city)
                         lbC->setStyleSheet("background-color: rgb(128, 128, 128);");
                 }
 
@@ -426,7 +426,7 @@ void GameWindow::updateWindow(bool forced) {
         }
     }
 
-    for (int i = 1; i <= globMap.crownCnt; i++) {
+    for (int i = 1; i <= globMap.cntGnl; i++) {
         auto p = globMap.stat[i - 1].second[0];
         lbName[i]->setText(playersInfo[p.id].nickName);
         lbName[i]->setStyleSheet(QString("background-color: %1").arg(strColor[p.id]));

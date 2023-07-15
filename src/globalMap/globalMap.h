@@ -11,7 +11,7 @@
 const int maxPlayerNum = 16;
 
 enum CellType {
-    land, crown, castle, mountain
+    land, general, city, mountain
 };
 
 struct Cell {
@@ -36,9 +36,9 @@ protected:
 
 public:
     int width{}, length{};
-    int crownCnt{}, teamCnt{}, round{};
-    std::vector<std::vector<Cell>> info;
-    std::vector<int> teamInfo;
+    int cntGnl{}, cntTeam{}, round{};
+    std::vector<std::vector<Cell>> map;
+    std::vector<int> idTeam;
     std::vector<std::pair<Statistics, std::vector<Statistics>>> stat;
 
     explicit GlobalMap(int, int, int, int, const std::vector<int> &);
