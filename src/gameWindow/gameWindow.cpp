@@ -69,7 +69,6 @@ void GameWindow::init() {
     focus->init(width, height);
 
     btnFocus = std::vector<std::vector<GameButton *>>(height + 1, std::vector<GameButton *>(width + 1));
-//    btnFocus = std::vector<std::vector<QPushButton *>>(height + 1, std::vector<QPushButton *>(width + 1));
     lbObstacle = lbMain = lbColor = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
     visMain = std::vector<std::vector<bool>>(height + 1, std::vector<bool>(width + 1));
     for (int i = 0; i < 4; i++) {
@@ -91,15 +90,24 @@ void GameWindow::init() {
     chatFont.setStyleStrategy(QFont::PreferAntialias);
 
     wgtMap = new QWidget(this);
+//    wgtFocus = new QWidget(this);
+    wgtButton = new QWidget(this);
+//    wgtBoard = new QWidget(this);
+//    wgtChat = new QWidget(this);
     wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+    wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+
     mapLayout = new QGridLayout(wgtMap);
-//    rankLayout = new QGridLayout(this);
-//    chatLayout = new QVBoxLayout(this);
+//    focusLayout = new QGridLayout(wgtFocus);
+    buttonLayout = new QGridLayout(wgtButton);
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
+    // TODO: Change Spacing if it is necessary
     mapLayout->setSpacing(1);
     mapLayout->setContentsMargins(0, 0, 0, 0);
+    buttonLayout->setSpacing(0);
+    buttonLayout->setContentsMargins(0, 0, 0, 0);
 
     lbMapBgd = new QLabel(this);
     lbMapBgd->setObjectName("Background");
@@ -116,8 +124,7 @@ void GameWindow::init() {
             QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
             QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
             QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
-            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtMap);
-//            QPushButton *btnF = btnFocus[i][j] = new QPushButton(wgtMap);
+            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtButton);
 
             lbO->setSizePolicy(spMap);
             lbC->setSizePolicy(spMap);
@@ -135,25 +142,17 @@ void GameWindow::init() {
             lbM->setObjectName(strCell[(int) cell->type]);
 
             connect(btnF, &GameButton::focused, this, &GameWindow::onGameButtonFocused);
-//            connect(btnF, &QPushButton::clicked, [i, j, this] {
-//                updateFocus(true, -1, i, j);
-//            });
 
             lbM->setPalette(lbMainPalette);
             lbM->setFont(mapFont[0]);
 
-            lbC->show();
-            lbO->show();
-            lbM->show();
-            btnF->show();
+            lbC->show(), lbO->show(), lbM->show(), btnF->show();
 
             mapLayout->addWidget(lbO, i, j, 1, 1);
             mapLayout->addWidget(lbC, i, j, 1, 1);
             mapLayout->addWidget(lbM, i, j, 1, 1);
             for (auto &k: lbArrow) mapLayout->addWidget(k[i][j], i, j, 1, 1);
-            mapLayout->addWidget(btnF, i, j, 1, 1);
-
-            btnF->raise();
+            buttonLayout->addWidget(btnF, i, j, 1, 1);
         }
     }
 
@@ -165,15 +164,10 @@ void GameWindow::init() {
         lbA->setGeometry(rnkLeft + rnkUnitWidth * 2, rnkTop + i * unitSize, rnkUnitWidth, unitSize);
         lbL->setGeometry(rnkLeft + rnkUnitWidth * 3, rnkTop + i * unitSize, rnkUnitWidth, unitSize);
         lbN->setStyleSheet(QString("background-color: %1;").arg(i ? strColor[i] : "rgb(255, 255, 255)"));
-        lbA->setObjectName("Rank");
-        lbL->setObjectName("Rank");
-        lbN->setFont(boardFont);
-        lbA->setFont(boardFont);
-        lbL->setFont(boardFont);
+        lbA->setObjectName("Rank"), lbL->setObjectName("Rank");
+        lbN->setFont(boardFont), lbA->setFont(boardFont), lbL->setFont(boardFont);
         lbN->setText(playersInfo[i].nickName);
-        lbN->show();
-        lbA->show();
-        lbL->show();
+        lbN->show(), lbA->show(), lbL->show();
     }
 
     lbName[0]->setText("Player");
@@ -212,9 +206,11 @@ void GameWindow::init() {
 
     lbFocus = new QLabel(this);
     lbFocus->setObjectName("Focus");
-    lbFocus->setGeometry(-1, -1, 1, 1);
+    updateFocus(true, -1, 1, 1);
     lbFocus->show();
     lbFocus->setFocus();
+
+    wgtButton->raise();
 }
 
 void GameWindow::keyPressEvent(QKeyEvent *event) {
@@ -331,22 +327,44 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
 
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
-        if (pos.move(dir[i][0], dir[i][1]) && globMap.map[pos.x][pos.y].type != CellType::mountain) {
+        auto isLegal = pos.move(dir[i][0], dir[i][1]);
+        if (isLegal && (!visMain[pos.x][pos.y] || globMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
-            btnFocus[pos.x][pos.y]->raise();
         } else
             lbShadow[i]->hide();
     }
 
     auto pos = mapPosition(focus->x, focus->y);
     lbFocus->setGeometry(pos.x() - delta, pos.y() - delta, pos.width() + delta * 2, pos.height() + delta * 2);
-    btnFocus[focus->x][focus->y]->raise();
     lbFocus->setFocus();
 }
 
 void GameWindow::updateWindow(bool forced) {
+    auto visible = [this](int i, int j) -> bool {
+        const int direction[9][2] = {-1, -1, -1, 0, -1, 1, 0, -1, 0, 0, 0, 1, 1, -1, 1, 0, 1, 1};
+
+        for (auto k: direction) {
+            int x = i + k[0], y = j + k[1];
+            if (focus->valid(x, y)) {
+                // TODO: Change it when team feature is available
+                if (idPlayer == globMap.map[x][y].belonging ||
+                    idPlayer == -1) // All information are visible to spectators
+                    return true;
+            }
+        }
+        return false;
+    };
+
+    auto calcFontType = [](int number) {
+        if (number < 1000)
+            return 0;
+        if (number < 10000)
+            return 1;
+        return 2;
+    };
+
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
             auto cell = &globMap.map[i][j];
@@ -355,39 +373,7 @@ void GameWindow::updateWindow(bool forced) {
             auto lbM = lbMain[i][j];
             auto lbC = lbColor[i][j];
 
-            auto visible = [i, j, this]() -> bool {
-                const int direction[9][2] = {
-                        {-1, -1},
-                        {-1, 0},
-                        {-1, 1},
-                        {0,  -1},
-                        {0,  0},
-                        {0,  1},
-                        {1,  -1},
-                        {1,  0},
-                        {1,  1}
-                };
-                for (auto k: direction) {
-                    int x = i + k[0], y = j + k[1];
-                    if (focus->valid(x, y)) {
-                        // TODO: Change idPlayer to idTeam (short_int)
-                        if (idPlayer == globMap.map[x][y].belonging ||
-                            idPlayer == -1) // All information are visible to spectators
-                            return true;
-                    }
-                }
-                return false;
-            };
-
-            auto calcFontType = [](int number) {
-                if (number < 1000)
-                    return 0;
-                if (number < 10000)
-                    return 1;
-                return 2;
-            };
-
-            auto vis = visible();
+            auto vis = visible(i, j);
             auto flagNum = cell->number != _cell->number, flagVis = vis != visMain[i][j],
                     flagType = cell->type != _cell->type, flagBelonging = cell->belonging != _cell->belonging;
 
@@ -412,7 +398,7 @@ void GameWindow::updateWindow(bool forced) {
                         lbC->setStyleSheet(QString("background-color:%1;").arg(strColor[cell->belonging]));
                     else if (cell->type == CellType::mountain)
                         lbC->setStyleSheet("background-color: rgb(187, 187, 187);");
-                    else // if (cell->type == CellType::city)
+                    else
                         lbC->setStyleSheet("background-color: rgb(128, 128, 128);");
                 }
 

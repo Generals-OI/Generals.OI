@@ -142,12 +142,11 @@ public:
     Focus *focus{};
     QLabel *lbFocus{}, *lbShadow[4]{};
     std::vector<std::vector<GameButton *>> btnFocus;
-//    std::vector<std::vector<QPushButton *>> btnFocus;
 
     GlobalMap globMap{}, _globMap{};
 
-    QWidget *wgtMap{}, *wgtRank{}, *wgtChat{};
-    QGridLayout *mapLayout{}, *rankLayout{};
+    QWidget *wgtMap{}, *wgtButton{}, *wgtFocus{}, *wgtBoard{}, *wgtChat{};
+    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{}, *focusLayout{};
     QVBoxLayout *chatLayout{};
 
     std::vector<std::vector<QLabel *>> lbArrow[4];
