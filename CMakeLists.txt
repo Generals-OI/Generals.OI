@@ -13,15 +13,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(
         src
+        src/basics
+        src/geometry
+        src/point
+        src/gameMap
+        src/gameMap/globalMap
+        src/gameMap/serverMap
         src/endWindow
         src/gameWindow
         src/gameButton
-        src/geometry
-        src/globalMap
         src/playerInfo
-        src/point
         src/server
-        src/serverMap
         src/startWindow
         src/titleBar
         res
@@ -79,12 +81,12 @@ set(
         src/point/point.cpp
         src/point/point.h
 
-        src/serverMap/generate.cpp
-        src/serverMap/serverMap.cpp
-        src/serverMap/serverMap.h
+        src/gameMap/serverMap/mapGenerator.cpp
+        src/gameMap/serverMap/serverMap.cpp
+        src/gameMap/serverMap/serverMap.h
 
-        src/globalMap/globalMap.cpp
-        src/globalMap/globalMap.h
+        src/gameMap/globalMap/globalMap.cpp
+        src/gameMap/globalMap/globalMap.h
 
         src/geometry/geometry.cpp
         src/geometry/geometry.h
@@ -114,12 +116,12 @@ add_executable(
         src/point/point.cpp
         src/point/point.h
 
-        src/serverMap/generate.cpp
-        src/serverMap/serverMap.cpp
-        src/serverMap/serverMap.h
+        src/gameMap/serverMap/mapGenerator.cpp
+        src/gameMap/serverMap/serverMap.cpp
+        src/gameMap/serverMap/serverMap.h
 
-        src/globalMap/globalMap.cpp
-        src/globalMap/globalMap.h
+        src/gameMap/globalMap/globalMap.cpp
+        src/gameMap/globalMap/globalMap.h
 
         src/geometry/geometry.cpp
         src/geometry/geometry.h
