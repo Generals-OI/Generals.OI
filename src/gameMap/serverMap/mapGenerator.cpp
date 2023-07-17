@@ -230,11 +230,11 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
         possibleMtn[p.x][p.y] = false;
     for (auto t: teamList) {
         if (teamMbr[t].size() == 1) {
-            Point crown = pntGeneral[teamMbr[t][0]];
-            pntGeomCtr[t] = crown;
-            idTeamChunk[crown.x][crown.y] = t + 1;
+            Point general = pntGeneral[teamMbr[t][0]];
+            pntGeomCtr[t] = general;
+            idTeamChunk[general.x][general.y] = t + 1;
             for (auto d: direction8) {
-                Point p(crown.x + d[0], crown.y + d[1]);
+                Point p(general.x + d[0], general.y + d[1]);
                 if (valid(p)) {
                     possibleMtn[p.x][p.y] = false;
                     pntChunkBdr[t].push_back(p);
@@ -523,7 +523,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
 
     cout << "In function generateMap: obstacles have been placed" << endl;
 
-    // Change some mountains into castles
+    // Change some mountains into cities
 
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)

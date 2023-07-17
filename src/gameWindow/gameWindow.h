@@ -78,7 +78,7 @@ private:
 
     void calcMapFontSize();
 
-    void transfer();
+    void transfer() const;
 
     void processMessage(const QString &);
 
@@ -97,14 +97,6 @@ private:
 protected:
     void keyPressEvent(QKeyEvent *) override;
 
-signals:
-
-    void windowReadied();
-
-    void gameStarted();
-
-    void gameEnded(bool);
-
 public slots:
 
     void onGameButtonFocused(const int &, const int &);
@@ -122,6 +114,8 @@ public:
     QString nickName;
     QWebSocket *webSocket;
     QMediaPlayer *gongPlayer;
+
+    bool gameWindowShowed{}, gameEnded{};
 
     qreal dpi;
     QRect screenGeometry;

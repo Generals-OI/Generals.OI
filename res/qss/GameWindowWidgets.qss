@@ -10,12 +10,12 @@
     border-image: url(":/img/Mountain.png");
 }
 
-#Castle, #City {
+#City {
     border-image: url(":/img/City.png");
 }
 
-#Crown {
-    border-image: url(":/img/Crown.png");
+#General {
+    border-image: url(":/img/General.png");
 }
 
 #Land, QPushButton {

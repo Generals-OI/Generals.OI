@@ -115,7 +115,7 @@ void GameWindow::init() {
     lbMapBgd->show();
     mapLayout->addWidget(lbMapBgd, 1, 1, height, width);
 
-    const QString strCell[] = {"Land", "Crown", "Castle", "Mountain"};
+    const QString strCell[] = {"Land", "General", "City", "Mountain"};
     const QString strArrow[] = {"Up", "Down", "Left", "Right"};
 
     for (int i = 1; i <= height; i++) {
@@ -425,7 +425,6 @@ void GameWindow::updateWindow(bool forced) {
 void GameWindow::processMessage(const QString &msg) {
     QString msgType = msg.section(":", 0, 0);
     qDebug() << "[gameWindow.cpp] Received:" << msgType;
-    static bool showed = false, ended = false;
 
     if (msgType == "PlayerInfo") {
         idPlayer = msg.section(":", 1, 1).toInt();
@@ -446,27 +445,25 @@ void GameWindow::processMessage(const QString &msg) {
         _globMap = globMap;
         gotInitMap = true;
         init();
-        emit gameStarted();
     } else if (gotPlayerInfo && gotInitMap && gotPlayerCnt && gotPlayersInfo == cntPlayer) {
         if (msgType == "Chat") {
             teChats->append(msg.mid(5));
-        } else if (!ended && msgType == "UpdateMap") {
+        } else if (!gameEnded && msgType == "UpdateMap") {
             globMap.import(msg.mid(10).toStdString());
             updateWindow();
 
-            if (!showed) {
-                showed = true;
+            if (!gameWindowShowed) {
+                gameWindowShowed = true;
                 show();
             }
 
             if (globMap.gameOver()) {
                 bool flagWon = globMap.stat[0].first.id == idTeam;
-                emit gameEnded(flagWon);
                 endWindow = new EndWindow(this, flagWon);
                 endWindow->show();
                 endWindow->btnWatch->setDisabled(true);
                 connect(endWindow->btnExit, &QPushButton::clicked, qApp, &QApplication::quit);
-                ended = true;
+                gameEnded = true;
             }
 
             if (moved)
@@ -512,10 +509,9 @@ void GameWindow::sendChatMessage() {
     lbFocus->setFocus();
 }
 
-void GameWindow::transfer() {
+void GameWindow::transfer() const {
     connect(webSocket, &QWebSocket::textMessageReceived, this, &GameWindow::processMessage);
     webSocket->sendTextMessage(QString("Connected:%1").arg(nickName));
-    emit windowReadied();
 }
 
 GameWindow::~GameWindow() {

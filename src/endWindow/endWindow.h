@@ -13,7 +13,7 @@ Q_OBJECT
 public:
     explicit EndWindow(QWidget *, bool);
 
-    QLabel *lbCrown, *lbInfo;
+    QLabel *lbGeneral, *lbInfo;
     QPushButton *btnWatch, *btnExit;
 };
 
