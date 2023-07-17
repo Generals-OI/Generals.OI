@@ -1,7 +1,8 @@
 #include "gameButton.h"
 
-GameButton::GameButton(int x, int y, QWidget *parent) : QPushButton(parent) {
-    wTarget = parent;
+GameButton::GameButton(int x, int y, QWidget *parent, QWidget *target) : QPushButton(parent) {
+    wParent = parent;
+    wTarget = target;
     btnPos = Point{x, y};
     connect(this, &QPushButton::clicked, this, &GameButton::onClicked);
 }
@@ -15,11 +16,11 @@ void GameButton::onClicked() {
 void GameButton::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton)
         mPressed = true;
-    if (wTarget) {
+    if (wParent && wTarget) {
 #if (QT_VERSION_MAJOR < 6)
-        pStart = event->globalPos() - wTarget->pos();
+        pStart = event->globalPos() - wParent->pos();
 #else
-        pStart = event->globalPosition().toPoint() - wTarget->pos();
+        pStart = event->globalPosition().toPoint() - wParent->pos();
 #endif
     }
     return QPushButton::mousePressEvent(event);
@@ -31,12 +32,13 @@ void GameButton::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void GameButton::mouseMoveEvent(QMouseEvent *event) {
-    if (mPressed && wTarget) {
+    if (mPressed && wParent && wTarget) {
 #if (QT_VERSION_MAJOR < 6)
         QPoint pCur = event->globalPos();
 #else
         QPoint pCur = event->globalPosition().toPoint();
 #endif
+        wParent->move(pCur - pStart);
         wTarget->move(pCur - pStart);
     }
 }

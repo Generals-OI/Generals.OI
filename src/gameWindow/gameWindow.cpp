@@ -124,7 +124,7 @@ void GameWindow::init() {
             QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
             QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
             QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
-            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtButton);
+            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtButton, wgtMap);
 
             lbO->setSizePolicy(spMap);
             lbC->setSizePolicy(spMap);
@@ -275,13 +275,18 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
 
     if (resized) {
         calcMapFontSize();
-        wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+        setGameFieldGeometry(QRect(mapLeft, mapTop, unitSize * width, unitSize * height));
         updateFocus(true, -1, focus->x, focus->y);
-        flagHalf ^= 1;
+        flagHalf = !flagHalf;
         qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
     }
 
     updateWindow(resized);
+}
+
+void GameWindow::setGameFieldGeometry(QRect geometry) const {
+    wgtMap->setGeometry(geometry);
+    wgtButton->setGeometry(geometry);
 }
 
 QRect GameWindow::mapPosition(const int x, const int y) {

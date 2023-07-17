@@ -86,13 +86,15 @@ private:
 
     void updateFocus(bool, int, int = 0, int = 0);
 
-    QRect mapPosition(const int, const int);
+    QRect mapPosition(int, int);
 
     void updateWindow(bool = false);
 
     void clearMove();
 
     void cancelMove(bool = false);
+
+    void setGameFieldGeometry(QRect) const;
 
 protected:
     void keyPressEvent(QKeyEvent *) override;

@@ -12,7 +12,7 @@ class GameButton : public QPushButton {
 Q_OBJECT
 
 public:
-    GameButton(int, int, QWidget * = nullptr);
+    GameButton(int, int, QWidget *, QWidget *);
 
 signals:
 
@@ -30,7 +30,7 @@ protected:
 private:
     bool mPressed{};
     QPoint pStart{};
-    QWidget *wTarget{};
+    QWidget *wParent{}, *wTarget{};
     Point btnPos;
 };
 
