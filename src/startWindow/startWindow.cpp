@@ -112,7 +112,8 @@ void StartWindow::onConnected() {
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket, nickName, nullptr);
-    }
+    } else
+        socket->sendTextMessage(QString("Connected:%1").arg(nickName));
 }
 
 void StartWindow::onDisconnected() {
