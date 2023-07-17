@@ -98,6 +98,7 @@ StartWindow::~StartWindow() {
 
 void StartWindow::onConnected() {
     btnConnect->setText("Disconnect");
+    btnConnect->setEnabled(true);
 
     btnReady->setEnabled(true);
     leServerAddress->setEnabled(false);
@@ -119,6 +120,7 @@ void StartWindow::onConnected() {
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
     btnConnect->setText("Connect");
+    btnConnect->setEnabled(true);
     lbMessage->setText("Disconnected");
     btnReady->setEnabled(false);
     socket->close();
@@ -128,6 +130,7 @@ void StartWindow::onConnectClicked() {
     static std::regex reg(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
                           R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))");
     if (btnConnect->text() == "Connect") {
+        btnConnect->setEnabled(false);
         auto strAddr = this->leServerAddress->text();
         if (std::regex_match(strAddr.toStdString(), reg) || strAddr == "localhost") {
             btnConnect->setText("Cancel");
