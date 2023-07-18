@@ -33,6 +33,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                                   {-1, 1},
                                   {-1, 0},
                                   {-1, -1}};
+    const int infinity = USHRT_MAX;
 
     if (cntPlayer < 2 || cntPlayer > maxPlayerNum)
         cout << "In function generateMap: wrong cntPlayer" << endl;
@@ -47,7 +48,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
 
     int lBound, rBound;
     if (cntPlayer <= 8) {
-        lBound = int(1.2857 * cntPlayer + 11.7143);
+        lBound = int(1.2857 * cntPlayer + 12.7143);
         rBound = 2 * cntPlayer + 15;
     } else {
         lBound = int(3.7738 * cntPlayer - 10.2976);
@@ -81,7 +82,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
     for (int i = 0; i < cntPlayer; i++)
         teamMbr[idTeam[i] - 1].push_back(i);
     for (int i = 0; i < cntTeam; i++)
-        teamList.push_back(i);
+        teamList[i] = i;
     shuffle(teamList.begin(), teamList.end(), rnd);
     for (int i = 0; i < cntTeam; i++)
         shuffle(teamMbr[i].begin(), teamMbr[i].end(), rnd);
@@ -102,7 +103,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                         flagValid = false;
                         break;
                     }
-                if (flagValid && rnd() % minDist <= 10) {
+                if (flagValid && rnd() % minDist < 15) {
                     pntCenter[t] = cur;
                     flagBreak = true;
                     break;
@@ -116,26 +117,27 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                 break;
             }
 
-            if (minDist > 11)
-                minDist = max(minDist - randInt(10, 13), 11);
+            if (minDist > 15)
+                minDist = max(minDist - randInt(7, 12), 15);
             else
-                minDist -= 2;
+                minDist--;
         }
 
     cout << "In function generateMap: pntCenter has been set" << endl;
 
+    shuffle(teamList.begin(), teamList.end(), rnd);
     for (auto t: teamList) {
-        int minEnemyDist = randInt(min(18, servMap.length), max(35, servMap.width + servMap.length));
-        int maxCtrDist = randInt(3, minDist);
-        int minCtrDist = randInt(1, maxCtrDist);
         const int tSize = (int) teamMbr[t].size();
-        auto itPlayer = teamMbr[t].begin();
-
         if (tSize == 1) {
             pntGeneral[teamMbr[t][0]] = pntCenter[t];
             servMap.map[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0] + 1, CellType::general);
             continue;
         }
+
+        int minEnemyDist = randInt(min(18, servMap.length), max(35, servMap.width + servMap.length));
+        int maxCtrDist = randInt(3, minDist);
+        int minCtrDist = randInt(1, maxCtrDist);
+        auto itPlayer = teamMbr[t].begin();
 
         while (!pntGeneral[teamMbr[t][tSize - 1]].x) {
             queue<pair<Point, int>> q;
@@ -197,7 +199,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                 }
             }
 
-            if (minEnemyDist == 5 && maxCtrDist == USHRT_MAX && !pntGeneral[teamMbr[t][tSize - 1]].x) {
+            if (minEnemyDist == 5 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
                 cout << "In function generateMap: Unable to set general" << std::endl;
                 break;
             }
@@ -205,7 +207,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
             if (minEnemyDist <= 15) {
                 minEnemyDist--;
                 minCtrDist = 0;
-                maxCtrDist = USHRT_MAX;
+                maxCtrDist = infinity;
             } else {
                 minEnemyDist = max(minEnemyDist - randInt(4, 9), 15);
                 minCtrDist = tSize >= 6 ? maxCtrDist : int(maxCtrDist * (0.4 + tSize * 0.1));
@@ -379,10 +381,12 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
     queue<Point> q;
     int cntRoot = 0;
 
-    // Apply algorithm "Binary Lifting LCA"
+    /* Assume that p and q are connected through another mountain, then
+     * calculate the length of the cycle containing p and q
+     */
     auto cycleLength = [&ancestor, &root, &depth](Point p, Point q) -> int {
         if (root[p.x][p.y] != root[q.x][q.y])
-            return USHRT_MAX;
+            return infinity;
         if (depth[p.x][p.y] > depth[q.x][q.y])
             swap(p, q);
         const int dP = depth[p.x][p.y], dQ = depth[q.x][q.y];
