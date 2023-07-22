@@ -56,7 +56,6 @@ StartWindow::StartWindow(QWidget *parent)
 
     leNickName->setGeometry(leLeft, leTop, leWidth, leHeight);
     leNickName->setPlaceholderText("Nick Name");
-    leNickName->setFocus();
 
     leServerAddress->setGeometry(leLeft, leTop + verItv, leWidth, leHeight);
     leServerAddress->setPlaceholderText("Server");
@@ -66,6 +65,7 @@ StartWindow::StartWindow(QWidget *parent)
     btnConnect->setGeometry(btnLeft, leTop + verItv * 3, btnWidth, btnHeight);
     btnConnect->setText("Connect");
     btnConnect->setDefault(true);
+    btnConnect->setFocus();
 
     btnReady->setGeometry(btnLeft + horItv, leTop + verItv * 3, btnWidth, btnHeight);
     btnReady->setText("Start");
