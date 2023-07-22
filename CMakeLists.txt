@@ -26,6 +26,7 @@ include_directories(
         src/server
         src/startWindow
         src/titleBar
+        src/serverSettingsWindow
         res
         res/aud
         res/font
@@ -74,6 +75,10 @@ set(
 
         src/endWindow/endWindow.cpp
         src/endWindow/endWindow.h
+
+        src/serverSettingsWindow/serverSettingsWindow.cpp
+        src/serverSettingsWindow/serverSettingsWindow.h
+        src/serverSettingsWindow/serverSettingsWindow.ui
 
         src/titleBar/titleBar.cpp
         src/titleBar/titleBar.h

@@ -1,5 +1,6 @@
 #include "server.h"
 #include "startWindow.h"
+#include "serverSettingsWindow.h"
 
 #include <QCommandLineParser>
 
@@ -23,14 +24,6 @@ int main(int argc, char *argv[]) {
 
     clp.process(app);
 
-    if (clp.isSet("s")) {
-        qDebug() << "[main.cpp] Server mode enabled";
-        new Server;
-        return QApplication::exec();
-    }
-
-    qDebug() << "[main.cpp] Defaulting to no server mode";
-
     auto idFontRegular = QFontDatabase::addApplicationFont(":/font/Quicksand-Regular.ttf");
     strFontRegular = QFontDatabase::applicationFontFamilies(idFontRegular).at(0);
     auto idFontMedium = QFontDatabase::addApplicationFont(":/font/Quicksand-Medium.ttf");
@@ -42,8 +35,20 @@ int main(int argc, char *argv[]) {
     qDebug() << "[main.cpp] Loaded font:" << strFontMedium << "id:" << idFontMedium;
     qDebug() << "[main.cpp] Loaded font:" << strFontBold << "id:" << idFontBold;
 
-    StartWindow startWindow;
-    startWindow.show();
+    if (clp.isSet("s")) {
+        qDebug() << "[main.cpp] Server mode enabled";
+
+        auto serverSettingsWindow = new ServerSettingsWindow;
+        serverSettingsWindow->show();
+
+        // TODO: Change this later
+        new Server;
+    } else {
+        qDebug() << "[main.cpp] Defaulting to no server mode";
+
+        auto *startWindow = new StartWindow;
+        startWindow->show();
+    }
 
     return QApplication::exec();
 }
