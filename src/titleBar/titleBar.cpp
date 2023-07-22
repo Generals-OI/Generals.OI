@@ -4,10 +4,12 @@ extern QString strFontBold;
 
 TitleBar::TitleBar(QWidget *parent, int itemSize)
     : QWidget(parent) {
+    if (itemSize == 0)
+        itemSize = this->height();
     int itemSpace = itemSize / 2;
     QFont font(strFontBold, int(itemSize * 0.6));
 
-    QFile cssFile(":/wndWidgets.css");
+    QFile cssFile(":/qss/WindowWidgets.qss");
     if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         setStyleSheet(cssFile.readAll());
         cssFile.close();
