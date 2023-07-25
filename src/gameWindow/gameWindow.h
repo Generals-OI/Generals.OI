@@ -15,6 +15,7 @@
 #include <QColor>
 #include <QtWebSockets>
 #include <QMediaPlayer>
+#include <QSoundEffect>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QTextDocument>
@@ -116,6 +117,7 @@ public:
     QString nickName;
     QWebSocket *webSocket;
     QMediaPlayer *gongPlayer;
+//    QSoundEffect *gongSoundEffect;
 
     bool gameWindowShowed{}, gameEnded{};
 

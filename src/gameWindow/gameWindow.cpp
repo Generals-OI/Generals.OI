@@ -40,6 +40,11 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
     gongPlayer->setSource(QUrl("qrc:/aud/GongSound.mp3"));
 #endif
 
+//    gongSoundEffect = new QSoundEffect(this);
+//    gongSoundEffect->setSource(QUrl(":/aud/GongSound.wav"));
+//    gongSoundEffect->setLoopCount(1);
+//    gongSoundEffect->setVolume(1);
+
     nickName = std::move(name);
     webSocket = socket;
     transfer();
@@ -436,6 +441,7 @@ void GameWindow::processMessage(const QString &msg) {
         idTeam = msg.section(":", 2, 2).toInt();
         gotPlayerInfo = true;
         gongPlayer->play();
+//        gongSoundEffect->play();
     } else if (msgType == "PlayerCnt") {
         cntPlayer = msg.section(":", 1, 1).toInt();
         gotPlayerCnt = true;
