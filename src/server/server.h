@@ -14,7 +14,7 @@ class Server : public QWidget {
 Q_OBJECT
 
 public:
-    explicit Server(QWidget *parent = nullptr);
+    explicit Server(int, double);
 
     ~Server() override;
 
@@ -36,6 +36,9 @@ private:
     QHostAddress address;
     ServerMap *serMap{};
     QTimer *gameTimer{};
+
+    int gameMode{};
+    double gameSpeed{};
 
     int cntPlayer{}, cntReadied{};
     bool flagGameStarted{}, flagGameOvered{};

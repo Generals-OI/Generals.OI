@@ -1,4 +1,3 @@
-#include "server.h"
 #include "startWindow.h"
 #include "serverSettingsWindow.h"
 
@@ -40,9 +39,6 @@ int main(int argc, char *argv[]) {
 
         auto serverSettingsWindow = new ServerSettingsWindow;
         serverSettingsWindow->show();
-
-        // TODO: Change this later
-        new Server;
     } else {
         qDebug() << "[main.cpp] Defaulting to no server mode";
 

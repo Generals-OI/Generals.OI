@@ -20,6 +20,17 @@ ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
 
     ui->titleBar->lbTitle->setText("Generals.OI - Create Server");
     ui->titleBar->setParent(this);
+
+    connect(ServerSettingsWindow::ui->btnCreateServer, &QPushButton::clicked,
+            this, &ServerSettingsWindow::onCreateButtonClicked);
+}
+
+void ServerSettingsWindow::onCreateButtonClicked() {
+    int gameMode =  ui->bgGameMode->checkedId() ;
+    int gameSpeed = ui->bgGameSpeed->checkedId();
+    int teamEnabled = ui->bgTeaming->checkedId();
+    hide();
+    new Server(gameMode, gameSpeed);
 }
 
 ServerSettingsWindow::~ServerSettingsWindow() {

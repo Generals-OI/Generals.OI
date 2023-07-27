@@ -1,6 +1,7 @@
 #include "server.h"
 
-Server::Server(QWidget *parent) : QWidget(parent) {
+Server::Server(int gameMode, double gameSpeed) :
+        gameMode(gameMode), gameSpeed(gameSpeed) {
     server = new QWebSocketServer("Generals.OI Server", QWebSocketServer::NonSecureMode, this);
     address = QHostAddress::Any;
 
@@ -8,7 +9,7 @@ Server::Server(QWidget *parent) : QWidget(parent) {
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
-        delete this;
+        qApp->quit();
     }
 }
 
@@ -122,7 +123,7 @@ void Server::onNewConnection() {
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
-                    gameTimer->start(20); // Debug - Xx faster
+                    gameTimer->start(int(500 / gameSpeed));
                 }
             }
         } else if (msgType == "Chat") {
