@@ -26,10 +26,15 @@ ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
 }
 
 void ServerSettingsWindow::onCreateButtonClicked() {
-    int gameMode =  ui->bgGameMode->checkedId() ;
-    int gameSpeed = ui->bgGameSpeed->checkedId();
-    int teamEnabled = ui->bgTeaming->checkedId();
     hide();
+
+    int gameMode = -ui->bgGameMode->checkedId();
+    int gameSpeedOption = -ui->bgGameSpeed->checkedId();
+    int teamEnabled = -ui->bgTeaming->checkedId();
+
+    const double speedOptions[] = {0, 0, 1, 1.5, 2, 3, 5};
+    int gameSpeed = speedOptions[gameSpeedOption];
+
     new Server(gameMode, gameSpeed);
 }
 
