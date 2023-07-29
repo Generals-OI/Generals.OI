@@ -114,7 +114,7 @@ void Server::onNewConnection() {
                         teamInfo.push_back(i);
 
                     qDebug() << "[server.cpp] Start generating.";
-                    serMap = new ServerMap(generateMap(cntPlayer, cntPlayer, teamInfo));
+                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, cntPlayer, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
                     QString mapInfo = QString::fromStdString(serMap->exportMap(true));

@@ -19,6 +19,7 @@ include_directories(
         src/gameMap
         src/gameMap/globalMap
         src/gameMap/serverMap
+        src/gameMap/mapGenerator
         src/endWindow
         src/gameWindow
         src/gameButton
@@ -81,7 +82,7 @@ set(
         src/point/point.cpp
         src/point/point.h
 
-        src/gameMap/serverMap/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.cpp
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
@@ -93,19 +94,19 @@ set(
 
         src/gameButton/gameButton.cpp
         src/gameButton/gameButton.h
-)
+        src/gameMap/mapGenerator/mapGenerator.h)
 set(
         PROJECT_RESOURCES
         res/generals.qrc
         res/generals.rc
-)
+        src/gameMap/mapGenerator/mapGenerator.h)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 5)
     add_executable(
             Generals.OI
             ${PROJECT_SOURCES}
             ${PROJECT_RESOURCES}
-    )
+            src/gameMap/mapGenerator/mapGenerator.h)
 endif ()
 
 add_executable(
@@ -116,7 +117,7 @@ add_executable(
         src/point/point.cpp
         src/point/point.h
 
-        src/gameMap/serverMap/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.cpp
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
@@ -125,7 +126,7 @@ add_executable(
 
         src/geometry/geometry.cpp
         src/geometry/geometry.h
-)
+        src/gameMap/mapGenerator/mapGenerator.h)
 
 target_link_libraries(
         Generals.OI PRIVATE

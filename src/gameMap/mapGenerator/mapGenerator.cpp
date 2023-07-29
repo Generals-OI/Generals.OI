@@ -1,11 +1,11 @@
-#include "serverMap.h"
+#include "mapGenerator.h"
 #include "geometry.h"
 
+#include <QApplication>
 #include <queue>
-#include <iostream>
 #include <random>
 
-ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam) {
+ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam) {
     using std::pair;
     using std::make_pair;
     using std::max;
@@ -13,7 +13,6 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
     using std::sqrt;
     using std::log2;
     using std::swap;
-    using std::cout;
     using std::endl;
     using std::deque;
     using std::queue;
@@ -36,10 +35,10 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
     const int infinity = USHRT_MAX;
 
     if (cntPlayer < 2 || cntPlayer > maxPlayerNum)
-        cout << "In function generateMap: wrong cntPlayer" << endl;
+        qDebug() << "In function MapGenerator::randomMap: wrong cntPlayer";
 
     const auto seed = time(nullptr);
-    cout << "In function generateMap: Random seed=" << seed << endl;
+    qDebug() << "In function MapGenerator::randomMap: Random seed=" << seed;
     mt19937 rnd(seed);
     auto randInt = [&rnd](int rangeL, int rangeR) -> int {
         uniform_int_distribution<> range(rangeL, rangeR);
@@ -113,7 +112,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                 break;
 
             if (minDist == 1) {
-                cout << "In function generateMap: Unable to set pntCenter" << endl;
+                qDebug() << "In function MapGenerator::randomMap: Unable to set pntCenter";
                 break;
             }
 
@@ -123,7 +122,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                 minDist--;
         }
 
-    cout << "In function generateMap: pntCenter has been set" << endl;
+    qDebug() << "In function MapGenerator::randomMap: pntCenter has been set";
 
     shuffle(teamList.begin(), teamList.end(), rnd);
     for (auto t: teamList) {
@@ -200,7 +199,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
             }
 
             if (minEnemyDist == 5 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
-                cout << "In function generateMap: Unable to set general" << std::endl;
+                qDebug() << "In function MapGenerator::randomMap: Unable to set general";
                 break;
             }
 
@@ -219,7 +218,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
             servMap.map[pntGeneral[i].x][pntGeneral[i].y] = Cell{0, i + 1, CellType::general};
     }
 
-    cout << "In function generateMap: generals have been set" << endl;
+    qDebug() << "In function MapGenerator::randomMap: generals have been set";
 
     // Place mountains while ensuring that generals can reach each other
 
@@ -289,7 +288,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
                     }
     }
 
-    cout << "In function generateMap: finished calculating idTeamChunk" << endl;
+    qDebug() << "In function MapGenerator::randomMap: finished calculating idTeamChunk";
 
     struct Edge {
         int u{}, v{};
@@ -372,7 +371,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
         for (int j = 1; j <= servMap.length; j++)
             possibleMtn[i][j] = possibleMtn[i][j] && rnd() % 7 <= 3;
 
-    cout << "In function generateMap: possibleMtn has been set" << endl;
+    qDebug() << "In function MapGenerator::randomMap: possibleMtn has been set";
 
     vector<vector<int>> root(servMap.width + 2, vector<int>(servMap.length + 2));
     auto depth = root;
@@ -525,7 +524,7 @@ ServerMap generateMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam
             }
         }
 
-    cout << "In function generateMap: obstacles have been placed" << endl;
+    qDebug() << "In function MapGenerator::randomMap: obstacles have been placed";
 
     // Change some mountains into cities
 
