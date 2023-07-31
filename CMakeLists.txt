@@ -13,7 +13,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(
         src
-        src/basics
         src/geometry
         src/point
         src/gameMap
@@ -27,6 +26,7 @@ include_directories(
         src/startWindow
         src/titleBar
         src/serverSettingsWindow
+        src/windowFrame
         res
         res/aud
         res/font
@@ -66,6 +66,7 @@ set(
 
         src/startWindow/startWindow.cpp
         src/startWindow/startWindow.h
+        src/startWindow/startWindow.ui
 
         src/server/server.cpp
         src/server/server.h
@@ -98,6 +99,9 @@ set(
 
         src/gameButton/gameButton.cpp
         src/gameButton/gameButton.h
+
+        src/windowFrame/windowFrame.cpp
+        src/windowFrame/windowFrame.h
 )
 set(
         PROJECT_RESOURCES

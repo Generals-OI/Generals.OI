@@ -17,9 +17,9 @@ Q_OBJECT
 public:
     explicit TitleBar(QWidget *, int = 0);
 
-    ~TitleBar() = default;
+    ~TitleBar() override = default;
 
-    void setParent(QWidget *);
+    void setTarget(QWidget *);
 
     QHBoxLayout *hLayout;
     QVBoxLayout *vLayout;
@@ -35,9 +35,9 @@ protected:
 
     void mouseMoveEvent(QMouseEvent *);
 
-    bool mPressed;
+    bool mPressed{};
     QPoint pStart;
-    QWidget *wParent;
+    QWidget *wTarget{};
 };
 
 #endif // TITLE_BAR_H
