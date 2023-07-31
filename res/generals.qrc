@@ -6,14 +6,15 @@
         <file>font/Quicksand-Bold.ttf</file>
         <file>font/Quicksand-Regular.ttf</file>
         <file>aud/GongSound.mp3</file>
+        <file>aud/GongSound.wav</file>
         <file>img/Arrow-Down.png</file>
         <file>img/Arrow-Left.png</file>
         <file>img/Arrow-Right.png</file>
         <file>img/Arrow-Up.png</file>
         <file>img/City.png</file>
-        <file>img/Crown.png</file>
-        <file>img/Crown-Lost.png</file>
-        <file>img/Crown-Won.png</file>
+        <file>img/General.png</file>
+        <file>img/General-Lost.png</file>
+        <file>img/General-Won.png</file>
         <file>img/CloseButton.png</file>
         <file>img/CloseButton-Clicked.png</file>
         <file>img/CloseButton-Hover.png</file>

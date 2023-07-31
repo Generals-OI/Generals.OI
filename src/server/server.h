@@ -3,17 +3,19 @@
 
 #include "serverMap.h"
 #include "playerInfo.h"
+#include "mapGenerator.h"
 
 #include <QWebSocket>
 #include <QWebSocketServer>
 #include <QWidget>
+#include <QApplication>
 #include <QTimer>
 
 class Server : public QWidget {
 Q_OBJECT
 
 public:
-    explicit Server(QWidget *parent = nullptr);
+    explicit Server(int, double);
 
     ~Server() override;
 
@@ -34,9 +36,13 @@ private:
     QWebSocketServer *server;
     QHostAddress address;
     ServerMap *serMap{};
+    QTimer *gameTimer{};
+
+    int gameMode{};
+    double gameSpeed{};
 
     int cntPlayer{}, cntReadied{};
-    bool flagGameStarted{};
+    bool flagGameStarted{}, flagGameOvered{};
 
     std::map<QWebSocket *, PlayerInfo> clients;
 };

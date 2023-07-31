@@ -1,7 +1,8 @@
-#include "server.h"
-#include "startWindow.h"
-
 #include <QCommandLineParser>
+
+#include "startWindow.h"
+#include "serverSettingsWindow.h"
+#include "windowFrame.h"
 
 QString strFontRegular, strFontMedium, strFontBold;
 
@@ -18,17 +19,10 @@ int main(int argc, char *argv[]) {
     clp.addVersionOption();
     clp.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
 
-    QCommandLineOption cloNoServer("n", "No server mode");
-    clp.addOption(cloNoServer);
+    QCommandLineOption cloServerMode("s", "Server mode");
+    clp.addOption(cloServerMode);
 
     clp.process(app);
-
-    Server *server;
-    if (!clp.isSet("n")) {
-        server = new Server;
-    } else {
-        qInfo() << "No server mode enabled";
-    }
 
     auto idFontRegular = QFontDatabase::addApplicationFont(":/font/Quicksand-Regular.ttf");
     strFontRegular = QFontDatabase::applicationFontFamilies(idFontRegular).at(0);
@@ -37,11 +31,23 @@ int main(int argc, char *argv[]) {
     auto idFontBold = QFontDatabase::addApplicationFont(":/font/Quicksand-Bold.ttf");
     strFontBold = QFontDatabase::applicationFontFamilies(idFontBold).at(0);
 
-    qDebug() << idFontRegular << idFontMedium << idFontBold;
-    qDebug() << strFontRegular << strFontMedium << strFontBold;
+    qDebug() << "[main.cpp] Loaded font:" << strFontRegular << "id:" << idFontRegular;
+    qDebug() << "[main.cpp] Loaded font:" << strFontMedium << "id:" << idFontMedium;
+    qDebug() << "[main.cpp] Loaded font:" << strFontBold << "id:" << idFontBold;
 
-    StartWindow startWindow;
-    startWindow.show();
+    if (clp.isSet("s")) {
+        qDebug() << "[main.cpp] Server mode enabled";
+
+        auto serverSettingsWindow = new ServerSettingsWindow;
+        auto windowFrame = new WindowFrame(serverSettingsWindow);
+        windowFrame->setTitle("Generals.OI - Server Settings");
+        windowFrame->show();
+    } else {
+        qDebug() << "[main.cpp] Defaulting to no server mode";
+
+        auto *startWindow = new StartWindow;
+        startWindow->show();
+    }
 
     return QApplication::exec();
 }

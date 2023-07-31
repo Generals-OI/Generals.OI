@@ -15,6 +15,7 @@
 #include <QColor>
 #include <QtWebSockets>
 #include <QMediaPlayer>
+#include <QSoundEffect>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QTextDocument>
@@ -78,7 +79,7 @@ private:
 
     void calcMapFontSize();
 
-    void transfer();
+    void transfer() const;
 
     void processMessage(const QString &);
 
@@ -86,7 +87,7 @@ private:
 
     void updateFocus(bool, int, int = 0, int = 0);
 
-    QRect mapPosition(const int, const int);
+    QRect mapPosition(int, int);
 
     void updateWindow(bool = false);
 
@@ -94,16 +95,10 @@ private:
 
     void cancelMove(bool = false);
 
+    void setGameFieldGeometry(QRect) const;
+
 protected:
     void keyPressEvent(QKeyEvent *) override;
-
-signals:
-
-    void windowReadied();
-
-    void gameStarted();
-
-    void gameEnded(bool);
 
 public slots:
 
@@ -122,6 +117,9 @@ public:
     QString nickName;
     QWebSocket *webSocket;
     QMediaPlayer *gongPlayer;
+//    QSoundEffect *gongSoundEffect;
+
+    bool gameWindowShowed{}, gameEnded{};
 
     qreal dpi;
     QRect screenGeometry;
@@ -142,12 +140,11 @@ public:
     Focus *focus{};
     QLabel *lbFocus{}, *lbShadow[4]{};
     std::vector<std::vector<GameButton *>> btnFocus;
-//    std::vector<std::vector<QPushButton *>> btnFocus;
 
     GlobalMap globMap{}, _globMap{};
 
-    QWidget *wgtMap{}, *wgtRank{}, *wgtChat{};
-    QGridLayout *mapLayout{}, *rankLayout{};
+    QWidget *wgtMap{}, *wgtButton{}, *wgtFocus{}, *wgtBoard{}, *wgtChat{};
+    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{}, *focusLayout{};
     QVBoxLayout *chatLayout{};
 
     std::vector<std::vector<QLabel *>> lbArrow[4];

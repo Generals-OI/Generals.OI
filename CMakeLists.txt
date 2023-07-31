@@ -13,12 +13,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(
         src
-        src/basics
         src/geometry
         src/point
         src/gameMap
         src/gameMap/globalMap
         src/gameMap/serverMap
+        src/gameMap/mapGenerator
         src/endWindow
         src/gameWindow
         src/gameButton
@@ -26,6 +26,8 @@ include_directories(
         src/server
         src/startWindow
         src/titleBar
+        src/serverSettingsWindow
+        src/windowFrame
         res
         res/aud
         res/font
@@ -65,6 +67,7 @@ set(
 
         src/startWindow/startWindow.cpp
         src/startWindow/startWindow.h
+        src/startWindow/startWindow.ui
 
         src/server/server.cpp
         src/server/server.h
@@ -75,37 +78,45 @@ set(
         src/endWindow/endWindow.cpp
         src/endWindow/endWindow.h
 
+        src/serverSettingsWindow/serverSettingsWindow.cpp
+        src/serverSettingsWindow/serverSettingsWindow.h
+        src/serverSettingsWindow/serverSettingsWindow.ui
+
         src/titleBar/titleBar.cpp
         src/titleBar/titleBar.h
 
         src/point/point.cpp
         src/point/point.h
 
-        src/gameMap/serverMap/mapGenerator.cpp
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
         src/gameMap/globalMap/globalMap.cpp
         src/gameMap/globalMap/globalMap.h
 
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
         src/geometry/geometry.cpp
         src/geometry/geometry.h
 
         src/gameButton/gameButton.cpp
         src/gameButton/gameButton.h
+
+        src/windowFrame/windowFrame.cpp
+        src/windowFrame/windowFrame.h
 )
+
 set(
         PROJECT_RESOURCES
         res/generals.qrc
-        res/generals.rc
-)
+        res/generals.rc)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 5)
     add_executable(
             Generals.OI
             ${PROJECT_SOURCES}
-            ${PROJECT_RESOURCES}
-    )
+            ${PROJECT_RESOURCES})
 endif ()
 
 add_executable(
@@ -116,16 +127,17 @@ add_executable(
         src/point/point.cpp
         src/point/point.h
 
-        src/gameMap/serverMap/mapGenerator.cpp
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
         src/gameMap/globalMap/globalMap.cpp
         src/gameMap/globalMap/globalMap.h
 
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
         src/geometry/geometry.cpp
-        src/geometry/geometry.h
-)
+        src/geometry/geometry.h)
 
 target_link_libraries(
         Generals.OI PRIVATE
@@ -134,6 +146,11 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::WebSockets
         Qt${QT_VERSION_MAJOR}::Multimedia
+)
+
+target_link_libraries(
+        Test-Generate PRIVATE
+        Qt${QT_VERSION_MAJOR}::Core
 )
 
 if (CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Release"))

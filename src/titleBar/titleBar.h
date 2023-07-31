@@ -12,12 +12,14 @@
 #include <QMouseEvent>
 
 class TitleBar : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    explicit TitleBar(QWidget *, int);
-    ~TitleBar() = default;
-    void setParent(QWidget *);
+    explicit TitleBar(QWidget *, int = 0);
+
+    ~TitleBar() override = default;
+
+    void setTarget(QWidget *);
 
     QHBoxLayout *hLayout;
     QVBoxLayout *vLayout;
@@ -28,12 +30,14 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent *);
+
     void mouseReleaseEvent(QMouseEvent *);
+
     void mouseMoveEvent(QMouseEvent *);
 
-    bool mPressed;
+    bool mPressed{};
     QPoint pStart;
-    QWidget *wParent;
+    QWidget *wTarget{};
 };
 
 #endif // TITLE_BAR_H

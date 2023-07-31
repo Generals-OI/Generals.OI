@@ -56,7 +56,6 @@ StartWindow::StartWindow(QWidget *parent)
 
     leNickName->setGeometry(leLeft, leTop, leWidth, leHeight);
     leNickName->setPlaceholderText("Nick Name");
-    leNickName->setFocus();
 
     leServerAddress->setGeometry(leLeft, leTop + verItv, leWidth, leHeight);
     leServerAddress->setPlaceholderText("Server");
@@ -66,6 +65,7 @@ StartWindow::StartWindow(QWidget *parent)
     btnConnect->setGeometry(btnLeft, leTop + verItv * 3, btnWidth, btnHeight);
     btnConnect->setText("Connect");
     btnConnect->setDefault(true);
+    btnConnect->setFocus();
 
     btnReady->setGeometry(btnLeft + horItv, leTop + verItv * 3, btnWidth, btnHeight);
     btnReady->setText("Start");
@@ -98,6 +98,7 @@ StartWindow::~StartWindow() {
 
 void StartWindow::onConnected() {
     btnConnect->setText("Disconnect");
+    btnConnect->setEnabled(true);
 
     btnReady->setEnabled(true);
     leServerAddress->setEnabled(false);
@@ -112,12 +113,14 @@ void StartWindow::onConnected() {
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket, nickName, nullptr);
-    }
+    } else
+        socket->sendTextMessage(QString("Connected:%1").arg(nickName));
 }
 
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
     btnConnect->setText("Connect");
+    btnConnect->setEnabled(true);
     lbMessage->setText("Disconnected");
     btnReady->setEnabled(false);
     socket->close();
@@ -127,6 +130,7 @@ void StartWindow::onConnectClicked() {
     static std::regex reg(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
                           R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))");
     if (btnConnect->text() == "Connect") {
+        btnConnect->setEnabled(false);
         auto strAddr = this->leServerAddress->text();
         if (std::regex_match(strAddr.toStdString(), reg) || strAddr == "localhost") {
             btnConnect->setText("Cancel");

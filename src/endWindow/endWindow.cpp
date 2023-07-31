@@ -42,7 +42,7 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
     setAutoFillBackground(true);
     setPalette(wndPalette);
 
-    lbCrown = new QLabel(this);
+    lbGeneral = new QLabel(this);
     lbInfo = new QLabel(this);
     btnWatch = new QPushButton(this);
     btnExit = new QPushButton(this);
@@ -58,14 +58,14 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
 
 #define geo_expr wgtLeft, (wgtTop = wgtTop + wgtHeight + wgtSep), wgtWidth, wgtHeight
 
-    lbCrown->setStyleSheet(QString("border-image: url(:/img/Crown-%1.png);").arg(flag ? "Won" : "Lost"));
+    lbGeneral->setStyleSheet(QString("border-image: url(:/img/General-%1.png);").arg(flag ? "Won" : "Lost"));
 
-    lbCrown->setGeometry(wgtLeft, wgtSep, wgtWidth, wgtWidth * 33 / 42);
+    lbGeneral->setGeometry(wgtLeft, wgtSep, wgtWidth, wgtWidth * 33 / 42);
     lbInfo->setGeometry(geo_expr);
     btnWatch->setGeometry(geo_expr);
     btnExit->setGeometry(geo_expr);
 
-    lbCrown->show();
+    lbGeneral->show();
     lbInfo->show();
     btnWatch->show();
     btnExit->show();
