@@ -4,7 +4,7 @@
 extern QString strFontRegular;
 
 ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
-        : QMainWindow(parent), ui(new Ui::ServerSettingsWindow) {
+        : QWidget(parent), ui(new Ui::ServerSettingsWindow) {
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     QPalette wndPalette(palette());
@@ -18,9 +18,6 @@ ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
 
     ui->setupUi(this);
 
-    ui->titleBar->lbTitle->setText("Generals.OI - Create Server");
-    ui->titleBar->setParent(this);
-
     connect(ServerSettingsWindow::ui->btnCreateServer, &QPushButton::clicked,
             this, &ServerSettingsWindow::onCreateButtonClicked);
 }
@@ -33,11 +30,7 @@ void ServerSettingsWindow::onCreateButtonClicked() {
     int teamEnabled = -ui->bgTeaming->checkedId();
 
     const double speedOptions[] = {0, 0, 1, 1.5, 2, 3, 5};
-    int gameSpeed = speedOptions[gameSpeedOption];
+    auto gameSpeed = speedOptions[gameSpeedOption];
 
     new Server(gameMode, gameSpeed);
-}
-
-ServerSettingsWindow::~ServerSettingsWindow() {
-    delete ui;
 }

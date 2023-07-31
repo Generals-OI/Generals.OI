@@ -1,7 +1,8 @@
+#include <QCommandLineParser>
+
 #include "startWindow.h"
 #include "serverSettingsWindow.h"
-
-#include <QCommandLineParser>
+#include "windowFrame.h"
 
 QString strFontRegular, strFontMedium, strFontBold;
 
@@ -38,7 +39,9 @@ int main(int argc, char *argv[]) {
         qDebug() << "[main.cpp] Server mode enabled";
 
         auto serverSettingsWindow = new ServerSettingsWindow;
-        serverSettingsWindow->show();
+        auto windowFrame = new WindowFrame(serverSettingsWindow);
+        windowFrame->setTitle("Generals.OI - Server Settings");
+        windowFrame->show();
     } else {
         qDebug() << "[main.cpp] Defaulting to no server mode";
 

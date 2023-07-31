@@ -1,23 +1,21 @@
 #ifndef SERVER_SETTINGS_WINDOW_H
 #define SERVER_SETTINGS_WINDOW_H
 
-#include <QMainWindow>
+#include <QWidget>
 
 #include "server.h"
 
-QT_BEGIN_NAMESPACE
 namespace Ui {
     class ServerSettingsWindow;
 }
-QT_END_NAMESPACE
 
-class ServerSettingsWindow : public QMainWindow {
+class ServerSettingsWindow : public QWidget {
 Q_OBJECT
 
 public:
-    ServerSettingsWindow(QWidget * = nullptr);
+    explicit ServerSettingsWindow(QWidget * = nullptr);
 
-    ~ServerSettingsWindow();
+    ~ServerSettingsWindow() override = default;
 
 protected:
     void onCreateButtonClicked();
