@@ -82,31 +82,30 @@ set(
         src/point/point.cpp
         src/point/point.h
 
-        src/gameMap/mapGenerator/mapGenerator.cpp
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
         src/gameMap/globalMap/globalMap.cpp
         src/gameMap/globalMap/globalMap.h
 
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
         src/geometry/geometry.cpp
         src/geometry/geometry.h
 
         src/gameButton/gameButton.cpp
-        src/gameButton/gameButton.h
-        src/gameMap/mapGenerator/mapGenerator.h)
+        src/gameButton/gameButton.h)
 set(
         PROJECT_RESOURCES
         res/generals.qrc
-        res/generals.rc
-        src/gameMap/mapGenerator/mapGenerator.h)
+        res/generals.rc)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 5)
     add_executable(
             Generals.OI
             ${PROJECT_SOURCES}
-            ${PROJECT_RESOURCES}
-            src/gameMap/mapGenerator/mapGenerator.h)
+            ${PROJECT_RESOURCES})
 endif ()
 
 add_executable(
@@ -117,16 +116,17 @@ add_executable(
         src/point/point.cpp
         src/point/point.h
 
-        src/gameMap/mapGenerator/mapGenerator.cpp
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
         src/gameMap/globalMap/globalMap.cpp
         src/gameMap/globalMap/globalMap.h
 
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
         src/geometry/geometry.cpp
-        src/geometry/geometry.h
-        src/gameMap/mapGenerator/mapGenerator.h)
+        src/geometry/geometry.h)
 
 target_link_libraries(
         Generals.OI PRIVATE
@@ -135,6 +135,11 @@ target_link_libraries(
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::WebSockets
         Qt${QT_VERSION_MAJOR}::Multimedia
+)
+
+target_link_libraries(
+        Test-Generate PRIVATE
+        Qt${QT_VERSION_MAJOR}::Core
 )
 
 if (CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
