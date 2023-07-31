@@ -3,6 +3,7 @@
 
 #include "serverMap.h"
 #include "playerInfo.h"
+#include "mapGenerator.h"
 
 #include <QWebSocket>
 #include <QWebSocketServer>

@@ -26,7 +26,4 @@ public:
     void surrender(int);
 };
 
-// Generate random and valid ServerMap
-ServerMap generateMap(int, int, const std::vector<int> &);
-
 #endif // SERVER_MAP_H
