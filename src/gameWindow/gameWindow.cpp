@@ -115,7 +115,7 @@ void GameWindow::init() {
     lbMapBgd->show();
     mapLayout->addWidget(lbMapBgd, 1, 1, height, width);
 
-    const QString strCell[] = {"Land", "General", "City", "Mountain"};
+    const QString strCell[] = {"Land", "General", "City", "Mountain", "Swamp"};
     const QString strArrow[] = {"Up", "Down", "Left", "Right"};
 
     for (int i = 1; i <= height; i++) {
@@ -138,7 +138,12 @@ void GameWindow::init() {
                 lbA->hide();
             }
 
-            lbO->setObjectName((int) cell->type >= 2 ? "Obstacle" : "Land");
+            if (cell->type == CellType::mountain || cell->type == CellType::city)
+                lbO->setObjectName("Obstacle");
+            else if (cell->type == CellType::swamp)
+                lbO->setObjectName("Swamp");
+            else
+                lbO->setObjectName("Land");
             lbM->setObjectName(strCell[(int) cell->type]);
 
             connect(btnF, &GameButton::focused, this, &GameWindow::onGameButtonFocused);

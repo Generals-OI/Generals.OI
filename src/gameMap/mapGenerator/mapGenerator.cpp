@@ -1,9 +1,10 @@
 #include "mapGenerator.h"
 #include "geometry.h"
 
-#include <QApplication>
 #include <queue>
 #include <random>
+
+#include <QDebug>
 
 ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam) {
     using std::pair;

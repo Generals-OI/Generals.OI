@@ -11,7 +11,7 @@
 const int maxPlayerNum = 16;
 
 enum CellType {
-    land, general, city, mountain
+    land, general, city, mountain, swamp
 };
 
 struct Cell {

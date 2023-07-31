@@ -102,6 +102,9 @@ void GlobalMap::import(const std::string &strMap) {
                 case 3:
                     c.type = CellType::mountain;
                     break;
+                case 4:
+                    c.type = CellType::swamp;
+                    break;
                 default:
                     std::cout << "In function GlobalMap::import: invalid CellType" << std::endl;
             }
@@ -132,7 +135,9 @@ void GlobalMap::print() {
                     break;
                 case CellType::mountain:
                     cout << setw(3) << map[i][j].number << "M";
-
+                    break;
+                case CellType::swamp:
+                    cout << setw(3) << map[i][j].number << "_";
             }
         }
         cout << endl;

@@ -26,5 +26,6 @@
         <file>img/Mountain.png</file>
         <file>img/Obstacle.png</file>
         <file>img/StartWindow-Background.png</file>
+        <file>img/Swamp.png</file>
     </qresource>
 </RCC>
