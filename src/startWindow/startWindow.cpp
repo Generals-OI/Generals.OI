@@ -34,8 +34,9 @@ StartWindow::~StartWindow() {
 }
 
 void StartWindow::onCreateServer() {
-    auto *process = new QProcess;
-    process->start(qApp->arguments()[0], QStringList("-s"));
+    // Note that this function only works in cmake mode `Release`
+    auto res = QProcess::startDetached(qApp->arguments()[0], QStringList("-s"));
+    qDebug() << "[startWindow.cpp] Create Process Status:" << res;
 }
 
 void StartWindow::onConnected() {
