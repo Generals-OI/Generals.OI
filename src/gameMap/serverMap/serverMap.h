@@ -7,9 +7,11 @@ class ServerMap : public GlobalMap {
 private:
     std::vector<int> roundLose;
 public:
-    explicit ServerMap(const GlobalMap &);
+    explicit ServerMap(GlobalMap &&);
 
     ServerMap() = default;
+
+    ServerMap(ServerMap &&) = default;
 
     std::string exportMap(bool);
 
