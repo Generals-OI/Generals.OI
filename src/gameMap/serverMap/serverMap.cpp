@@ -93,7 +93,7 @@ void ServerMap::surrender(int id) {
     roundLose[id - 1] = round;
 }
 
-ServerMap::ServerMap(const GlobalMap &globMap) : GlobalMap(globMap) {
+ServerMap::ServerMap(GlobalMap &&globMap) : GlobalMap(std::move(globMap)) {
     roundLose = std::vector<int>(cntGnl, INT_MAX);
 }
 

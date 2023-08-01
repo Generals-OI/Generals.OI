@@ -56,7 +56,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
     }
     ServerMap servMap{GlobalMap(randInt(lBound, rBound), randInt(lBound, rBound), cntTeam, cntPlayer, idTeam)};
 
-    auto valid = [servMap](Point p) -> bool {
+    auto valid = [&servMap](Point p) -> bool {
         return p.x > 0 && p.x <= servMap.width && p.y > 0 && p.y <= servMap.length;
     };
 
@@ -316,7 +316,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
         return par;
     };
 
-    auto rndPath = [servMap, mDistanceI, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
+    auto rndPath = [&servMap, mDistanceI, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
         const int k = mDistanceI(pntStart, pntEnd) / 8;
         const int uBound = max(1, min(pntStart.x, pntEnd.x) - k);
         const int dBound = min(servMap.width, max(pntStart.x, pntEnd.x) + k);

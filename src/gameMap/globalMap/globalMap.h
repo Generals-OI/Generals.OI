@@ -41,9 +41,15 @@ public:
     std::vector<int> idTeam;
     std::vector<std::pair<Statistics, std::vector<Statistics>>> stat;
 
-    explicit GlobalMap(int, int, int, int, const std::vector<int> &);
+    GlobalMap(int, int, int, int, const std::vector<int> &);
 
     GlobalMap() = default;
+
+    GlobalMap(GlobalMap &&) = default;
+
+    GlobalMap(const GlobalMap &) = default;
+
+    GlobalMap& operator=(const GlobalMap &) = default;
 
     void import(const std::string &);
 
