@@ -5,25 +5,18 @@ extern QString strFontRegular;
 
 ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
         : QWidget(parent), ui(new Ui::ServerSettingsWindow) {
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
-
-    QPalette wndPalette(palette());
-#if (QT_VERSION_MAJOR < 6)
-    wndPalette.setColor(QPalette::Background, QColor(34, 34, 34));
-#else
-    wndPalette.setColor(QPalette::Window, QColor(34, 34, 34));
-#endif
-    wndPalette.setColor(QPalette::WindowText, QColor(0, 128, 128));
-    setPalette(wndPalette);
-
     ui->setupUi(this);
 
     connect(ServerSettingsWindow::ui->btnCreateServer, &QPushButton::clicked,
             this, &ServerSettingsWindow::onCreateButtonClicked);
 }
 
+void ServerSettingsWindow::setTarget(QWidget *target) {
+    wTarget = target;
+}
+
 void ServerSettingsWindow::onCreateButtonClicked() {
-    hide();
+    wTarget->hide();
 
     int gameMode = -ui->bgGameMode->checkedId();
     int gameSpeedOption = -ui->bgGameSpeed->checkedId();

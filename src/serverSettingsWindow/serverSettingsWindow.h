@@ -17,11 +17,14 @@ public:
 
     ~ServerSettingsWindow() override = default;
 
+    void setTarget(QWidget *);
+
 protected:
     void onCreateButtonClicked();
 
 private:
     Ui::ServerSettingsWindow *ui;
+    QWidget *wTarget{};
 };
 
 #endif // SERVER_SETTINGS_WINDOW_H
