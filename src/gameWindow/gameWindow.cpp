@@ -452,7 +452,7 @@ void GameWindow::processMessage(const QString &msg) {
         gotPlayersInfo++;
     } else if (msgType == "InitMap") {
         globMap.import(msg.mid(8).toStdString());
-        _globMap = std::move(globMap);
+        _globMap = globMap;
         gotInitMap = true;
         init();
     } else if (gotPlayerInfo && gotInitMap && gotPlayerCnt && gotPlayersInfo == cntPlayer) {
