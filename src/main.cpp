@@ -39,14 +39,18 @@ int main(int argc, char *argv[]) {
         qDebug() << "[main.cpp] Server mode enabled";
 
         auto serverSettingsWindow = new ServerSettingsWindow;
-        auto windowFrame = new WindowFrame(serverSettingsWindow);
-        windowFrame->setTitle("Generals.OI - Server Settings");
-        windowFrame->show();
+        auto serverSettingsWindowFrame = new WindowFrame(serverSettingsWindow);
+        serverSettingsWindowFrame->setTitle("Generals.OI - Server Settings");
+        serverSettingsWindow->setTarget(serverSettingsWindowFrame);
+        serverSettingsWindowFrame->show();
     } else {
         qDebug() << "[main.cpp] Defaulting to no server mode";
 
-        auto *startWindow = new StartWindow;
-        startWindow->show();
+        auto startWindow = new StartWindow;
+        auto startWindowFrame = new WindowFrame(startWindow);
+        startWindowFrame->setTitle("Generals.OI");
+        startWindow->setTarget(startWindowFrame);
+        startWindowFrame->show();
     }
 
     return QApplication::exec();

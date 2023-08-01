@@ -1,94 +1,31 @@
 #include "startWindow.h"
+#include "ui_startWindow.h"
 
 extern QString strFontBold;
 
 StartWindow::StartWindow(QWidget *parent)
-        : QMainWindow(parent) {
-    auto screenGeometry = qApp->primaryScreen()->geometry();
-    auto dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
-    QFont font(strFontBold);
-    setFont(font);
+        : QWidget(parent), ui(new Ui::StartWindow) {
+    QFile cssFile(":/qss/WindowWidgets.qss");
+    if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        setStyleSheet(cssFile.readAll());
+        cssFile.close();
+    }
 
-    int screenWidth = screenGeometry.width();
-    int screenHeight = screenGeometry.height();
-    int maxWidth = int(screenWidth * 0.8);
-    int maxHeight = int(screenHeight * 0.8);
-    int wndWidth = std::min(maxWidth, int(maxHeight / 0.75));
-    int wndHeight = std::min(maxHeight, int(maxWidth * 0.75));
-    int verItv = int(wndWidth / 16), horItv = int(wndHeight / 2);
-    int leLeft = int(wndWidth / 4), leTop = int(wndWidth / 3);
-    int leWidth = int(wndWidth / 2), leHeight = int(leWidth / 10);
-    int btnLeft = int(wndHeight / 4);
-    int btnWidth = int(wndWidth / 4), btnHeight = leHeight;
-    int fontSize = int(wndWidth / (dpi * 40));
-    int iconSize = wndHeight / 32;
-
-    setWindowTitle("Generals.OI");
-    setWindowIcon(QIcon(":/icon.png"));
-    setDockNestingEnabled(false);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
-
-    setGeometry((screenWidth - wndWidth) / 2, (screenHeight - wndHeight) / 2, wndWidth, wndHeight);
-    setFixedSize(wndWidth, wndHeight);
+    ui->setupUi(this);
 
     socket = new QWebSocket;
 
-    QFile qssFile(":/qss/WindowWidgets.qss");
-    if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(qssFile.readAll());
-        qssFile.close();
-    }
+    setTabOrder(ui->leNickName, ui->leServerAddress);
+    setTabOrder(ui->leServerAddress, ui->pbConnect);
+    setTabOrder(ui->pbConnect, ui->pbReady);
+    setTabOrder(ui->pbReady, ui->pbCreateServer);
 
-    lbBackground = new QLabel(this);
-    titleBar = new TitleBar(this, iconSize);
-    leNickName = new QLineEdit(this);
-    leServerAddress = new QLineEdit(this);
-    lbMessage = new QLabel(this);
-    btnConnect = new QPushButton(this);
-    btnReady = new QPushButton(this);
+    connect(ui->pbConnect, &QPushButton::clicked, this, &StartWindow::onConnectClicked);
+    connect(ui->pbReady, &QPushButton::clicked, this, &StartWindow::onReadyClicked);
+    connect(ui->pbCreateServer, &QPushButton::clicked, this, &StartWindow::onCreateServer);
 
-    lbBackground->setGeometry(0, 0, width(), height());
-    lbBackground->setObjectName("Background");
-
-    titleBar->setParent(this);
-    titleBar->setGeometry(0, 0, wndWidth, iconSize * 2);
-    titleBar->lbTitle->setText("Generals.OI");
-
-    leNickName->setGeometry(leLeft, leTop, leWidth, leHeight);
-    leNickName->setPlaceholderText("Nick Name");
-
-    leServerAddress->setGeometry(leLeft, leTop + verItv, leWidth, leHeight);
-    leServerAddress->setPlaceholderText("Server");
-
-    lbMessage->setGeometry(btnLeft, leTop + verItv * 2, wndWidth - btnLeft * 2, leHeight);
-
-    btnConnect->setGeometry(btnLeft, leTop + verItv * 3, btnWidth, btnHeight);
-    btnConnect->setText("Connect");
-    btnConnect->setDefault(true);
-    btnConnect->setFocus();
-
-    btnReady->setGeometry(btnLeft + horItv, leTop + verItv * 3, btnWidth, btnHeight);
-    btnReady->setText("Start");
-    btnReady->setEnabled(false);
-
-    font.setPointSize(fontSize);
-    leNickName->setFont(font);
-    leServerAddress->setFont(font);
-    btnConnect->setFont(font);
-    btnReady->setFont(font);
-
-    fontSize = int((wndHeight + int(wndWidth / 2)) / (dpi * 80));
-    font.setPointSize(fontSize);
-    lbMessage->setFont(font);
-
-    setTabOrder(leNickName, leServerAddress);
-    setTabOrder(leServerAddress, btnConnect);
-    setTabOrder(btnConnect, btnReady);
-
-    connect(btnConnect, &QPushButton::clicked, this, &StartWindow::onConnectClicked);
     connect(socket, &QWebSocket::connected, this, &StartWindow::onConnected);
     connect(socket, &QWebSocket::disconnected, this, &StartWindow::onDisconnected);
-    connect(btnReady, &QPushButton::clicked, this, &StartWindow::onReadyClicked);
     connect(socket, &QWebSocket::textMessageReceived, this, &StartWindow::onMessageReceived);
 }
 
@@ -96,15 +33,20 @@ StartWindow::~StartWindow() {
     delete socket;
 }
 
+void StartWindow::onCreateServer() {
+    auto *process = new QProcess;
+    process->start(qApp->arguments()[0], QStringList("-s"));
+}
+
 void StartWindow::onConnected() {
-    btnConnect->setText("Disconnect");
-    btnConnect->setEnabled(true);
+    ui->pbConnect->setText("Disconnect");
+    ui->pbConnect->setEnabled(true);
 
-    btnReady->setEnabled(true);
-    leServerAddress->setEnabled(false);
-    leNickName->setEnabled(false);
+    ui->pbReady->setEnabled(true);
+    ui->leServerAddress->setEnabled(false);
+    ui->leNickName->setEnabled(false);
 
-    auto nickName = leNickName->text();
+    auto nickName = ui->leNickName->text();
     if (nickName.isEmpty()) {
         nickName = QString("%1 %2").arg(socket->peerAddress().toString(), QString::number(socket->peerPort()));
         qDebug() << QString("[startWindow.cpp] No nick name set, defaulting to %1.").arg(nickName);
@@ -119,25 +61,25 @@ void StartWindow::onConnected() {
 
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
-    btnConnect->setText("Connect");
-    btnConnect->setEnabled(true);
-    lbMessage->setText("Disconnected");
-    btnReady->setEnabled(false);
+    ui->pbConnect->setText("Connect");
+    ui->pbConnect->setEnabled(true);
+    ui->lbMessage->setText("Disconnected");
+    ui->pbReady->setEnabled(false);
     socket->close();
 }
 
 void StartWindow::onConnectClicked() {
     static std::regex reg(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
                           R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))");
-    if (btnConnect->text() == "Connect") {
-        btnConnect->setEnabled(false);
-        auto strAddr = this->leServerAddress->text();
+    if (ui->pbConnect->text() == "Connect") {
+        ui->pbConnect->setEnabled(false);
+        auto strAddr = ui->leServerAddress->text();
         if (std::regex_match(strAddr.toStdString(), reg) || strAddr == "localhost") {
-            btnConnect->setText("Cancel");
-            lbMessage->setText(QString("Connecting to: %1").arg(strAddr));
+            ui->pbConnect->setText("Cancel");
+            ui->lbMessage->setText(QString("Connecting to: %1").arg(strAddr));
             socket->open(QUrl(QString("ws://%1:32767").arg(strAddr)));
         } else
-            lbMessage->setText("Error: Wrong server address format");
+            ui->lbMessage->setText("Error: Wrong server address format");
     } else {
         socket->close();
     }
@@ -146,8 +88,8 @@ void StartWindow::onConnectClicked() {
 void StartWindow::onReadyClicked() {
     // TODO: Add team info and transfer it to server
     socket->sendTextMessage(QString("Readied:%1").arg(0));
-    btnReady->setEnabled(false);
-    btnConnect->setFocus();
+    ui->pbReady->setEnabled(false);
+    ui->pbConnect->setFocus();
 }
 
 void StartWindow::onMessageReceived(const QString &msg) {
@@ -155,11 +97,15 @@ void StartWindow::onMessageReceived(const QString &msg) {
     QString msgType = msg.section(":", 0, 0);
 
     if (msgType == "Status") {
-        lbMessage->setText(msg.section(":", 1));
+        ui->lbMessage->setText(msg.section(":", 1));
     } else if (!inited && msgType == "InitMap") {
         inited = true;
     } else if (inited && !hid && msgType == "UpdateMap") {
         hid = true;
-        hide();
+        target->hide();
     }
+}
+
+void StartWindow::setTarget(QWidget *widget) {
+    target = widget;
 }
