@@ -103,10 +103,10 @@ void StartWindow::onMessageReceived(const QString &msg) {
         inited = true;
     } else if (inited && !hid && msgType == "UpdateMap") {
         hid = true;
-        target->hide();
+        wTarget->hide();
     }
 }
 
 void StartWindow::setTarget(QWidget *widget) {
-    target = widget;
+    wTarget = widget;
 }

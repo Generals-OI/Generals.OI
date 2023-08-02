@@ -6,6 +6,7 @@
 
 #include "gameWindow.h"
 #include "titleBar.h"
+#include "teamButton.h"
 
 namespace Ui {
     class StartWindow;
@@ -36,9 +37,10 @@ private:
 
 private:
     Ui::StartWindow *ui;
-    QWidget *target{};
+    QWidget *wTarget{};
     QWebSocket *socket{};
     GameWindow *gameWindow{};
+    QVector<TeamButton *> pbTeams;
 };
 
 #endif // START_WINDOW_H

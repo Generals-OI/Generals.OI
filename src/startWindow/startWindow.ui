@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1104</width>
-    <height>597</height>
+    <width>1093</width>
+    <height>701</height>
    </rect>
   </property>
   <property name="font">
@@ -69,6 +69,9 @@
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
+         </property>
+         <property name="whatsThis">
+          <string/>
          </property>
          <property name="inputMask">
           <string/>
@@ -133,6 +136,19 @@
     </layout>
    </item>
    <item>
+    <spacer name="vs1">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QVBoxLayout" name="vlTeam">
      <property name="spacing">
       <number>20</number>
@@ -173,6 +189,21 @@
         </spacer>
        </item>
        <item>
+        <widget class="QPushButton" name="pbNewTeam">
+         <property name="font">
+          <font>
+           <family>Quicksand Regular</family>
+           <pointsize>16</pointsize>
+           <stylestrategy>PreferAntialias</stylestrategy>
+          </font>
+         </property>
+         <property name="text">
+          <string>Create &amp;&amp; Join
+New Team</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="hsTeam2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -188,6 +219,19 @@
       </layout>
      </item>
     </layout>
+   </item>
+   <item>
+    <spacer name="vs2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -236,33 +280,6 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pbCreateServer">
-         <property name="font">
-          <font>
-           <family>Quicksand Bold</family>
-           <pointsize>20</pointsize>
-           <stylestrategy>PreferAntialias</stylestrategy>
-          </font>
-         </property>
-         <property name="text">
-          <string>Create</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsButton2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QPushButton" name="pbConnect">
          <property name="font">
           <font>
@@ -271,13 +288,16 @@
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
+         <property name="whatsThis">
+          <string>Connect to game server</string>
+         </property>
          <property name="text">
           <string>Connect</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="hsButton3">
+        <spacer name="hsButton2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -298,8 +318,41 @@
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
+         <property name="whatsThis">
+          <string>Ready to play</string>
+         </property>
          <property name="text">
           <string>Ready</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="hsButton3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbCreateServer">
+         <property name="font">
+          <font>
+           <family>Quicksand Bold</family>
+           <pointsize>20</pointsize>
+           <stylestrategy>PreferAntialias</stylestrategy>
+          </font>
+         </property>
+         <property name="whatsThis">
+          <string>Create game server</string>
+         </property>
+         <property name="text">
+          <string>Create</string>
          </property>
         </widget>
        </item>
