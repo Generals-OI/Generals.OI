@@ -26,7 +26,7 @@ StartWindow::StartWindow(QWidget *parent)
 
     connect(socket, &QWebSocket::connected, this, &StartWindow::onConnected);
     connect(socket, &QWebSocket::disconnected, this, &StartWindow::onDisconnected);
-    connect(socket, &QWebSocket::textMessageReceived, this, &StartWindow::onMessageReceived);
+    connect(socket, &QWebSocket::binaryMessageReceived, this, &StartWindow::onMessageReceived);
 }
 
 StartWindow::~StartWindow() {
@@ -57,7 +57,7 @@ void StartWindow::onConnected() {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket, nickName, nullptr);
     } else
-        socket->sendTextMessage(QString("Connected:%1").arg(nickName));
+        socket->sendBinaryMessage(generateMessage("Connected", {nickName}));
 }
 
 void StartWindow::onDisconnected() {
@@ -88,17 +88,19 @@ void StartWindow::onConnectClicked() {
 
 void StartWindow::onReadyClicked() {
     // TODO: Add team info and transfer it to server
-    socket->sendTextMessage(QString("Readied:%1").arg(0));
+    socket->sendBinaryMessage(generateMessage("Readied", {0}));
     ui->pbReady->setEnabled(false);
     ui->pbConnect->setFocus();
 }
 
-void StartWindow::onMessageReceived(const QString &msg) {
+void StartWindow::onMessageReceived(const QByteArray &msg) {
     static bool inited = false, hid = false;
-    QString msgType = msg.section(":", 0, 0);
+    auto json = loadJson(msg);
+    auto msgType = json.first.toString();
+    auto msgData = json.second.toArray();
 
     if (msgType == "Status") {
-        ui->lbMessage->setText(msg.section(":", 1));
+        ui->lbMessage->setText(msgData.at(0).toString());
     } else if (!inited && msgType == "InitMap") {
         inited = true;
     } else if (inited && !hid && msgType == "UpdateMap") {

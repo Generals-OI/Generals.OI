@@ -38,6 +38,7 @@
 #include "globalMap.h"
 #include "playerInfo.h"
 #include "endWindow.h"
+#include "processJson.h"
 
 #include <QDebug>
 
@@ -66,7 +67,7 @@ const QString strColor[] = {
 };
 */
 
-class GameWindow : public QWidget {
+class GameWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
@@ -79,9 +80,7 @@ private:
 
     void calcMapFontSize();
 
-    void transfer() const;
-
-    void processMessage(const QString &);
+    void processMessage(const QByteArray &);
 
     void sendChatMessage();
 
@@ -164,9 +163,8 @@ public:
 
     EndWindow *endWindow{};
 
-    bool moved = false;
-    bool gotPlayerInfo = false, gotInitMap = false, gotPlayerCnt = false;
-    int gotPlayersInfo = 0;
+    bool moved{};
+    bool gotPlayerInfo{}, gotInitMap{}, gotPlayerCnt{}, gotPlayersInfo{};
 };
 
 struct Focus : public Point {

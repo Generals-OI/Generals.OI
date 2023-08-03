@@ -29,6 +29,7 @@ include_directories(
         src/titleBar
         src/serverSettingsWindow
         src/windowFrame
+        src/processJson
         res
         res/aud
         res/font
@@ -75,6 +76,9 @@ set(
 
         src/server/server.cpp
         src/server/server.h
+
+        src/processJson/processJson.cpp
+        src/processJson/processJson.h
 
         src/playerInfo/playerInfo.cpp
         src/playerInfo/playerInfo.h

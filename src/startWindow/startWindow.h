@@ -7,12 +7,13 @@
 #include "gameWindow.h"
 #include "titleBar.h"
 #include "teamButton.h"
+#include "processJson.h"
 
 namespace Ui {
     class StartWindow;
 }
 
-class StartWindow : public QWidget {
+class StartWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
@@ -33,7 +34,7 @@ private:
 
     void onReadyClicked();
 
-    void onMessageReceived(const QString &);
+    void onMessageReceived(const QByteArray &);
 
 private:
     Ui::StartWindow *ui;

@@ -47,7 +47,9 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 
     nickName = std::move(name);
     webSocket = socket;
-    transfer();
+
+    connect(webSocket, &QWebSocket::binaryMessageReceived, this, &GameWindow::processMessage);
+    webSocket->sendBinaryMessage(generateMessage("Connected", {nickName}));
 }
 
 void GameWindow::init() {
@@ -437,35 +439,40 @@ void GameWindow::updateWindow(bool forced) {
     lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
 }
 
-void GameWindow::processMessage(const QString &msg) {
-    QString msgType = msg.section(":", 0, 0);
+void GameWindow::processMessage(const QByteArray &msg) {
+    auto json = loadJson(msg);
+    auto msgType = json.first.toString();
+    auto msgData = json.second.toArray();
     qDebug() << "[gameWindow.cpp] Received:" << msgType;
 
     if (msgType == "PlayerInfo") {
-        idPlayer = msg.section(":", 1, 1).toInt();
-        idTeam = msg.section(":", 2, 2).toInt();
+        idPlayer = msgData.at(0).toInt();
+        idTeam = msgData.at(1).toInt();
         gotPlayerInfo = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
     } else if (msgType == "PlayerCnt") {
-        cntPlayer = msg.section(":", 1, 1).toInt();
+        cntPlayer = msgData.at(0).toInt();
         gotPlayerCnt = true;
     } else if (msgType == "PlayersInfo") {
-        int player = msg.section(":", 1, 1).toInt();
-        int team = msg.section(":", 2, 2).toInt();
-        QString nick = msg.section(":", 3);
-        playersInfo[player] = PlayerInfo(nick, player, team);
-        gotPlayersInfo++;
+        for (int i = 0; i < cntPlayer; i++) {
+            auto playerData = msgData.at(i).toArray();
+            auto nick = playerData.at(0).toString();
+            int player = playerData.at(1).toInt();
+            int team = playerData.at(2).toInt();
+            playersInfo[player] = PlayerInfo(nick, player, team);
+        }
+        gotPlayersInfo = true;
     } else if (msgType == "InitMap") {
-        globMap.import(msg.mid(8).toStdString());
+        globMap.import(msgData.at(0).toString().toStdString());
         _globMap = globMap;
         gotInitMap = true;
         init();
-    } else if (gotPlayerInfo && gotInitMap && gotPlayerCnt && gotPlayersInfo == cntPlayer) {
+    } else if (gotPlayerInfo && gotInitMap && gotPlayerCnt && gotPlayersInfo) {
         if (msgType == "Chat") {
-            teChats->append(msg.mid(5));
+            teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
         } else if (!gameEnded && msgType == "UpdateMap") {
-            globMap.import(msg.mid(10).toStdString());
+            globMap.import(msgData.at(0).toString().toStdString());
             updateWindow();
 
             if (!gameWindowShowed) {
@@ -487,15 +494,17 @@ void GameWindow::processMessage(const QString &msg) {
             bool move = !dqMsg.empty();
 
             if (move) {
-                auto data = dqMsg.front();
-                QString moveInfo = QString("Move:%1:%2:%3:%4:%5:%6")
-                        .arg(QString::number(idPlayer),
-                             QString::number(data.startX), QString::number(data.startY),
-                             QString::number(dtDirection[data.direction].x),
-                             QString::number(dtDirection[data.direction].y),
-                             QString::number(data.flag50p));
+                auto moveData = dqMsg.front();
+                QJsonArray jsonData;
+                jsonData.push_back(idPlayer);
+                jsonData.push_back(moveData.startX);
+                jsonData.push_back(moveData.startY);
+                jsonData.push_back(dtDirection[moveData.direction].x);
+                jsonData.push_back(dtDirection[moveData.direction].y);
+                jsonData.push_back(moveData.flag50p);
+
                 if (idPlayer != -1) // Spectators are not allow to move
-                    webSocket->sendTextMessage(moveInfo);
+                    webSocket->sendBinaryMessage(generateMessage("Move", jsonData));
             }
 
             moved = move;
@@ -517,17 +526,12 @@ void GameWindow::calcMapFontSize() {
 void GameWindow::sendChatMessage() {
     auto msg = leChat->text();
     if (msg.size()) {
-        webSocket->sendTextMessage(QString("Chat:%1: %2").arg(nickName, msg));
+        webSocket->sendBinaryMessage(generateMessage("Chat", {nickName, msg}));
     }
 
     leChat->clear();
     leChat->setEnabled(false);
     lbFocus->setFocus();
-}
-
-void GameWindow::transfer() const {
-    connect(webSocket, &QWebSocket::textMessageReceived, this, &GameWindow::processMessage);
-    webSocket->sendTextMessage(QString("Connected:%1").arg(nickName));
 }
 
 GameWindow::~GameWindow() {

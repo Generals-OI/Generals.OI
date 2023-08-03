@@ -44,28 +44,33 @@ void Server::onNewConnection() {
         socket->deleteLater();
     });
 
-    connect(this, &Server::sendMessage, socket, &QWebSocket::sendTextMessage);
+    connect(this, &Server::sendMessage, socket, &QWebSocket::sendBinaryMessage);
 
-    connect(socket, &QWebSocket::textMessageReceived, [this, socket](const QString &msg) -> void {
-        QString msgType = msg.section(":", 0, 0);
+    connect(socket, &QWebSocket::binaryMessageReceived, [this, socket](const QByteArray &msg) -> void {
+        auto json = loadJson(msg);
+        auto msgType = json.first.toString();
+        auto msgData = json.second.toArray();
+        if (msgType.isNull()) return;
+
         qDebug() << "[server.cpp] Received:" << msgType
-                 << socket->peerAddress().toString() << socket->peerPort();
+                 << "From:" << socket->peerAddress().toString() << socket->peerPort();
 
         if (msgType == "Connected") {
             const int maxPlayerNum = 8;
             if (!flagGameStarted) {
+                auto playerNickName = msgData.at(0).toString();
                 if ((++cntPlayer) <= maxPlayerNum) {
-                    clients[socket] = PlayerInfo(msg.section(":", 1), cntPlayer, cntPlayer, false, false);
+                    clients[socket] = PlayerInfo(playerNickName, cntPlayer, cntPlayer, false, false);
                 } else {
                     cntPlayer--;
-                    socket->sendTextMessage("Status:You will enter as an spectator.");
-                    clients[socket] = PlayerInfo("[Spectator]" + msg.section(":", 1), -1, -1, true, true);
+                    socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
+                    clients[socket] = PlayerInfo("[Spectator] " + playerNickName, -1, -1, true, true);
                     qDebug() << "[server.cpp] Too many players, join as spectator";
                     return;
                 }
             } else {
-                socket->sendTextMessage("Status:You will enter as an spectator.");
-                clients[socket] = PlayerInfo("Spectator", -1, -1, true, false);
+                socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
+                clients[socket] = PlayerInfo("[Spectator]", -1, -1, true, false);
                 qDebug() << "[server.cpp] Game started, join as spectator";
                 return;
             }
@@ -75,39 +80,39 @@ void Server::onNewConnection() {
 
             if (flagGameStarted) {
                 if (clients[socket].isSpect) {
-                    socket->sendTextMessage("PlayerInfo:-1:-1");
-                    socket->sendTextMessage(QString("PlayerCnt:%1").arg(QString::number(cntPlayer)));
-                    for (auto &it: clients) {
-                        if (!it.second.isSpect)
-                            socket->sendTextMessage(QString("PlayersInfo:%1:%2:%3")
-                                                            .arg(QString::number(it.second.idPlayer),
-                                                                 QString::number(it.second.idTeam),
-                                                                 it.second.nickName));
-                    }
-                    socket->sendTextMessage(QString("InitMap:%1")
-                                                    .arg(QString::fromStdString(serMap->exportMap(true))));
+                    socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
+                    socket->sendBinaryMessage(generateMessage("PlayerCnt", {cntPlayer}));
+                    socket->sendBinaryMessage(baPlayersInfo);
+                    socket->sendBinaryMessage(generateMessage("InitMap",
+                                                              {QString::fromStdString(serMap->exportMap(true))}));
                 }
             } else {
-                auto idTeam = msg.section(":", 1, 1).toInt();
-                if (idTeam) {
+                auto idTeam = msgData.at(0).toInt();
+                if (idTeam)
                     clients[socket].idTeam = idTeam;
-                }
 
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
                     flagGameStarted = true;
-                    emit sendMessage("Status:Game starting");
-                    emit sendMessage(QString("PlayerCnt:%1").arg(QString::number(cntPlayer)));
+                    emit sendMessage(generateMessage("Status", {"Game starting!"}));
+                    emit sendMessage(generateMessage("PlayerCnt", {cntPlayer}));
+
+                    QJsonArray playersInfoData;
 
                     for (auto &it: clients) {
-                        it.first->sendTextMessage(QString("PlayerInfo:%1:%2")
-                                                          .arg(QString::number(it.second.idPlayer),
-                                                               QString::number(it.second.idTeam)));
-                        if (!it.second.isSpect)
-                                emit sendMessage(QString("PlayersInfo:%1:%2:%3")
-                                                         .arg(QString::number(it.second.idPlayer),
-                                                              QString::number(it.second.idTeam),
-                                                              it.second.nickName));
+                        it.first->sendBinaryMessage(generateMessage("PlayerInfo",
+                                                                    {it.second.idPlayer, it.second.idTeam}));
+                        if (!it.second.isSpect) {
+                            QJsonArray playerInfoData;
+                            playerInfoData.push_back(it.second.nickName);
+                            playerInfoData.push_back(it.second.idPlayer);
+                            playerInfoData.push_back(it.second.idTeam);
+
+                            playersInfoData.push_back(playerInfoData);
+                        }
                     }
+
+                    baPlayersInfo = generateMessage("PlayersInfo", playersInfoData);
+                    emit sendMessage(baPlayersInfo);
 
                     // TODO: Add team information
                     std::vector<int> teamInfo;
@@ -118,8 +123,7 @@ void Server::onNewConnection() {
                     serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, cntPlayer, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    QString mapInfo = QString::fromStdString(serMap->exportMap(true));
-                    emit sendMessage(QString("InitMap:%1").arg(mapInfo));
+                    emit sendMessage(generateMessage("InitMap", {QString::fromStdString(serMap->exportMap(true))}));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
@@ -129,19 +133,20 @@ void Server::onNewConnection() {
         } else if (msgType == "Chat") {
             emit sendMessage(msg);
         } else if (msgType == "Move") {
-            int idPlayer = msg.section(":", 1, 1).toInt();
-            int startX = msg.section(":", 2, 2).toInt();
-            int startY = msg.section(":", 3, 3).toInt();
-            int deltaX = msg.section(":", 4, 4).toInt();
-            int deltaY = msg.section(":", 5, 5).toInt();
-            int flag50p = msg.section(":", 6, 6).toInt();
+            int idPlayer = msgData.at(0).toInt();
+            int startX = msgData.at(1).toInt();
+            int startY = msgData.at(2).toInt();
+            int deltaX = msgData.at(3).toInt();
+            int deltaY = msgData.at(4).toInt();
+            int flag50p = msgData.at(5).toInt();
 
             serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p);
         }
 
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied")) {
-            emit sendMessage(QString("Status:Waiting (%1/%2) ...")
-                                     .arg(QString::number(cntReadied), QString::number(cntPlayer)));
+            emit sendMessage(generateMessage("Status", {QString("Waiting (%1/%2) ...")
+                                                                .arg(QString::number(cntReadied),
+                                                                     QString::number(cntPlayer))}));
         }
     });
 }
@@ -149,7 +154,7 @@ void Server::onNewConnection() {
 void Server::broadcastMessage() {
     serMap->addRound();
     auto mapInfo = QString::fromStdString(serMap->exportMap(false));
-    emit sendMessage(QString("UpdateMap:%1").arg(mapInfo));
+    emit sendMessage(generateMessage("UpdateMap", {mapInfo}));
     qDebug() << "[server.cpp] Message sent.";
 
     if (flagGameOvered) {

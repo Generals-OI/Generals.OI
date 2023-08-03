@@ -11,7 +11,9 @@
 #include <QApplication>
 #include <QTimer>
 
-class Server : public QWidget {
+#include "processJson.h"
+
+class Server : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
@@ -21,7 +23,7 @@ public:
 
 signals:
 
-    void sendMessage(const QString &msg);
+    void sendMessage(const QByteArray &msg);
 
 public slots:
 
@@ -40,6 +42,8 @@ private:
 
     int gameMode{};
     double gameSpeed{};
+
+    QByteArray baPlayersInfo;
 
     int cntPlayer{}, cntReadied{};
     bool flagGameStarted{}, flagGameOvered{};
