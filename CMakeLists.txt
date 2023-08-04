@@ -77,7 +77,6 @@ set(
         src/server/server.cpp
         src/server/server.h
 
-        src/processJson/processJson.cpp
         src/processJson/processJson.h
 
         src/playerInfo/playerInfo.cpp

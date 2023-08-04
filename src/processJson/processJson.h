@@ -13,8 +13,7 @@
 
 class ProcessJson {
 public:
-    template<typename DataType>
-    QByteArray generateMessage(const QString &type, const DataType &data) {
+    QByteArray generateMessage(const QString &type, const QJsonArray &data) {
         QJsonObject object;
         object.insert("type", type);
         object.insert("data", data);
@@ -33,7 +32,7 @@ public:
         QJsonParseError jsonError;
         auto jsonDoc = QJsonDocument::fromJson(json, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {
-            qDebug() << "[processJson.cpp] Json error, json data ignored.";
+            qDebug() << "[processJson.h] Json error, json data ignored.";
             return {};
         }
         auto jsonObj = jsonDoc.object();
