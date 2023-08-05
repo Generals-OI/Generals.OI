@@ -4,6 +4,9 @@
 #include "serverSettingsWindow.h"
 #include "windowFrame.h"
 
+const int maxPlayerNum = 8;
+const QString strAppVersion = "0.1.1";
+
 QString strFontRegular, strFontMedium, strFontBold;
 
 int main(int argc, char *argv[]) {
@@ -12,7 +15,7 @@ int main(int argc, char *argv[]) {
 #endif
     QApplication app(argc, argv);
     QApplication::setApplicationName("Generals.OI");
-    QApplication::setApplicationVersion("0.1.1");
+    QApplication::setApplicationVersion(strAppVersion);
 
     QCommandLineParser clp;
     clp.addHelpOption();

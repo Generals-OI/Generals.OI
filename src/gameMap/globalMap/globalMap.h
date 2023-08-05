@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <iostream>
 
-const int maxPlayerNum = 16;
+extern const int maxPlayerNum;
 
 enum CellType {
     land, general, city, mountain, swamp

@@ -43,8 +43,6 @@
 
 #include <QDebug>
 
-#define MaxPlayerNum 8
-
 struct Focus;
 struct MoveInfo;
 
@@ -110,7 +108,7 @@ public:
     const double mapFontSizePct[fontSizeCount] = {0.36, 0.3, 0.25, 0.20, 0.16, 0.13};
 
     int cntPlayer{};
-    std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(MaxPlayerNum + 5);
+    std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(maxPlayerNum + 5);
 
     int rnkUnitWidth{};
     int rnkWidth = 8, itvWidth = 2;
