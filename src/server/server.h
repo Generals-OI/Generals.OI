@@ -48,7 +48,9 @@ private:
     int cntPlayer{}, cntReadied{};
     bool flagGameStarted{}, flagGameOvered{};
 
-    std::map<QWebSocket *, PlayerInfo> clients;
+//    std::map<QWebSocket *, PlayerInfo> clients;
+    QMap<QWebSocket *, PlayerInfo> clients;
+    std::vector<int> teamInfo;
 };
 
 #endif // SERVER_H

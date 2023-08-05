@@ -164,7 +164,7 @@ public:
     EndWindow *endWindow{};
 
     bool moved{};
-    bool gotPlayerInfo{}, gotInitMap{}, gotPlayerCnt{}, gotPlayersInfo{};
+    bool gotPlayerInfo{}, gotInitMap{}, gotPlayersInfo{};
 };
 
 struct Focus : public Point {

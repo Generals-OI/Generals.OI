@@ -21,10 +21,11 @@ Server::~Server() {
 }
 
 void Server::clearClient() {
-    for (const auto &it: clients) {
-        it.first->disconnect();
-        it.first->deleteLater();
-        delete it.first;
+    for (auto it = clients.begin(); it != clients.end(); it++) {
+        auto itSocket = it.key();
+        itSocket->close();
+        itSocket->deleteLater();
+        delete itSocket;
     }
     clients.clear();
 }
@@ -40,7 +41,7 @@ void Server::onNewConnection() {
             if (clients[socket].isReadied)
                 cntReadied--;
         }
-        clients.erase(socket);
+        clients.remove(socket);
         socket->deleteLater();
     });
 
@@ -59,10 +60,11 @@ void Server::onNewConnection() {
             const int maxPlayerNum = 8;
             if (!flagGameStarted) {
                 auto playerNickName = msgData.at(0).toString();
-                if ((++cntPlayer) <= maxPlayerNum) {
+                if (cntPlayer < maxPlayerNum) {
+                    cntPlayer++;
                     clients[socket] = PlayerInfo(playerNickName, cntPlayer, cntPlayer, false, false);
+//                    teamInfo.push_back(cntPlayer);
                 } else {
-                    cntPlayer--;
                     socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
                     clients[socket] = PlayerInfo("[Spectator] " + playerNickName, -1, -1, true, true);
                     qDebug() << "[server.cpp] Too many players, join as spectator";
@@ -94,18 +96,21 @@ void Server::onNewConnection() {
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
                     flagGameStarted = true;
                     emit sendMessage(generateMessage("Status", {"Game starting!"}));
-                    emit sendMessage(generateMessage("PlayerCnt", {cntPlayer}));
+//                    emit sendMessage(generateMessage("PlayerCnt", {cntPlayer}));
 
                     QJsonArray playersInfoData;
+                    playersInfoData.push_back(cntPlayer);
 
-                    for (auto &it: clients) {
-                        it.first->sendBinaryMessage(generateMessage("PlayerInfo",
-                                                                    {it.second.idPlayer, it.second.idTeam}));
-                        if (!it.second.isSpect) {
+                    for (auto it = clients.begin(); it != clients.end(); it++) {
+                        auto itSocket = it.key();
+                        auto itInfo = it.value();
+                        itSocket->sendBinaryMessage(generateMessage("PlayerInfo", {itInfo.idPlayer, itInfo.idTeam}));
+
+                        if (!itInfo.isSpect) {
                             QJsonArray playerInfoData;
-                            playerInfoData.push_back(it.second.nickName);
-                            playerInfoData.push_back(it.second.idPlayer);
-                            playerInfoData.push_back(it.second.idTeam);
+                            playerInfoData.push_back(itInfo.nickName);
+                            playerInfoData.push_back(itInfo.idPlayer);
+                            playerInfoData.push_back(itInfo.idTeam);
 
                             playersInfoData.push_back(playerInfoData);
                         }
@@ -115,12 +120,12 @@ void Server::onNewConnection() {
                     emit sendMessage(baPlayersInfo);
 
                     // TODO: Add team information
-                    std::vector<int> teamInfo;
+                    std::vector<int> alternateTeamInfo;
                     for (int i = 1; i <= cntPlayer; i++)
-                        teamInfo.push_back(i);
+                        alternateTeamInfo.push_back(i);
 
                     qDebug() << "[server.cpp] Start generating.";
-                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, cntPlayer, teamInfo));
+                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, cntPlayer, alternateTeamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
                     emit sendMessage(generateMessage("InitMap", {QString::fromStdString(serMap->exportMap(true))}));

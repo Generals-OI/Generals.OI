@@ -451,11 +451,9 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gotPlayerInfo = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
-    } else if (msgType == "PlayerCnt") {
-        cntPlayer = msgData.at(0).toInt();
-        gotPlayerCnt = true;
     } else if (msgType == "PlayersInfo") {
-        for (int i = 0; i < cntPlayer; i++) {
+        cntPlayer = msgData.at(0).toInt();
+        for (int i = 1; i <= cntPlayer; i++) {
             auto playerData = msgData.at(i).toArray();
             auto nick = playerData.at(0).toString();
             int player = playerData.at(1).toInt();
@@ -468,7 +466,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
         _globMap = globMap;
         gotInitMap = true;
         init();
-    } else if (gotPlayerInfo && gotInitMap && gotPlayerCnt && gotPlayersInfo) {
+    } else if (gotPlayerInfo && gotInitMap && gotPlayersInfo) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
         } else if (!gameEnded && msgType == "UpdateMap") {
