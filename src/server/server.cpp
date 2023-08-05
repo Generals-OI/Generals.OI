@@ -63,15 +63,21 @@ void Server::onNewConnection() {
 
         if (msgType == "Connected") {
             if (!flagGameStarted) {
-                auto playerNickName = msgData.at(0).toString();
+                auto playerNickname = msgData.at(0).toString();
+                if (!checkNickname(playerNickname)) {
+                    socket->sendBinaryMessage(generateMessage(
+                            "Status", {"Invalid nickname, choose another and try again."}));
+                    socket->close();
+                    return;
+                }
                 if (cntPlayer < maxPlayerNum) {
                     cntPlayer++;
-                    clients[socket] = PlayerInfo(playerNickName, cntPlayer, cntPlayer, false, false);
+                    clients[socket] = PlayerInfo(playerNickname, cntPlayer, cntPlayer, false, false);
                     clientsIndex[cntPlayer] = socket;
 //                    teamInfo.push_back(cntPlayer);
                 } else {
                     socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
-                    clients[socket] = PlayerInfo("[Spectator] " + playerNickName, -1, -1, true, true);
+                    clients[socket] = PlayerInfo("[Spectator] " + playerNickname, -1, -1, true, true);
                     qDebug() << "[server.cpp] Too many players, join as spectator";
                     return;
                 }
@@ -168,4 +174,12 @@ void Server::broadcastMessage() {
         qApp->quit();
     }
     flagGameOvered = serMap->gameOver();
+}
+
+bool Server::checkNickname(const QString &newNickname) {
+    for (const auto &nickname: nicknames)
+        if (newNickname.contains(nickname) || nickname.contains(newNickname))
+            return false;
+    nicknames.append(newNickname);
+    return true;
 }

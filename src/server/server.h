@@ -17,7 +17,7 @@ class Server : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit Server(int, double);
+    explicit Server(int gameMode, double gameSpeed);
 
     ~Server() override;
 
@@ -33,6 +33,8 @@ private:
     void onNewConnection();
 
     void clearClient();
+
+    bool checkNickname(const QString &newNickname);
 
 private:
     QWebSocketServer *server;
