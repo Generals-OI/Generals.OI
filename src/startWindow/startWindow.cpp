@@ -40,13 +40,6 @@ void StartWindow::onCreateServer() {
 }
 
 void StartWindow::onConnected() {
-    ui->pbConnect->setText("Disconnect");
-    ui->pbConnect->setEnabled(true);
-
-    ui->pbReady->setEnabled(true);
-    ui->leServerAddress->setEnabled(false);
-    ui->leNickName->setEnabled(false);
-
     auto nickName = ui->leNickName->text();
     if (nickName.isEmpty()) {
         nickName = QString("%1 %2").arg(socket->peerAddress().toString(), QString::number(socket->peerPort()));
@@ -58,31 +51,46 @@ void StartWindow::onConnected() {
         gameWindow = new GameWindow(socket, nickName, nullptr);
     } else
         socket->sendBinaryMessage(generateMessage("Connected", {nickName}));
+
+    ui->pbConnect->setText("Disconnect");
+    socketStatus = WebSocketStatus::Connected;
+
+    ui->pbConnect->setEnabled(true);
+    ui->pbReady->setEnabled(true);
+    ui->leServerAddress->setEnabled(false);
+    ui->leNickName->setEnabled(false);
 }
 
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
     ui->pbConnect->setText("Connect");
-    ui->pbConnect->setEnabled(true);
     ui->lbMessage->setText("Disconnected");
+    ui->pbConnect->setEnabled(true);
     ui->pbReady->setEnabled(false);
     socket->close();
+    socketStatus = WebSocketStatus::Disconnected;
 }
 
 void StartWindow::onConnectClicked() {
     static std::regex reg(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
                           R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))");
-    if (ui->pbConnect->text() == "Connect") {
-        ui->pbConnect->setEnabled(false);
+//    static QRegularExpression regex(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
+//                                    R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))");
+    if (socketStatus == WebSocketStatus::Disconnected) {
         auto strAddr = ui->leServerAddress->text();
-        if (std::regex_match(strAddr.toStdString(), reg) || strAddr == "localhost") {
+        // TODO: Fix the bug of QRegularExpression
+        if (/*regex.match(strAddr).hasMatch()*/
+                std::regex_match(strAddr.toStdString(), reg) || strAddr.toLower() == "localhost") {
             ui->pbConnect->setText("Cancel");
             ui->lbMessage->setText(QString("Connecting to: %1").arg(strAddr));
             socket->open(QUrl(QString("ws://%1:32767").arg(strAddr)));
-        } else
+            socketStatus = WebSocketStatus::Connecting;
+        } else {
             ui->lbMessage->setText("Error: Wrong server address format");
+        }
     } else {
         socket->close();
+        socketStatus = WebSocketStatus::Disconnected;
     }
 }
 
@@ -94,21 +102,22 @@ void StartWindow::onReadyClicked() {
 }
 
 void StartWindow::onMessageReceived(const QByteArray &msg) {
-    static bool inited = false, hid = false;
     auto json = loadJson(msg);
     auto msgType = json.first.toString();
     auto msgData = json.second.toArray();
 
     if (msgType == "Status") {
         ui->lbMessage->setText(msgData.at(0).toString());
-    } else if (!inited && msgType == "InitMap") {
-        inited = true;
-    } else if (inited && !hid && msgType == "UpdateMap") {
-        hid = true;
+    } else if (!gotInitMap && msgType == "InitMap") {
+        gotInitMap = true;
+    } else if (gotInitMap && !wndHidden && msgType == "UpdateMap") {
+        wndHidden = true;
         wTarget->hide();
+        disconnect(socket, &QWebSocket::binaryMessageReceived, this, &StartWindow::onMessageReceived);
     }
 }
 
 void StartWindow::setTarget(QWidget *widget) {
     wTarget = widget;
+    wTarget->setSizeIncrement(1000, 600);
 }

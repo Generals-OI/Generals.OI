@@ -2,12 +2,15 @@
 #define START_WINDOW_H
 
 #include <QProcess>
-#include <regex>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 #include "gameWindow.h"
 #include "titleBar.h"
 #include "teamButton.h"
 #include "processJson.h"
+
+#include <regex>
 
 namespace Ui {
     class StartWindow;
@@ -36,12 +39,20 @@ private:
 
     void onMessageReceived(const QByteArray &);
 
-private:
+    enum WebSocketStatus {
+        Disconnected, Connecting, Connected
+    };
+
     Ui::StartWindow *ui;
     QWidget *wTarget{};
-    QWebSocket *socket{};
-    GameWindow *gameWindow{};
     QVector<TeamButton *> pbTeams;
+
+    QWebSocket *socket{};
+    WebSocketStatus socketStatus = WebSocketStatus::Disconnected;
+
+    GameWindow *gameWindow{};
+
+    bool gotInitMap{}, wndHidden{};
 };
 
 #endif // START_WINDOW_H
