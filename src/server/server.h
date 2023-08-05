@@ -50,7 +50,7 @@ private:
 
     QMap<QWebSocket *, PlayerInfo> clients;
     QMap<int, QWebSocket *> clientsIndex;
-    std::vector<int> teamInfo;
+    QList<QString> nicknames;
 };
 
 #endif // SERVER_H

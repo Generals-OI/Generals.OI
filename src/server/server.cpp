@@ -35,15 +35,18 @@ void Server::onNewConnection() {
     if (!socket) return;
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
-        auto &currentClientInfo = clients[socket];
-        if (!currentClientInfo.isSpect) {
-            auto &lastClientInfo = clients[clientsIndex[cntPlayer]];
-            lastClientInfo.idPlayer = currentClientInfo.idPlayer;
-            cntPlayer--;
-            if (currentClientInfo.isReadied)
-                cntReadied--;
+        if (clients.find(socket) != clients.end()) {
+            auto &currentClientInfo = clients[socket];
+            if (!currentClientInfo.isSpect) {
+                auto &lastClientInfo = clients[clientsIndex[cntPlayer]];
+                lastClientInfo.idPlayer = currentClientInfo.idPlayer;
+                cntPlayer--;
+                if (currentClientInfo.isReadied)
+                    cntReadied--;
+            }
+            clients.remove(socket);
         }
-        clients.remove(socket);
+        socket->disconnect();
         socket->deleteLater();
     });
 
@@ -85,16 +88,11 @@ void Server::onNewConnection() {
             if (flagGameStarted) {
                 if (clients[socket].isSpect) {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
-                    socket->sendBinaryMessage(generateMessage("PlayerCnt", {cntPlayer}));
                     socket->sendBinaryMessage(baPlayersInfo);
                     socket->sendBinaryMessage(generateMessage("InitMap",
                                                               {QString::fromStdString(serMap->exportMap(true))}));
                 }
             } else {
-                auto idTeam = msgData.at(0).toInt();
-                if (idTeam)
-                    clients[socket].idTeam = idTeam;
-
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
                     flagGameStarted = true;
                     emit sendMessage(generateMessage("Status", {"Game starting!"}));
