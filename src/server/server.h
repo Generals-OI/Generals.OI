@@ -48,8 +48,8 @@ private:
     int cntPlayer{}, cntReadied{};
     bool flagGameStarted{}, flagGameOvered{};
 
-//    std::map<QWebSocket *, PlayerInfo> clients;
     QMap<QWebSocket *, PlayerInfo> clients;
+    QMap<int, QWebSocket *> clientsIndex;
     std::vector<int> teamInfo;
 };
 

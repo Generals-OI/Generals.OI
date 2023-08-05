@@ -35,10 +35,12 @@ void Server::onNewConnection() {
     if (!socket) return;
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
-        // TODO: Do not erase socket at once (Future feature: reconnect)
-        if (!clients[socket].isSpect) {
+        auto &currentClientInfo = clients[socket];
+        if (!currentClientInfo.isSpect) {
+            auto &lastClientInfo = clients[clientsIndex[cntPlayer]];
+            lastClientInfo.idPlayer = currentClientInfo.idPlayer;
             cntPlayer--;
-            if (clients[socket].isReadied)
+            if (currentClientInfo.isReadied)
                 cntReadied--;
         }
         clients.remove(socket);
@@ -57,12 +59,12 @@ void Server::onNewConnection() {
                  << "From:" << socket->peerAddress().toString() << socket->peerPort();
 
         if (msgType == "Connected") {
-            const int maxPlayerNum = 8;
             if (!flagGameStarted) {
                 auto playerNickName = msgData.at(0).toString();
                 if (cntPlayer < maxPlayerNum) {
                     cntPlayer++;
                     clients[socket] = PlayerInfo(playerNickName, cntPlayer, cntPlayer, false, false);
+                    clientsIndex[cntPlayer] = socket;
 //                    teamInfo.push_back(cntPlayer);
                 } else {
                     socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
@@ -96,7 +98,6 @@ void Server::onNewConnection() {
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
                     flagGameStarted = true;
                     emit sendMessage(generateMessage("Status", {"Game starting!"}));
-//                    emit sendMessage(generateMessage("PlayerCnt", {cntPlayer}));
 
                     QJsonArray playersInfoData;
                     playersInfoData.push_back(cntPlayer);
