@@ -32,6 +32,7 @@
 
 #include <utility>
 #include <queue>
+#include <cmath>
 
 #include "point.h"
 #include "gameButton.h"
@@ -104,8 +105,9 @@ public slots:
     void onGameButtonFocused(const int &, const int &);
 
 public:
+    static const int fontSizeCount = 6;
     const Point dtDirection[4] = {Point(-1, 0), Point(1, 0), Point(0, -1), Point(0, 1)};
-    const double mapFontSizePct[4] = {0.36, 0.3, 0.25, 0.2};
+    const double mapFontSizePct[fontSizeCount] = {0.36, 0.3, 0.25, 0.20, 0.16, 0.13};
 
     int cntPlayer{};
     std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(MaxPlayerNum + 5);
@@ -128,7 +130,7 @@ public:
     int unitSize{}, minUnitSize{};
     int chatFontSize{};
 
-    QFont mapFont[4]{}, boardFont{}, chatFont{};
+    QFont mapFont[fontSizeCount]{}, boardFont{}, chatFont{};
     std::vector<std::vector<int>> fontType;
 
     int mapLeft{}, mapTop{};

@@ -375,11 +375,8 @@ void GameWindow::updateWindow(bool forced) {
     };
 
     auto calcFontType = [](int number) {
-        if (number < 1000)
-            return 0;
-        if (number < 10000)
-            return 1;
-        return 2;
+        if (number < 1000) return 0;
+        return std::min(int(log10(number)) - 2, fontSizeCount - 1);
     };
 
     for (int i = 1; i <= height; i++) {
@@ -515,7 +512,7 @@ void GameWindow::onGameButtonFocused(const int &x, const int &y) {
 }
 
 void GameWindow::calcMapFontSize() {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < fontSizeCount; i++) {
         mapFont[i].setFamily(strFontMedium);
         mapFont[i].setPointSize(int(unitSize * mapFontSizePct[i] / dpi));
     }
