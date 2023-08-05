@@ -36,6 +36,10 @@ private:
 
     bool checkNickname(const QString &newNickname);
 
+    void updateStatus();
+
+    int getEmptyTeam();
+
 private:
     QWebSocketServer *server;
     QHostAddress address;
@@ -53,6 +57,7 @@ private:
     QMap<QWebSocket *, PlayerInfo> clients;
     QMap<int, QWebSocket *> clientsIndex;
     QList<QString> nicknames;
+    QVector<int> teamMbrCnt;
 };
 
 #endif // SERVER_H

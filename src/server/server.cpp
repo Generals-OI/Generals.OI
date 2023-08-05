@@ -6,6 +6,7 @@ Server::Server(int gameMode, double gameSpeed) :
     address = QHostAddress::Any;
 
     if (server->listen(address, 32767)) {
+        teamMbrCnt = QVector<int>(maxPlayerNum + 1);
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
@@ -35,19 +36,28 @@ void Server::onNewConnection() {
     if (!socket) return;
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
-        if (clients.find(socket) != clients.end()) {
-            auto &currentClientInfo = clients[socket];
+        auto itCurrent = clients.find(socket);
+        if (itCurrent != clients.end()) {
+            auto &currentClientInfo = itCurrent.value();
             if (!currentClientInfo.isSpect) {
                 auto &lastClientInfo = clients[clientsIndex[cntPlayer]];
                 lastClientInfo.idPlayer = currentClientInfo.idPlayer;
                 cntPlayer--;
                 if (currentClientInfo.isReadied)
                     cntReadied--;
+                teamMbrCnt[currentClientInfo.idTeam]--;
             }
+
             clients.remove(socket);
+            for (int i = 0; i < nicknames.size(); i++)
+                if (nicknames.at(i) == currentClientInfo.nickName) {
+                    nicknames.removeAt(i);
+                    break;
+                }
         }
         socket->disconnect();
         socket->deleteLater();
+        updateStatus();
     });
 
     connect(this, &Server::sendMessage, socket, &QWebSocket::sendBinaryMessage);
@@ -66,15 +76,16 @@ void Server::onNewConnection() {
                 auto playerNickname = msgData.at(0).toString();
                 if (!checkNickname(playerNickname)) {
                     socket->sendBinaryMessage(generateMessage(
-                            "Status", {"Invalid nickname, choose another and try again."}));
+                            "Status", {"Invalid nickname."}));
                     socket->close();
                     return;
                 }
                 if (cntPlayer < maxPlayerNum) {
-                    cntPlayer++;
-                    clients[socket] = PlayerInfo(playerNickname, cntPlayer, cntPlayer, false, false);
-                    clientsIndex[cntPlayer] = socket;
-//                    teamInfo.push_back(cntPlayer);
+                    int idPlayer = ++cntPlayer;
+                    int idTeam = getEmptyTeam();
+                    clients[socket] = PlayerInfo(playerNickname, idPlayer, idTeam, false, false);
+                    clientsIndex[idPlayer] = socket;
+                    teamMbrCnt[idTeam]++;
                 } else {
                     socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
                     clients[socket] = PlayerInfo("[Spectator] " + playerNickname, -1, -1, true, true);
@@ -87,6 +98,15 @@ void Server::onNewConnection() {
                 qDebug() << "[server.cpp] Game started, join as spectator";
                 return;
             }
+        } else if (msgType == "ChooseTeam") {
+            if (clients[socket].isSpect) return;
+            auto idTeam = msgData.at(0).toInt();
+            teamMbrCnt[clients[socket].idTeam]--;
+            if (idTeam < maxPlayerNum)
+                clients[socket].idTeam = idTeam;
+            else
+                clients[socket].idTeam = getEmptyTeam();
+            teamMbrCnt[clients[socket].idTeam]++;
         } else if (msgType == "Readied") {
             if (clients[socket].isReadied) return;
             clients[socket].isReadied = true;
@@ -102,6 +122,17 @@ void Server::onNewConnection() {
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
                     flagGameStarted = true;
                     emit sendMessage(generateMessage("Status", {"Game starting!"}));
+
+                    std::vector<int> teamInfo(cntPlayer), newTeamId(maxPlayerNum + 1);
+                    int totTeam = 0;
+                    for (int i = 1; i <= maxPlayerNum; i++) {
+                        while (i <= maxPlayerNum && !teamMbrCnt[i])
+                            i++;
+                        if (i <= maxPlayerNum)
+                            newTeamId[i] = ++totTeam;
+                    }
+                    for (auto &player: clients)
+                        player.idTeam = teamInfo[player.idPlayer - 1] = newTeamId[player.idTeam];
 
                     QJsonArray playersInfoData;
                     playersInfoData.push_back(cntPlayer);
@@ -124,13 +155,8 @@ void Server::onNewConnection() {
                     baPlayersInfo = generateMessage("PlayersInfo", playersInfoData);
                     emit sendMessage(baPlayersInfo);
 
-                    // TODO: Add team information
-                    std::vector<int> alternateTeamInfo;
-                    for (int i = 1; i <= cntPlayer; i++)
-                        alternateTeamInfo.push_back(i);
-
                     qDebug() << "[server.cpp] Start generating.";
-                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, cntPlayer, alternateTeamInfo));
+                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, totTeam, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
                     emit sendMessage(generateMessage("InitMap", {QString::fromStdString(serMap->exportMap(true))}));
@@ -153,11 +179,8 @@ void Server::onNewConnection() {
             serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p);
         }
 
-        if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied")) {
-            emit sendMessage(generateMessage("Status", {QString("Waiting (%1/%2) ...")
-                                                                .arg(QString::number(cntReadied),
-                                                                     QString::number(cntPlayer))}));
-        }
+        if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))
+            updateStatus();
     });
 }
 
@@ -182,4 +205,27 @@ bool Server::checkNickname(const QString &newNickname) {
             return false;
     nicknames.append(newNickname);
     return true;
+}
+
+void Server::updateStatus() {
+    if (!flagGameStarted) {
+        QJsonArray data;
+        QVector<QJsonArray> teamsInfo(maxPlayerNum);
+        data.append(QString("Waiting (%1/%2) ...").arg(QString::number(cntReadied), QString::number(cntPlayer)));
+
+        for (const auto &client: clients)
+            teamsInfo[client.idTeam - 1].append(client.nickName);
+        for (const auto &teamInfo: teamsInfo)
+            data.append(teamInfo);
+
+        emit sendMessage(generateMessage("Status", data));
+    }
+}
+
+int Server::getEmptyTeam() {
+    for (int i = 1; i <= maxPlayerNum; i++)
+        if (!teamMbrCnt[i])
+            return i;
+    qDebug() << "[server.cpp] No valid team left, error occurred.";
+    return 0;
 }

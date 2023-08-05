@@ -365,8 +365,7 @@ void GameWindow::updateWindow(bool forced) {
         for (auto k: direction) {
             int x = i + k[0], y = j + k[1];
             if (focus->valid(x, y)) {
-                // TODO: Change it when team feature is available
-                if (idPlayer == globMap.map[x][y].belonging ||
+                if (idTeam == globMap.idTeam[globMap.map[x][y].belonging - 1] ||
                     idPlayer == -1) // All information are visible to spectators
                     return true;
             }
@@ -426,13 +425,13 @@ void GameWindow::updateWindow(bool forced) {
         }
     }
 
-    for (int i = 1; i <= globMap.cntGnl; i++) {
+    /*for (int i = 1; i <= globMap.cntGnl; i++) {
         auto p = globMap.stat[i - 1].second[0];
         lbName[i]->setText(playersInfo[p.id].nickName);
         lbName[i]->setStyleSheet(QString("background-color: %1").arg(strColor[p.id]));
         lbLand[i]->setText(QString::number(p.land));
         lbArmy[i]->setText(QString::number(p.army));
-    }
+    }*/
     lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
 }
 

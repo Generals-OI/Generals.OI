@@ -14,6 +14,16 @@ StartWindow::StartWindow(QWidget *parent)
     ui->setupUi(this);
 
     socket = new QWebSocket;
+    pbTeams = QVector<TeamButton *>(maxPlayerNum + 1);
+
+    ui->lbTeam->hide();
+    for (int i = 0; i <= maxPlayerNum; i++) {
+        pbTeams[i] = new TeamButton(this, i + 1);
+        pbTeams[i]->hide();
+        ui->hlTeam->insertWidget(i + 1, pbTeams[i]);
+        connect(pbTeams[i], &TeamButton::chosen, this, &StartWindow::onTeamButtonChosen);
+    }
+    pbTeams[maxPlayerNum]->setText("Create and Join\nNew Team");
 
     setTabOrder(ui->leNickName, ui->leServerAddress);
     setTabOrder(ui->leServerAddress, ui->pbConnect);
@@ -59,16 +69,26 @@ void StartWindow::onConnected() {
     ui->pbReady->setEnabled(true);
     ui->leServerAddress->setEnabled(false);
     ui->leNickName->setEnabled(false);
+
+    ui->lbTeam->show();
 }
 
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
     ui->pbConnect->setText("Connect");
-    ui->lbMessage->setText("Disconnected");
+    ui->lbMessage->setText("[Disconnected] " + ui->lbMessage->text().mid(12));
+
     ui->pbConnect->setEnabled(true);
     ui->pbReady->setEnabled(false);
+    ui->leNickName->setEnabled(true);
+    ui->leServerAddress->setEnabled(true);
+
     socket->close();
     socketStatus = WebSocketStatus::Disconnected;
+
+    ui->lbTeam->hide();
+    for (int i = 0; i <= maxPlayerNum; i++)
+        pbTeams[i]->hide();
 }
 
 void StartWindow::onConnectClicked() {
@@ -95,8 +115,7 @@ void StartWindow::onConnectClicked() {
 }
 
 void StartWindow::onReadyClicked() {
-    // TODO: Add team info and transfer it to server
-    socket->sendBinaryMessage(generateMessage("Readied", {0}));
+    socket->sendBinaryMessage(generateMessage("Readied", QJsonArray()));
     ui->pbReady->setEnabled(false);
     ui->pbConnect->setFocus();
 }
@@ -107,7 +126,17 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
     auto msgData = json.second.toArray();
 
     if (msgType == "Status") {
-        ui->lbMessage->setText(msgData.at(0).toString());
+        ui->lbMessage->setText("[Connected] " + msgData.at(0).toString());
+        for (int i = 0, totTeam = 0; i < maxPlayerNum; i++) {
+            auto teamData = msgData.at(i + 1).toArray();
+            if (teamData.isEmpty()) pbTeams[i]->hide();
+            else pbTeams[i]->show();
+            QString strTeam = QString("Team %1").arg(QString::number(++totTeam));
+            for (auto nickname: teamData)
+                strTeam.append(QString("\n%1").arg(nickname.toString()));
+            pbTeams[i]->setText(strTeam);
+        }
+        pbTeams[maxPlayerNum]->show();
     } else if (!gotInitMap && msgType == "InitMap") {
         gotInitMap = true;
     } else if (gotInitMap && !wndHidden && msgType == "UpdateMap") {
@@ -119,5 +148,10 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
 
 void StartWindow::setTarget(QWidget *widget) {
     wTarget = widget;
-    wTarget->setSizeIncrement(1000, 600);
+    // TODO: Move window to the center
+    wTarget->setSizeIncrement(1200, 800);
+}
+
+void StartWindow::onTeamButtonChosen(int idButton) {
+    socket->sendBinaryMessage(generateMessage("ChooseTeam", {idButton}));
 }

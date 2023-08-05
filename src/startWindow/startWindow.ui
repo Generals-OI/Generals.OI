@@ -12,8 +12,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>750</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="font">
@@ -270,21 +270,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbNewTeam">
-         <property name="font">
-          <font>
-           <family>Quicksand Regular</family>
-           <pointsize>16</pointsize>
-           <stylestrategy>PreferAntialias</stylestrategy>
-          </font>
-         </property>
-         <property name="text">
-          <string>Create &amp;&amp; Join
-New Team</string>
-         </property>
-        </widget>
        </item>
        <item>
         <spacer name="hsTeam2">

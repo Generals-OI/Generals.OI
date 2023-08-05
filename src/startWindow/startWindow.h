@@ -39,13 +39,15 @@ private:
 
     void onMessageReceived(const QByteArray &);
 
+    void onTeamButtonChosen(int idButton);
+
     enum WebSocketStatus {
         Disconnected, Connecting, Connected
     };
 
     Ui::StartWindow *ui;
     QWidget *wTarget{};
-    QVector<TeamButton *> pbTeams;
+    QVector<TeamButton*> pbTeams;
 
     QWebSocket *socket{};
     WebSocketStatus socketStatus = WebSocketStatus::Disconnected;
