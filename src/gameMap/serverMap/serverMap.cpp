@@ -25,7 +25,7 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
                     num > cEnd.number ? cStart.belonging : 0,
                     cEnd.type};
     } else {
-        if (idTeam[cStart.belonging] == idTeam[cEnd.belonging]) {
+        if (idTeam[cStart.belonging - 1] == idTeam[cEnd.belonging - 1]) {
             cell = Cell{num + cEnd.number,
                         cEnd.type == CellType::general ? cEnd.belonging : cStart.belonging,
                         cEnd.type};
