@@ -21,13 +21,15 @@ include_directories(
         src/gameMap/mapGenerator
         src/endWindow
         src/gameWindow
-        src/gameButton
+        src/gameWindow/gameButton
         src/playerInfo
         src/server
         src/startWindow
+        src/startWindow/teamButton
         src/titleBar
         src/serverSettingsWindow
         src/windowFrame
+        src/processJson
         res
         res/aud
         res/font
@@ -61,6 +63,7 @@ set(
 
         src/gameWindow/focus.cpp
         src/gameWindow/gameWindow.cpp
+        src/gameWindow/boardLabel.cpp
         src/gameWindow/highlighter.cpp
         src/gameWindow/moveInfo.cpp
         src/gameWindow/gameWindow.h
@@ -69,8 +72,13 @@ set(
         src/startWindow/startWindow.h
         src/startWindow/startWindow.ui
 
+        src/startWindow/teamButton/teamButton.cpp
+        src/startWindow/teamButton/teamButton.h
+
         src/server/server.cpp
         src/server/server.h
+
+        src/processJson/processJson.h
 
         src/playerInfo/playerInfo.cpp
         src/playerInfo/playerInfo.h
@@ -100,8 +108,8 @@ set(
         src/geometry/geometry.cpp
         src/geometry/geometry.h
 
-        src/gameButton/gameButton.cpp
-        src/gameButton/gameButton.h
+        src/gameWindow/gameButton/gameButton.cpp
+        src/gameWindow/gameButton/gameButton.h
 
         src/windowFrame/windowFrame.cpp
         src/windowFrame/windowFrame.h

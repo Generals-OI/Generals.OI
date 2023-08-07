@@ -25,7 +25,7 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
                     num > cEnd.number ? cStart.belonging : 0,
                     cEnd.type};
     } else {
-        if (idTeam[cStart.belonging] == idTeam[cEnd.belonging]) {
+        if (idTeam[cStart.belonging - 1] == idTeam[cEnd.belonging - 1]) {
             cell = Cell{num + cEnd.number,
                         cEnd.type == CellType::general ? cEnd.belonging : cStart.belonging,
                         cEnd.type};
@@ -35,6 +35,7 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
             } else {
                 switch (cEnd.type) {
                     case CellType::land:
+                    case CellType::swamp:
                     case CellType::city: {
                         cell = Cell{num - cEnd.number, cStart.belonging, cEnd.type};
                         break;
@@ -64,10 +65,19 @@ void ServerMap::calcStat() {
 void ServerMap::addRound() {
     if (round % 2 == 0)
         for (int i = 1; i <= width; i++)
-            for (int j = 1; j <= length; j++)
+            for (int j = 1; j <= length; j++) {
                 if ((map[i][j].type == CellType::general || map[i][j].type == CellType::city) &&
                     map[i][j].belonging)
                     map[i][j].number++;
+                else if (map[i][j].type == CellType::swamp && map[i][j].belonging) {
+                    if (map[i][j].number > 1)
+                        map[i][j].number--;
+                    else {
+                        map[i][j].number = 0;
+                        map[i][j].belonging = 0;
+                    }
+                }
+            }
     if (round % 50 == 0)
         for (int i = 1; i <= width; i++)
             for (int j = 1; j <= length; j++)
@@ -83,7 +93,7 @@ void ServerMap::surrender(int id) {
     roundLose[id - 1] = round;
 }
 
-ServerMap::ServerMap(const GlobalMap &globMap) : GlobalMap(globMap) {
+ServerMap::ServerMap(GlobalMap &&globMap) : GlobalMap(std::move(globMap)) {
     roundLose = std::vector<int>(cntGnl, INT_MAX);
 }
 
@@ -121,6 +131,8 @@ std::string ServerMap::exportMap(bool flagComplete) {
                 case CellType::mountain:
                     numbers.push_back(3);
                     break;
+                case CellType::swamp:
+                    numbers.push_back(4);
             }
             numbers.push_back(map[i][j].belonging);
             numbers.push_back(map[i][j].number);

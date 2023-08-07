@@ -4,6 +4,9 @@
 #include "serverSettingsWindow.h"
 #include "windowFrame.h"
 
+const int maxPlayerNum = 8;
+const QString strAppVersion = "0.1.1";
+
 QString strFontRegular, strFontMedium, strFontBold;
 
 int main(int argc, char *argv[]) {
@@ -12,7 +15,7 @@ int main(int argc, char *argv[]) {
 #endif
     QApplication app(argc, argv);
     QApplication::setApplicationName("Generals.OI");
-    QApplication::setApplicationVersion("0.1.1");
+    QApplication::setApplicationVersion(strAppVersion);
 
     QCommandLineParser clp;
     clp.addHelpOption();
@@ -39,14 +42,18 @@ int main(int argc, char *argv[]) {
         qDebug() << "[main.cpp] Server mode enabled";
 
         auto serverSettingsWindow = new ServerSettingsWindow;
-        auto windowFrame = new WindowFrame(serverSettingsWindow);
-        windowFrame->setTitle("Generals.OI - Server Settings");
-        windowFrame->show();
+        auto serverSettingsWindowFrame = new WindowFrame(serverSettingsWindow);
+        serverSettingsWindowFrame->setTitle("Generals.OI - Server Settings");
+        serverSettingsWindow->setTarget(serverSettingsWindowFrame);
+        serverSettingsWindowFrame->show();
     } else {
         qDebug() << "[main.cpp] Defaulting to no server mode";
 
-        auto *startWindow = new StartWindow;
-        startWindow->show();
+        auto startWindow = new StartWindow;
+        auto startWindowFrame = new WindowFrame(startWindow);
+        startWindowFrame->setTitle("Generals.OI");
+        startWindow->setTarget(startWindowFrame);
+        startWindowFrame->show();
     }
 
     return QApplication::exec();

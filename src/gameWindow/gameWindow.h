@@ -32,16 +32,16 @@
 
 #include <utility>
 #include <queue>
+#include <cmath>
 
 #include "point.h"
 #include "gameButton.h"
 #include "globalMap.h"
 #include "playerInfo.h"
 #include "endWindow.h"
+#include "processJson.h"
 
 #include <QDebug>
-
-#define MaxPlayerNum 8
 
 struct Focus;
 struct MoveInfo;
@@ -66,7 +66,7 @@ const QString strColor[] = {
 };
 */
 
-class GameWindow : public QWidget {
+class GameWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
@@ -79,9 +79,7 @@ private:
 
     void calcMapFontSize();
 
-    void transfer() const;
-
-    void processMessage(const QString &);
+    void processMessage(const QByteArray &);
 
     void sendChatMessage();
 
@@ -105,11 +103,12 @@ public slots:
     void onGameButtonFocused(const int &, const int &);
 
 public:
+    static const int fontSizeCount = 6;
     const Point dtDirection[4] = {Point(-1, 0), Point(1, 0), Point(0, -1), Point(0, 1)};
-    const double mapFontSizePct[4] = {0.36, 0.3, 0.25, 0.2};
+    const double mapFontSizePct[fontSizeCount] = {0.36, 0.3, 0.25, 0.20, 0.16, 0.13};
 
     int cntPlayer{};
-    std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(MaxPlayerNum + 5);
+    std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(maxPlayerNum + 5);
 
     int rnkUnitWidth{};
     int rnkWidth = 8, itvWidth = 2;
@@ -129,7 +128,7 @@ public:
     int unitSize{}, minUnitSize{};
     int chatFontSize{};
 
-    QFont mapFont[4]{}, boardFont{}, chatFont{};
+    QFont mapFont[fontSizeCount]{}, boardFont{}, chatFont{};
     std::vector<std::vector<int>> fontType;
 
     int mapLeft{}, mapTop{};
@@ -143,9 +142,8 @@ public:
 
     GlobalMap globMap{}, _globMap{};
 
-    QWidget *wgtMap{}, *wgtButton{}, *wgtFocus{}, *wgtBoard{}, *wgtChat{};
-    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{}, *focusLayout{};
-    QVBoxLayout *chatLayout{};
+    QWidget *wgtMap{}, *wgtButton{}, *wgtBoard{};
+    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{};
 
     std::vector<std::vector<QLabel *>> lbArrow[4];
     std::vector<std::vector<int>> cntArrow[4];
@@ -155,18 +153,26 @@ public:
 
     std::deque<MoveInfo> dqMsg;
 
-    std::vector<QLabel *> lbName, lbLand, lbArmy;
+    struct BoardLabel {
+        QLabel *lbName{}, *lbArmy{}, *lbLand{};
+
+        void init(QWidget *parent, QFont &font, QGridLayout *layout, int row);
+
+        void updateContent(const QString &strName = QString(), const QString &strArmy = QString(),
+                           const QString &strLand = QString()) const;
+
+    };
+
+    QVector<BoardLabel> lbBoard;
     QLabel *lbRound{};
 
     QTextEdit *teChats{};
     QLineEdit *leChat{};
-    Highlighter *highlighter{};
 
     EndWindow *endWindow{};
 
-    bool moved = false;
-    bool gotPlayerInfo = false, gotInitMap = false, gotPlayerCnt = false;
-    int gotPlayersInfo = 0;
+    bool moved{};
+    bool gotPlayerInfo{}, gotInitMap{}, gotPlayersInfo{};
 };
 
 struct Focus : public Point {

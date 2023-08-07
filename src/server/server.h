@@ -11,17 +11,19 @@
 #include <QApplication>
 #include <QTimer>
 
-class Server : public QWidget {
+#include "processJson.h"
+
+class Server : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit Server(int, double);
+    explicit Server(int gameMode, double gameSpeed);
 
     ~Server() override;
 
 signals:
 
-    void sendMessage(const QString &msg);
+    void sendMessage(const QByteArray &msg);
 
 public slots:
 
@@ -32,6 +34,12 @@ private:
 
     void clearClient();
 
+    bool checkNickname(const QString &newNickname);
+
+    void updateStatus();
+
+    int getEmptyTeam();
+
 private:
     QWebSocketServer *server;
     QHostAddress address;
@@ -41,10 +49,15 @@ private:
     int gameMode{};
     double gameSpeed{};
 
+    QByteArray baPlayersInfo;
+
     int cntPlayer{}, cntReadied{};
     bool flagGameStarted{}, flagGameOvered{};
 
-    std::map<QWebSocket *, PlayerInfo> clients;
+    QMap<QWebSocket *, PlayerInfo> clients;
+    QMap<int, QWebSocket *> clientsIndex;
+    QList<QString> nicknames;
+    QVector<int> teamMbrCnt;
 };
 
 #endif // SERVER_H

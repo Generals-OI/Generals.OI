@@ -18,6 +18,10 @@
     border-image: url(":/img/General.png");
 }
 
+#Swamp {
+    border-image: url(":/img/Swamp.png");
+}
+
 #Land, QPushButton {
     background-color: transparent;
     qproperty-focusPolicy: NoFocus;

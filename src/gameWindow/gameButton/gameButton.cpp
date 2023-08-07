@@ -9,8 +9,7 @@ GameButton::GameButton(int x, int y, QWidget *parent, QWidget *target) : QPushBu
 
 void GameButton::onClicked() {
     emit focused(btnPos.x, btnPos.y);
-    qDebug() << QString("[gameButton.cpp] Button (%1, %2) clicked.")
-            .arg(QString::number(btnPos.x), QString::number(btnPos.y));
+    qDebug() << "[gameButton.cpp] Button" << btnPos.x << btnPos.y << "clicked.";
 }
 
 void GameButton::mousePressEvent(QMouseEvent *event) {
