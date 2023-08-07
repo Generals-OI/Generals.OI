@@ -63,6 +63,7 @@ set(
 
         src/gameWindow/focus.cpp
         src/gameWindow/gameWindow.cpp
+        src/gameWindow/boardLabel.cpp
         src/gameWindow/highlighter.cpp
         src/gameWindow/moveInfo.cpp
         src/gameWindow/gameWindow.h

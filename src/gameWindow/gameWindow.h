@@ -142,9 +142,8 @@ public:
 
     GlobalMap globMap{}, _globMap{};
 
-    QWidget *wgtMap{}, *wgtButton{}, *wgtFocus{}, *wgtBoard{}, *wgtChat{};
-    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{}, *focusLayout{};
-    QVBoxLayout *chatLayout{};
+    QWidget *wgtMap{}, *wgtButton{}, *wgtBoard{};
+    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{};
 
     std::vector<std::vector<QLabel *>> lbArrow[4];
     std::vector<std::vector<int>> cntArrow[4];
@@ -154,12 +153,21 @@ public:
 
     std::deque<MoveInfo> dqMsg;
 
-    std::vector<QLabel *> lbName, lbLand, lbArmy;
+    struct BoardLabel {
+        QLabel *lbName{}, *lbArmy{}, *lbLand{};
+
+        void init(QWidget *parent, QFont &font, QGridLayout *layout, int row);
+
+        void updateContent(const QString &strName = QString(), const QString &strArmy = QString(),
+                           const QString &strLand = QString()) const;
+
+    };
+
+    QVector<BoardLabel> lbBoard;
     QLabel *lbRound{};
 
     QTextEdit *teChats{};
     QLineEdit *leChat{};
-    Highlighter *highlighter{};
 
     EndWindow *endWindow{};
 

@@ -67,23 +67,10 @@ void GameWindow::init() {
 
     mapLeft = (screenWidth - unitSize * totWidth) / 2;
     mapTop = (screenHeight - unitSize * height) / 2;
-    rnkLeft = mapLeft + unitSize * (totWidth - rnkWidth);
+    rnkLeft = screenWidth - rnkUnitWidth * 4;
     rnkTop = mapTop;
 
     qDebug() << "[gameWindow.cpp] Unit Size:" << unitSize;
-
-    focus = new Focus;
-    focus->init(width, height);
-
-    btnFocus = std::vector<std::vector<GameButton *>>(height + 1, std::vector<GameButton *>(width + 1));
-    lbObstacle = lbMain = lbColor = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
-    visMain = std::vector<std::vector<bool>>(height + 1, std::vector<bool>(width + 1));
-    for (int i = 0; i < 4; i++) {
-        lbArrow[i] = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
-        cntArrow[i] = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
-    }
-    fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
-    lbName = lbArmy = lbLand = std::vector<QLabel *>(globMap.cntGnl);
 
     QPalette lbMainPalette;
     lbMainPalette.setColor(QPalette::WindowText, Qt::white);
@@ -96,22 +83,27 @@ void GameWindow::init() {
     chatFont.setPointSize(int(chatFontSize / dpi));
     chatFont.setStyleStrategy(QFont::PreferAntialias);
 
+    btnFocus = std::vector<std::vector<GameButton *>>(height + 1, std::vector<GameButton *>(width + 1));
+    lbObstacle = lbMain = lbColor = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
+    visMain = std::vector<std::vector<bool>>(height + 1, std::vector<bool>(width + 1));
+    for (int i = 0; i < 4; i++) {
+        lbArrow[i] = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
+        cntArrow[i] = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
+    }
+    fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
+
     wgtMap = new QWidget(this);
-//    wgtFocus = new QWidget(this);
     wgtButton = new QWidget(this);
-//    wgtBoard = new QWidget(this);
-//    wgtChat = new QWidget(this);
     wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
     wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
     mapLayout = new QGridLayout(wgtMap);
-//    focusLayout = new QGridLayout(wgtFocus);
     buttonLayout = new QGridLayout(wgtButton);
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     // TODO: Change Spacing if it is necessary
-    mapLayout->setSpacing(1);
+    mapLayout->setSpacing(2);
     mapLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->setSpacing(0);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
@@ -168,35 +160,29 @@ void GameWindow::init() {
         }
     }
 
-    for (int i = 0; i <= globMap.cntGnl; i++) {
-        auto lbN = lbName[i] = new QLabel(this);
-        auto lbA = lbArmy[i] = new QLabel(this);
-        auto lbL = lbLand[i] = new QLabel(this);
-        lbN->setGeometry(rnkLeft, rnkTop + i * unitSize, rnkUnitWidth * 2, unitSize);
-        lbA->setGeometry(rnkLeft + rnkUnitWidth * 2, rnkTop + i * unitSize, rnkUnitWidth, unitSize);
-        lbL->setGeometry(rnkLeft + rnkUnitWidth * 3, rnkTop + i * unitSize, rnkUnitWidth, unitSize);
-        lbN->setStyleSheet(QString("background-color: %1;").arg(i ? strColor[i] : "rgb(255, 255, 255)"));
-        lbA->setObjectName("Rank"), lbL->setObjectName("Rank");
-        lbN->setFont(boardFont), lbA->setFont(boardFont), lbL->setFont(boardFont);
-        lbN->setText(playersInfo[i].nickName);
-        lbN->show(), lbA->show(), lbL->show();
-    }
+    int sumRow = globMap.cntGnl + globMap.cntTeam;
+    wgtBoard = new QWidget(this);
+    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 1));
+    boardLayout = new QGridLayout(wgtBoard);
+    boardLayout->setSpacing(2);
+    lbBoard = QVector<BoardLabel>(sumRow + 1);
 
-    lbName[0]->setText("Player");
-    lbArmy[0]->setText("Army");
-    lbLand[0]->setText("Land");
-
-    lbRound = new QLabel(this);
-    lbRound->setGeometry(rnkLeft, rnkTop + unitSize * (globMap.cntGnl + 1), rnkUnitWidth * 4, unitSize);
+    lbRound = new QLabel(wgtBoard);
     lbRound->setObjectName("Rank");
     lbRound->setFont(boardFont);
     lbRound->show();
+    boardLayout->addWidget(lbRound, 0, 0, 1, 3);
+
+    for (int i = 0; i <= sumRow; i++)
+        lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
+    lbBoard[0].updateContent("Name", "Army", "Land");
+    lbBoard[0].lbName->setStyleSheet("background-color: rgb(255, 255, 255);");
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
-    highlighter = new Highlighter(teChats->document(), cntPlayer, playersInfo);
+    new Highlighter(teChats->document(), cntPlayer, playersInfo);
 
-    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = rnkTop + unitSize * (globMap.cntGnl + 3);
+    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = rnkTop + unitSize * (sumRow + 3);
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
     leChat->setGeometry(teLeft, screenHeight - unitSize, screenWidth - teLeft, unitSize);
 
@@ -208,13 +194,16 @@ void GameWindow::init() {
     teChats->show();
     leChat->show();
 
-    updateWindow(true);
-
     for (auto &i: lbShadow) {
         i = new QLabel(this);
         i->setObjectName("Shadow");
         i->show();
     }
+
+    focus = new Focus;
+    focus->init(width, height);
+
+    updateWindow(true);
 
     lbFocus = new QLabel(this);
     lbFocus->setObjectName("Focus");
@@ -408,7 +397,7 @@ void GameWindow::updateWindow(bool forced) {
             if (vis) {
                 if (flagBelonging || flagVis || forced) {
                     if (cell->belonging || cell->type == CellType::land)
-                        lbC->setStyleSheet(QString("background-color:%1;").arg(strColor[cell->belonging]));
+                        lbC->setStyleSheet(QString("background-color: %1;").arg(strColor[cell->belonging]));
                     else if (cell->type == CellType::mountain)
                         lbC->setStyleSheet("background-color: rgb(187, 187, 187);");
                     else
@@ -425,14 +414,20 @@ void GameWindow::updateWindow(bool forced) {
         }
     }
 
-    /*for (int i = 1; i <= globMap.cntGnl; i++) {
-        auto p = globMap.stat[i - 1].second[0];
-        lbName[i]->setText(playersInfo[p.id].nickName);
-        lbName[i]->setStyleSheet(QString("background-color: %1").arg(strColor[p.id]));
-        lbLand[i]->setText(QString::number(p.land));
-        lbArmy[i]->setText(QString::number(p.army));
-    }*/
+    int curRow = 0;
     lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
+
+    for (const auto &stat: globMap.stat) {
+        const auto &teamStat = stat.first;
+        lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
+                                        QString::number(teamStat.army), QString::number(teamStat.land));
+        lbBoard[curRow].lbName->setStyleSheet("background-color: rgb(255, 255, 255);");
+        for (const auto &playerStat: stat.second) {
+            lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
+                                            QString::number(playerStat.army), QString::number(playerStat.land));
+            lbBoard[curRow].lbName->setStyleSheet(QString("background-color: %1").arg(strColor[playerStat.id]));
+        }
+    }
 }
 
 void GameWindow::processMessage(const QByteArray &msg) {
