@@ -149,7 +149,7 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
 void StartWindow::setTarget(QWidget *widget) {
     wTarget = widget;
     // TODO: Move window to the center
-    wTarget->setSizeIncrement(1200, 800);
+//    wTarget->setSizeIncrement(1200, 800);
 }
 
 void StartWindow::onTeamButtonChosen(int idButton) {

@@ -22,8 +22,6 @@ public:
     void setTarget(QWidget *);
 
     QHBoxLayout *hLayout;
-    QVBoxLayout *vLayout;
-    QFrame *fBorder;
     QLabel *lbIcon, *lbTitle;
     QSpacerItem *hSpacer;
     QPushButton *btnMinimize, *btnClose;

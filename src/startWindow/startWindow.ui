@@ -26,6 +26,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="hlImage">
@@ -137,7 +140,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Nick Name</string>
+          <string>Nickname</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -158,6 +161,9 @@
          </property>
          <property name="inputMask">
           <string/>
+         </property>
+         <property name="maxLength">
+          <number>16</number>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -192,6 +198,9 @@
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
+         </property>
+         <property name="maxLength">
+          <number>16</number>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -322,7 +331,7 @@
         </font>
        </property>
        <property name="text">
-        <string/>
+        <string>[Disconnected]</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

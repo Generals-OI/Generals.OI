@@ -1,0 +1,32 @@
+QPushButton {
+    background-color: transparent;
+    qproperty-focusPolicy: NoFocus;
+}
+
+QLabel {
+    color: rgb(0, 128, 128);
+}
+
+#CloseButton {
+    border-image: url(":/img/CloseButton.png");
+}
+
+#CloseButton:hover {
+    border-image: url(":/img/CloseButton-Hover.png");
+}
+
+#CloseButton:pressed {
+    border-image: url(":/img/CloseButton-Clicked.png");
+}
+
+#MinimizeButton {
+    border-image: url(":/img/MinimizeButton.png");
+}
+
+#MinimizeButton:hover {
+    border-image: url(":/img/MinimizeButton-Hover.png");
+}
+
+#MinimizeButton:pressed {
+    border-image: url(":/img/MinimizeButton-Clicked.png");
+}

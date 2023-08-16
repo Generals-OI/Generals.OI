@@ -10,40 +10,32 @@ TitleBar::TitleBar(QWidget *parent, int itemSize)
     itemSize /= 2;
     QFont font(strFontBold, int(itemSize * 0.6));
 
-    QFile cssFile(":/qss/WindowWidgets.qss");
+    QFile cssFile(":/qss/TitleBar.qss");
     if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         setStyleSheet(cssFile.readAll());
         cssFile.close();
     }
 
-    vLayout = new QVBoxLayout(this);
-    vLayout->setSpacing(0);
-    vLayout->setContentsMargins(0, 0, 0, 0);
-
-    fBorder = new QFrame(this);
-    fBorder->setFrameShape(QFrame::StyledPanel);
-    fBorder->setFrameShadow(QFrame::Raised);
-
-    hLayout = new QHBoxLayout(fBorder);
+    hLayout = new QHBoxLayout(this);
     hLayout->setSpacing(itemSpace);
     hLayout->setContentsMargins(itemSpace, itemSpace, itemSpace, itemSpace);
 
-    lbIcon = new QLabel(fBorder);
+    lbIcon = new QLabel(this);
     lbIcon->setFixedSize(itemSize, itemSize);
     lbIcon->setPixmap(QPixmap(":/img/Icon.png"));
     lbIcon->setScaledContents(true);
 
-    lbTitle = new QLabel(fBorder);
+    lbTitle = new QLabel(this);
     lbTitle->setFont(font);
     lbTitle->setScaledContents(true);
 
     hSpacer = new QSpacerItem(itemSize, itemSize, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-    btnMinimize = new QPushButton(fBorder);
+    btnMinimize = new QPushButton(this);
     btnMinimize->setObjectName("MinimizeButton");
     btnMinimize->setFixedSize(itemSize, itemSize);
 
-    btnClose = new QPushButton(fBorder);
+    btnClose = new QPushButton(this);
     btnClose->setObjectName("CloseButton");
     btnClose->setFixedSize(itemSize, itemSize);
 
@@ -52,8 +44,6 @@ TitleBar::TitleBar(QWidget *parent, int itemSize)
     hLayout->addItem(hSpacer);
     hLayout->addWidget(btnMinimize);
     hLayout->addWidget(btnClose);
-
-    vLayout->addWidget(fBorder);
 }
 
 void TitleBar::setTarget(QWidget *target) {
