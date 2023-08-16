@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
+#include <climits>
 
 extern const int maxPlayerNum;
 
