@@ -79,26 +79,26 @@ QPushButton:pressed {
        <property name="minimumSize">
         <size>
          <width>200</width>
-         <height>200</height>
+         <height>160</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>200</width>
-         <height>200</height>
+         <height>160</height>
         </size>
        </property>
        <property name="sizeIncrement">
         <size>
          <width>200</width>
-         <height>200</height>
+         <height>160</height>
         </size>
        </property>
        <property name="text">
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../res/generals.qrc">:/img/Icon.png</pixmap>
+        <pixmap resource="../../res/generals.qrc">:/img/General-Gray.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -387,6 +387,12 @@ QPushButton:pressed {
        </item>
        <item>
         <widget class="QPushButton" name="pbConnect">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>30</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>
@@ -417,6 +423,12 @@ QPushButton:pressed {
        </item>
        <item>
         <widget class="QPushButton" name="pbReady">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>30</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>
@@ -447,6 +459,12 @@ QPushButton:pressed {
        </item>
        <item>
         <widget class="QPushButton" name="pbCreateServer">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>30</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>

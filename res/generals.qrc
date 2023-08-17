@@ -29,5 +29,6 @@
         <file>img/Obstacle.png</file>
         <file>img/StartWindow-Background.png</file>
         <file>img/Swamp.png</file>
+        <file>img/General-Gray.png</file>
     </qresource>
 </RCC>
