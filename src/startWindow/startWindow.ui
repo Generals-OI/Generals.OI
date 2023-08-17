@@ -28,11 +28,12 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QLineEdit {
-	background-color: transparent;
+	background-color: rgba(0, 0, 0, 50);
 	color: rgb(0, 128, 128);
 	border: 1px solid rgb(34, 34, 34);
 	border-bottom-color: rgb(0, 128, 128);
 	border-bottom-width: 1px;
+	font-family: &quot;Quicksand Medium&quot;;
 	qproperty-clearButtonEnabled: false;
 }
 
@@ -156,6 +157,12 @@ QPushButton:pressed {
        <property name="spacing">
         <number>20</number>
        </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
        <item>
         <widget class="QLabel" name="lbNickName">
          <property name="font">
@@ -177,7 +184,7 @@ QPushButton:pressed {
         <widget class="QLineEdit" name="leNickName">
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Medium</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
@@ -220,7 +227,7 @@ QPushButton:pressed {
         <widget class="QLineEdit" name="leServerAddress">
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Medium</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
@@ -423,6 +430,9 @@ QPushButton:pressed {
        </item>
        <item>
         <widget class="QPushButton" name="pbReady">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>30</horstretch>

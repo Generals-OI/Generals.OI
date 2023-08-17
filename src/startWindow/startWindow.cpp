@@ -71,7 +71,7 @@ void StartWindow::onConnected() {
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
     ui->pbConnect->setText("Connect");
-    ui->lbMessage->setText("[Disconnected] " + ui->lbMessage->text().mid(12));
+    ui->lbMessage->setText("[Disconnected] " + ui->lbMessage->text().section("] ", 1));
 
     ui->pbConnect->setEnabled(true);
     ui->pbReady->setEnabled(false);
@@ -97,7 +97,7 @@ void StartWindow::onConnectClicked() {
         if (/*regex.match(strAddr).hasMatch()*/
                 std::regex_match(strAddr.toStdString(), reg) || strAddr.toLower() == "localhost") {
             ui->pbConnect->setText("Cancel");
-            ui->lbMessage->setText(QString("Connecting to: %1").arg(strAddr));
+            ui->lbMessage->setText(QString("[Connecting] Server: %1").arg(strAddr));
             socket->open(QUrl(QString("ws://%1:32767").arg(strAddr)));
             socketStatus = WebSocketStatus::Connecting;
         } else {
