@@ -54,7 +54,8 @@ QLabel {
     background-color: transparent;
 }
 
-QPushButton, QPushButton:hover, QPushButton:pressed {
+QPushButton {
     qproperty-flat: 1;
+    /*background-color: transparent;*/
     qproperty-focusPolicy: 0;
 }
