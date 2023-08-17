@@ -10,7 +10,6 @@ WindowFrame::WindowFrame(QWidget *widget, QWidget *parent)
 #else
     wndPalette.setColor(QPalette::Window, QColor(34, 34, 34));
 #endif
-    wndPalette.setColor(QPalette::WindowText, QColor(0, 128, 128));
     setPalette(wndPalette);
 
     mainWidget = new QWidget(this);

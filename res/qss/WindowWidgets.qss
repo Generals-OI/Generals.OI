@@ -1,7 +1,6 @@
 .QPushButton {
     background-color: rgb(255, 255, 255);
     color: rgb(0, 128, 128);
-    text-align: center;
 }
 
 .QPushButton:hover {
@@ -12,14 +11,9 @@
     background-color: rgb(127, 187, 187);
 }
 
-.QLabel, .QLineEdit {
+.QLabel {
     background-color: transparent;
     border-style: dashed;
     color: rgb(0, 128, 128);
-    qproperty-alignment: AlignCenter;
-}
-
-.QLineEdit {
-    qproperty-clearButtonEnabled: false;
-    qproperty-maxLength: 16;
+    qproperty-alignment: 132;
 }

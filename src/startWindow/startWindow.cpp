@@ -5,11 +5,6 @@ extern QString strFontBold;
 
 StartWindow::StartWindow(QWidget *parent)
         : QWidget(parent), ui(new Ui::StartWindow) {
-    QFile cssFile(":/qss/WindowWidgets.qss");
-    if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(cssFile.readAll());
-        cssFile.close();
-    }
 
     ui->setupUi(this);
 

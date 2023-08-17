@@ -22,9 +22,8 @@
     border-image: url(":/img/Swamp.png");
 }
 
-#Land, QPushButton {
-    background-color: transparent;
-    qproperty-focusPolicy: NoFocus;
+#Land {
+    qproperty-focusPolicy: 0;
 }
 
 #Rank {
@@ -46,10 +45,16 @@
 }
 
 .QTextEdit {
-    qproperty-readOnly: true;
+    qproperty-readOnly: 1;
 }
 
-.QLabel {
-    qproperty-focusPolicy: NoFocus;
-    qproperty-alignment: AlignCenter;
+QLabel {
+    qproperty-focusPolicy: 0;
+    qproperty-alignment: 132;
+    background-color: transparent;
+}
+
+QPushButton, QPushButton:hover, QPushButton:pressed {
+    qproperty-flat: 1;
+    qproperty-focusPolicy: 0;
 }

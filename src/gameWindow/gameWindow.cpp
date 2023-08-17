@@ -14,6 +14,13 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
     showFullScreen();
     setAutoFillBackground(true);
 
+    QFile qssFile(":/qss/GameWindowWidgets.qss");
+    if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        setStyleSheet(qssFile.readAll());
+        qssFile.close();
+    } else
+        qDebug() << "[gameWindow.cpp] Unable to load QSS file.";
+
     QPalette wndPalette(palette());
 #if (QT_VERSION_MAJOR < 6)
     wndPalette.setColor(QPalette::Background, QColor(34, 34, 34));
@@ -22,12 +29,6 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 #endif
     setPalette(wndPalette);
     hide();
-
-    QFile qssFile(":/qss/GameWindowWidgets.qss");
-    if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(qssFile.readAll());
-        qssFile.close();
-    }
 
     gongPlayer = new QMediaPlayer(this);
 #if (QT_VERSION_MAJOR < 6)
@@ -93,18 +94,18 @@ void GameWindow::init() {
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
     wgtMap = new QWidget(this);
-    wgtButton = new QWidget(this);
     wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
-    wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
-    mapLayout = new QGridLayout(wgtMap);
-    buttonLayout = new QGridLayout(wgtButton);
+    wgtButton = new QWidget(this);
+    wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     // TODO: Change Spacing if it is necessary
+    mapLayout = new QGridLayout(wgtMap);
     mapLayout->setSpacing(2);
     mapLayout->setContentsMargins(0, 0, 0, 0);
+    buttonLayout = new QGridLayout(wgtButton);
     buttonLayout->setSpacing(0);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
 

@@ -24,13 +24,24 @@
   </property>
   <property name="font">
    <font>
-    <family>Quicksand Regular</family>
-    <pointsize>16</pointsize>
+    <family>Quicksand Medium</family>
+    <pointsize>-1</pointsize>
     <stylestrategy>PreferAntialias</stylestrategy>
    </font>
   </property>
   <property name="windowTitle">
    <string>ServerSettingsWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+	color: rgb(0, 128, 128);
+	font-family: &quot;Quicksand Medium&quot;;
+	font-size: 18px;
+}
+
+QPushButton {
+	background-color: rgb(223, 223, 223);
+}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -406,8 +417,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="bgGameMode"/>
   <buttongroup name="bgGameSpeed"/>
+  <buttongroup name="bgGameMode"/>
   <buttongroup name="bgTeaming"/>
  </buttongroups>
 </ui>
