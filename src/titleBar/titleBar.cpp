@@ -10,12 +10,6 @@ TitleBar::TitleBar(QWidget *parent, int itemSize)
     itemSize /= 2;
     QFont font(strFontBold, int(itemSize * 0.6));
 
-    QFile cssFile(":/qss/TitleBar.qss");
-    if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(cssFile.readAll());
-        cssFile.close();
-    }
-
     hLayout = new QHBoxLayout(this);
     hLayout->setSpacing(itemSpace);
     hLayout->setContentsMargins(itemSpace, itemSpace, itemSpace, itemSpace);

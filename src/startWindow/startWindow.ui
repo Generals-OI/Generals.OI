@@ -26,69 +26,6 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QLineEdit {
-	background-color: rgba(0, 0, 0, 50);
-	color: #b5b6e3;
-	selection-color: rgba(75, 75, 100, 50);
-	selection-background-color: #3574f0;
-	border: 0px solid #3574f0;
-	border-bottom-color: #3574f0;
-	border-bottom-width: 1px;
-	font-family: &quot;Quicksand Medium&quot;;
-	qproperty-clearButtonEnabled: false;
-}
-
-QLabel {
-	background-color: transparent;
-	color: #81D4FA;
-}
-
-QPushButton {
-	background-color: #0288D1;
-	color: #ffffff;
-	font-family: &quot;Quicksand Regular&quot;;
-	text-align: center;
-}
-
-QPushButton:hover {
-    background-color: #3574f0;
-}
-
-QPushButton:pressed {
-    background-color: #2968e3;
-}
-
-/*
-QLineEdit {
-	background-color: rgba(0, 0, 0, 50);
-	color: rgb(0, 128, 128);
-	border: 1px solid rgb(34, 34, 34);
-	border-bottom-color: rgb(0, 128, 128);
-	border-bottom-width: 1px;
-	font-family: &quot;Quicksand Medium&quot;;
-	qproperty-clearButtonEnabled: false;
-}
-
-QLabel {
-	background-color: transparent;
-	color: rgb(0, 128, 128);
-}
-
-QPushButton {
-	background-color: rgb(191, 191, 191);
-	color: rgb(0, 128, 128);
-	text-align: center;
-}
-
-QPushButton:hover {
-    background-color: rgb(223, 223, 223);
-}
-
-QPushButton:pressed {
-    background-color: rgb(159, 159, 159);
-}*/</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="hlImage">
@@ -265,9 +202,6 @@ QPushButton:pressed {
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
          <property name="maxLength">
           <number>16</number>
          </property>
@@ -400,7 +334,8 @@ QPushButton:pressed {
         </font>
        </property>
        <property name="text">
-        <string>[Disconnected]</string>
+        <string>[Disconnected]
+</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

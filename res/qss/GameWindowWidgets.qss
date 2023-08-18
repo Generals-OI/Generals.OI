@@ -27,7 +27,8 @@
 }
 
 #Rank {
-    background-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 50);
+    color: #e1f5fe;
 }
 
 #Shadow {
@@ -41,7 +42,7 @@
 .QLineEdit, .QTextEdit {
     background-color: rgb(17, 17, 17);
     border-style: dashed;
-    color: rgb(255, 255, 255);
+    color: #ffffff;
 }
 
 .QTextEdit {
@@ -51,6 +52,7 @@
 QLabel {
     qproperty-focusPolicy: 0;
     qproperty-alignment: 132;
+    color: #ffffff;
     background-color: transparent;
 }
 

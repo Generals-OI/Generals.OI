@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>qss/WindowWidgets.qss</file>
         <file>qss/GameWindowWidgets.qss</file>
-        <file>qss/TitleBar.qss</file>
         <file>font/Quicksand-Medium.ttf</file>
         <file>font/Quicksand-Bold.ttf</file>
         <file>font/Quicksand-Regular.ttf</file>
@@ -33,5 +32,7 @@
         <file>img/General-Blue.png</file>
         <file>img/Icon-Blue.ico</file>
         <file>img/Icon-Blue.png</file>
+        <file>img/RadioButton.svg</file>
+        <file>img/RadioButton-Checked.svg</file>
     </qresource>
 </RCC>

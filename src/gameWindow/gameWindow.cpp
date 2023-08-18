@@ -6,8 +6,7 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
     dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
-    setWindowTitle("Generals.OI");
-    setWindowIcon(QIcon(":/img/Icon.png"));
+    setWindowTitle("Generals.OI - Game Window");
 
     screenGeometry = qApp->primaryScreen()->geometry();
     setGeometry(screenGeometry);
@@ -163,7 +162,7 @@ void GameWindow::init() {
 
     int sumRow = globMap.cntGnl + globMap.cntTeam;
     wgtBoard = new QWidget(this);
-    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 1));
+    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
     boardLayout->setSpacing(2);
     lbBoard = QVector<BoardLabel>(sumRow + 1);
@@ -177,13 +176,13 @@ void GameWindow::init() {
     for (int i = 0; i <= sumRow; i++)
         lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
     lbBoard[0].updateContent("Name", "Army", "Land");
-    lbBoard[0].lbName->setStyleSheet("background-color: rgb(255, 255, 255);");
+    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
     new Highlighter(teChats->document(), cntPlayer, playersInfo);
 
-    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = rnkTop + unitSize * (sumRow + 3);
+    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
     leChat->setGeometry(teLeft, screenHeight - unitSize, screenWidth - teLeft, unitSize);
 
@@ -422,7 +421,7 @@ void GameWindow::updateWindow(bool forced) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
                                         QString::number(teamStat.army), QString::number(teamStat.land));
-        lbBoard[curRow].lbName->setStyleSheet("background-color: rgb(255, 255, 255);");
+        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
         for (const auto &playerStat: stat.second) {
             lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
                                             QString::number(playerStat.army), QString::number(playerStat.land));

@@ -1,19 +1,87 @@
-.QPushButton {
-    background-color: rgb(255, 255, 255);
-    color: rgb(0, 128, 128);
+QLineEdit {
+    background-color: rgba(0, 0, 0, 50);
+    color: #b5b6e3;
+    selection-color: rgba(75, 75, 100, 50);
+    selection-background-color: #3574f0;
+    border: 0 solid #3574f0;
+    border-bottom-width: 1px;
+    font-family: "Quicksand Medium";
+    qproperty-clearButtonEnabled: false;
 }
 
-.QPushButton:hover {
-    background-color: rgb(187, 187, 187);
-}
-
-.QPushButton:pressed {
-    background-color: rgb(127, 187, 187);
-}
-
-.QLabel {
+QLabel {
     background-color: transparent;
-    border-style: dashed;
-    color: rgb(0, 128, 128);
+    color: #81d4fa;
     qproperty-alignment: 132;
+}
+
+.QRadioButton {
+    color: #81d4fa;
+    outline: 0;
+}
+
+.QRadioButton:disabled {
+    color: rgba(129, 212, 250, 127);
+}
+
+/*.QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    image: url(":/img/RadioButton.svg");
+}
+
+.QRadioButton::indicator:checked {
+    image: url(":/img/RadioButton-Checked.svg");
+}*/
+
+QPushButton {
+    background-color: rgba(2, 136, 209, 138);
+    color: rgba(255, 255, 255, 255);
+    font-family: "Quicksand Regular";
+    text-align: center;
+}
+
+TeamButton {
+    font-size: 14px;
+}
+
+QPushButton:hover {
+    background-color: rgba(2, 136, 209, 158);
+}
+
+QPushButton:pressed {
+    background-color: rgba(2, 136, 209, 122);
+}
+
+.QPushButton:disabled {
+    background-color: rgba(2, 136, 209, 97);
+    color: rgba(255, 255, 255, 127);
+}
+
+#CloseButton {
+    border-image: url(":/img/CloseButton.png");
+    background-color: transparent;
+    qproperty-focusPolicy: NoFocus;
+}
+
+#CloseButton:hover {
+    border-image: url(":/img/CloseButton-Hover.png");
+}
+
+#CloseButton:pressed {
+    border-image: url(":/img/CloseButton-Clicked.png");
+}
+
+#MinimizeButton {
+    border-image: url(":/img/MinimizeButton.png");
+    background-color: transparent;
+    qproperty-focusPolicy: NoFocus;
+}
+
+#MinimizeButton:hover {
+    border-image: url(":/img/MinimizeButton-Hover.png");
+}
+
+#MinimizeButton:pressed {
+    border-image: url(":/img/MinimizeButton-Clicked.png");
 }
