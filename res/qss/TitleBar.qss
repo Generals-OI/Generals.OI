@@ -4,7 +4,7 @@ QPushButton {
 }
 
 QLabel {
-    color: rgb(0, 128, 128);
+    color: #bcbec4;
 }
 
 #CloseButton {

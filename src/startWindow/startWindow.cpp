@@ -143,8 +143,11 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
 
 void StartWindow::setTarget(QWidget *widget) {
     wTarget = widget;
-    // TODO: Move window to the center
-//    wTarget->setSizeIncrement(1200, 800);
+
+    auto screen = qApp->primaryScreen()->geometry();
+    auto window = QSize(800, 750);
+    wTarget->setGeometry((screen.width() - window.width()) / 2, (screen.height() - window.height()) / 2,
+                         window.width(), window.height());
 }
 
 void StartWindow::onTeamButtonChosen(int idButton) {
