@@ -132,7 +132,7 @@ QPushButton:pressed {
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../res/generals.qrc">:/img/General-Gray.png</pixmap>
+        <pixmap resource="../../res/generals.qrc">:/img/General-Blue.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>

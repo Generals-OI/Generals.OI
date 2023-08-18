@@ -22,7 +22,7 @@ TitleBar::TitleBar(QWidget *parent, int itemSize)
 
     lbIcon = new QLabel(this);
     lbIcon->setFixedSize(itemSize, itemSize);
-    lbIcon->setPixmap(QPixmap(":/img/Icon.png"));
+    lbIcon->setPixmap(QPixmap(":/img/Icon-Blue.png"));
     lbIcon->setScaledContents(true);
 
     lbTitle = new QLabel(this);

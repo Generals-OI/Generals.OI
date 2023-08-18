@@ -30,5 +30,8 @@
         <file>img/StartWindow-Background.png</file>
         <file>img/Swamp.png</file>
         <file>img/General-Gray.png</file>
+        <file>img/General-Blue.png</file>
+        <file>img/Icon-Blue.ico</file>
+        <file>img/Icon-Blue.png</file>
     </qresource>
 </RCC>
