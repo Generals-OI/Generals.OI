@@ -174,7 +174,7 @@ void Server::onNewConnection() {
             int startY = msgData.at(2).toInt();
             int deltaX = msgData.at(3).toInt();
             int deltaY = msgData.at(4).toInt();
-            int flag50p = msgData.at(5).toInt();
+            bool flag50p = msgData.at(5).toBool();
 
             serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p);
         }
