@@ -1,8 +1,8 @@
 QLineEdit {
-    background-color: rgba(0, 0, 0, 50);
+    background-color: rgba(0, 0, 0, 20%);
     color: #b5b6e3;
-    selection-color: rgba(75, 75, 100, 50);
-    selection-background-color: #3574f0;
+    selection-color: #b5b6e3;
+    selection-background-color: rgba(255, 255, 255, 20%);
     border: 0 solid #3574f0;
     border-bottom-width: 1px;
     font-family: "Quicksand Medium";
@@ -21,7 +21,7 @@ QLabel {
 }
 
 .QRadioButton:disabled {
-    color: rgba(129, 212, 250, 127);
+    color: rgba(129, 212, 250, 50%);
 }
 
 .QRadioButton::indicator {
@@ -35,27 +35,27 @@ QLabel {
 }
 
 QPushButton {
-    background-color: rgba(2, 136, 209, 138);
-    color: rgba(255, 255, 255, 255);
+    background-color: rgba(68, 138, 255, 80%);
+    color: rgba(255, 255, 255, 100%);
     font-family: "Quicksand Regular";
     text-align: center;
 }
 
-TeamButton {
-    font-size: 14px;
-}
-
 QPushButton:hover {
-    background-color: rgba(2, 136, 209, 158);
+    background-color: rgba(68, 138, 255, 85%);
 }
 
 QPushButton:pressed {
-    background-color: rgba(2, 136, 209, 122);
+    background-color: rgba(68, 138, 255, 75%);
 }
 
 .QPushButton:disabled {
-    background-color: rgba(2, 136, 209, 97);
+    background-color: rgba(68, 138, 255, 50%);
     color: rgba(255, 255, 255, 127);
+}
+
+TeamButton {
+    font-size: 14px;
 }
 
 #CloseButton {

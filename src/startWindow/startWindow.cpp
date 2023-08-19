@@ -45,17 +45,18 @@ void StartWindow::onCreateServer() {
 }
 
 void StartWindow::onConnected() {
-    auto nickName = ui->leNickName->text();
-    if (nickName.isEmpty()) {
-        nickName = QString("%1 %2").arg(socket->peerAddress().toString(), QString::number(socket->peerPort()));
-        qDebug() << QString("[startWindow.cpp] No nick name set, defaulting to %1.").arg(nickName);
+    auto nickname = ui->leNickName->text();
+    auto nicknameLen = nickname.toLocal8Bit().length();
+    if (!(3 <= nicknameLen && nicknameLen <= 15)) {
+        ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
+        return;
     }
 
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
-        gameWindow = new GameWindow(socket, nickName, nullptr);
+        gameWindow = new GameWindow(socket, nickname, nullptr);
     } else
-        socket->sendBinaryMessage(generateMessage("Connected", {nickName}));
+        socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
 
     ui->pbConnect->setText("Disconnect");
     socketStatus = WebSocketStatus::Connected;

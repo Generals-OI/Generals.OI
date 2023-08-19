@@ -57,7 +57,7 @@ QLabel {
 }
 
 GameButton {
-    qproperty-flat: 1;
-    /*background-color: transparent;*/
+    /*qproperty-flat: 1;*/
+    background-color: transparent;
     qproperty-focusPolicy: 0;
 }
