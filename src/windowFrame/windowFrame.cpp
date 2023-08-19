@@ -6,7 +6,7 @@ WindowFrame::WindowFrame(QWidget *widget, QWidget *parent)
 
     QPalette wndPalette(palette());
 #if (QT_VERSION_MAJOR < 6)
-    wndPalette.setColor(QPalette::Background, QColor(34, 34, 34));
+    wndPalette.setColor(QPalette::Background, QColor(36, 36, 36));
 #else
     wndPalette.setColor(QPalette::Window, QColor(36, 36, 36));
 #endif

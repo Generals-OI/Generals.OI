@@ -32,7 +32,7 @@
         <file>img/General-Blue.png</file>
         <file>img/Icon-Blue.ico</file>
         <file>img/Icon-Blue.png</file>
-        <file>img/RadioButton.svg</file>
-        <file>img/RadioButton-Checked.svg</file>
+        <file>img/RadioButton.png</file>
+        <file>img/RadioButton-Checked.png</file>
     </qresource>
 </RCC>

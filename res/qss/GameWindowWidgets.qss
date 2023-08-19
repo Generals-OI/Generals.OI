@@ -56,7 +56,7 @@ QLabel {
     background-color: transparent;
 }
 
-QPushButton {
+GameButton {
     qproperty-flat: 1;
     /*background-color: transparent;*/
     qproperty-focusPolicy: 0;

@@ -24,15 +24,15 @@ QLabel {
     color: rgba(129, 212, 250, 127);
 }
 
-/*.QRadioButton::indicator {
+.QRadioButton::indicator {
     width: 16px;
     height: 16px;
-    image: url(":/img/RadioButton.svg");
+    image: url(":/img/RadioButton.png");
 }
 
 .QRadioButton::indicator:checked {
-    image: url(":/img/RadioButton-Checked.svg");
-}*/
+    image: url(":/img/RadioButton-Checked.png");
+}
 
 QPushButton {
     background-color: rgba(2, 136, 209, 138);
