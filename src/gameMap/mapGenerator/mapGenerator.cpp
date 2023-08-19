@@ -21,7 +21,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
     using std::mt19937;
     using std::uniform_int_distribution;
 
-    const int direction4[4][2] = {{-1, 0},
+    int direction4[4][2] = {{-1, 0},
                                   {1,  0},
                                   {0,  -1},
                                   {0,  1}};
@@ -47,14 +47,16 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
     };
 
     int lBound, rBound;
-    if (cntPlayer <= 8) {
-        lBound = int(1.2857 * cntPlayer + 12.7143);
-        rBound = 2 * cntPlayer + 15;
+    if (cntTeam <= 8) {
+        lBound = int(1.2857 * cntTeam + 12.7143);
+        rBound = 2 * cntTeam + 15;
     } else {
-        lBound = int(3.7738 * cntPlayer - 10.2976);
-        rBound = int(3.6309 * cntPlayer + 1.7381);
+        lBound = int(3.7738 * cntTeam - 10.2976);
+        rBound = int(3.6309 * cntTeam + 1.7381);
     }
-    ServerMap servMap{GlobalMap(randInt(lBound, rBound), randInt(lBound, rBound), cntTeam, cntPlayer, idTeam)};
+    ServerMap servMap{GlobalMap(randInt(lBound, rBound) + cntPlayer - cntTeam,
+                                randInt(lBound, rBound) + cntPlayer - cntTeam, cntTeam, cntPlayer,
+                                idTeam)};
 
     auto valid = [&servMap](Point p) -> bool {
         return p.x > 0 && p.x <= servMap.width && p.y > 0 && p.y <= servMap.length;
@@ -154,13 +156,18 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
 
                 if (dist >= minCtrDist) {
                     bool flagValid = true;
-                    for (auto it = teamMbr[t].begin(); it != itPlayer; it++)
+                    for (auto it = teamMbr[t].begin(); it != itPlayer; it++) {
+                        if(pntGeneral[*it] == cur) {
+                            flagValid = false;
+                            break;
+                        }
                         for (auto d: direction8)
                             if (valid(Point(cur.x + d[0], cur.y + d[1])) &&
                                 pntGeneral[*it] == Point(cur.x + d[0], cur.y + d[1])) {
                                 flagValid = false;
                                 break;
                             }
+                    }
                     if (flagValid) {
                         for (auto tEnemy: teamList) {
                             if (tEnemy == t)
@@ -174,7 +181,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                                 break;
                         }
                     }
-                    if (flagValid && rnd() % minEnemyDist <= 15) {
+                    if (flagValid && rnd() % minEnemyDist <= 11) {
                         pntGeneral[*itPlayer] = cur;
                         itPlayer++;
                         if (itPlayer == teamMbr[t].end())
@@ -197,19 +204,20 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                         visited[nxt.x][nxt.y] = true;
                     }
                 }
+                std::shuffle(direction4,direction4+4,rnd);
             }
 
-            if (minEnemyDist == 5 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
+            if (minEnemyDist == 7 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
                 qDebug() << "In function MapGenerator::randomMap: Unable to set general";
                 break;
             }
 
-            if (minEnemyDist <= 15) {
+            if (minEnemyDist <= 13) {
                 minEnemyDist--;
                 minCtrDist = 0;
                 maxCtrDist = infinity;
             } else {
-                minEnemyDist = max(minEnemyDist - randInt(4, 9), 15);
+                minEnemyDist = max(minEnemyDist - randInt(4, 9), 13);
                 minCtrDist = tSize >= 6 ? maxCtrDist : int(maxCtrDist * (0.4 + tSize * 0.1));
                 maxCtrDist += randInt(3, 10);
             }
