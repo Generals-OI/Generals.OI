@@ -33,5 +33,7 @@
         <file>img/Icon-Blue.png</file>
         <file>img/RadioButton.png</file>
         <file>img/RadioButton-Checked.png</file>
+        <file>img/CheckBox.png</file>
+        <file>img/CheckBox-Checked.png</file>
     </qresource>
 </RCC>

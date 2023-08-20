@@ -15,6 +15,23 @@ QLabel {
     qproperty-alignment: 132;
 }
 
+QCheckBox {
+    color: #81d4fa;
+    outline: 0;
+}
+
+.QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    image: url(":/img/CheckBox.png");
+}
+
+.QCheckBox::indicator:checked {
+    width: 16px;
+    height: 16px;
+    image: url(":/img/CheckBox-Checked.png");
+}
+
 .QRadioButton {
     color: #81d4fa;
     outline: 0;

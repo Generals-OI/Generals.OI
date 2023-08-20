@@ -18,12 +18,16 @@ void ServerSettingsWindow::setTarget(QWidget *target) {
 void ServerSettingsWindow::onCreateButtonClicked() {
     wTarget->hide();
 
-    int gameMode = -ui->bgGameMode->checkedId();
-    int gameSpeedOption = -ui->bgGameSpeed->checkedId();
-    int teamEnabled = -ui->bgTeaming->checkedId();
+    const int viewTypeOptions[] = {0, 0, GameMode::nearsightedness, GameMode::mistyVeil, GameMode::crystalClear};
+    const double speedOptions[] = {0, 0, 1, 1.5, 2, 3, 5, 10};
+    const int teamOptions[] = {0, 0, GameMode::allowTeaming, 0};
 
-    const double speedOptions[] = {0, 0, 1, 1.5, 2, 3, 5};
-    auto gameSpeed = speedOptions[gameSpeedOption];
+    int viewType = viewTypeOptions[-ui->bgViewType->checkedId()];
+    int modifiers = (GameMode::silentWar * ui->cbSilentWar->isChecked()) |
+                    (GameMode::leapfrog * ui->cbLeapfrog->isChecked()) |
+                    (GameMode::cityState * ui->cbCityState->isChecked());
+    double gameSpeed = speedOptions[-ui->bgGameSpeed->checkedId()];
+    int teamingEnabled = teamOptions[-ui->bgTeaming->checkedId()];
 
-    new Server(gameMode, gameSpeed);
+    new Server(viewType | modifiers | teamingEnabled, gameSpeed);
 }
