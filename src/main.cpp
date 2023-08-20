@@ -4,8 +4,7 @@
 #include "serverSettingsWindow.h"
 #include "windowFrame.h"
 
-const int maxPlayerNum = 8;
-const QString strAppVersion = "0.1.1";
+const QString strAppVersion = "1.0.0 Beta";
 
 QString strFontRegular, strFontMedium, strFontBold;
 

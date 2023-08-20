@@ -6,7 +6,6 @@
 #include <QRegularExpressionMatch>
 
 #include "gameWindow.h"
-#include "titleBar.h"
 #include "teamButton.h"
 #include "processJson.h"
 

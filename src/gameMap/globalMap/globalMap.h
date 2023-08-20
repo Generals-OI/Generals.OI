@@ -9,7 +9,7 @@
 #include <iostream>
 #include <climits>
 
-extern const int maxPlayerNum;
+const int maxPlayerNum = 8;
 
 enum CellType {
     land, general, city, mountain, swamp
@@ -50,7 +50,7 @@ public:
 
     GlobalMap(const GlobalMap &) = default;
 
-    GlobalMap& operator=(const GlobalMap &) = default;
+    GlobalMap &operator=(const GlobalMap &) = default;
 
     void import(const std::string &);
 
