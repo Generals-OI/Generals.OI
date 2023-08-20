@@ -2,6 +2,7 @@
 #define SERVER_MAP_H
 
 #include "globalMap.h"
+#include "gameInformation.h"
 
 class ServerMap : public GlobalMap {
 private:
@@ -16,7 +17,7 @@ public:
     std::string exportMap(bool);
 
     // Moves army after checking validity
-    bool move(int, Point, int, int, bool);
+    bool move(int, Point, int, int, bool, int);
 
     // Calculates value in stat
     void calcStat();

@@ -159,7 +159,8 @@ void Server::onNewConnection() {
                     serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, totTeam, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    emit sendMessage(generateMessage("InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
+                    emit sendMessage(
+                            generateMessage("InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
@@ -176,7 +177,7 @@ void Server::onNewConnection() {
             int deltaY = msgData.at(4).toInt();
             bool flag50p = msgData.at(5).toBool();
 
-            serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p);
+            serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p, gameMode);
         }
 
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))

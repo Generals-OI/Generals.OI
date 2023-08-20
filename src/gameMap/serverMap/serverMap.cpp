@@ -1,7 +1,8 @@
 #include "serverMap.h"
 
 bool
-ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, const int deltaY, const bool flagHalf) {
+ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, const int deltaY, const bool flagHalf,
+                const int gameMode) {
     Point pntEnd(pntStart.x + deltaX, pntStart.y + deltaY);
 
     if (pntEnd.x < 1 || pntEnd.x > width || pntEnd.y < 1 || pntEnd.y > length || abs(deltaX) + abs(deltaY) != 1)
@@ -36,20 +37,30 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
                 switch (cEnd.type) {
                     case CellType::land:
                     case CellType::swamp:
-                    case CellType::city: {
+                    case CellType::city:
                         cell = Cell{num - cEnd.number, cStart.belonging, cEnd.type};
                         break;
-                    }
-                    case CellType::general: {
-                        cell = Cell{num - cEnd.number, cStart.belonging, CellType::city};
-                        for (int i = 1; i <= width; i++)
-                            for (int j = 1; j <= length; j++)
-                                if (map[i][j].belonging == cEnd.belonging)
-                                    map[i][j] = Cell{(map[i][j].number + 1) / 2, cStart.belonging,
-                                                     map[i][j].type};
+                    case CellType::general:
+                        if (gameMode | GameMode::leapfrog) {
+                            for (int i = 1; i <= width; i++)
+                                for (int j = 1; j <= length; j++) {
+                                    if (map[i][j].belonging == cStart.belonging && map[i][j].type == CellType::general)
+                                        map[i][j].type = CellType::city;
+                                    if (map[i][j].belonging == cEnd.belonging && Point(i, j) != pntEnd)
+                                        map[i][j] = Cell{(map[i][j].number + 1) / 2, cStart.belonging, map[i][j].type};
+                                }
+                            cell = Cell{num - cEnd.number, cStart.belonging, CellType::general};
+                        } else {
+                            cell = Cell{num - cEnd.number, cStart.belonging, CellType::city};
+
+                            for (int i = 1; i <= width; i++)
+                                for (int j = 1; j <= length; j++)
+                                    if (map[i][j].belonging == cEnd.belonging)
+                                        map[i][j] = Cell{(map[i][j].number + 1) / 2, cStart.belonging,
+                                                         map[i][j].type};
+                        }
                         roundLose[cEnd.belonging - 1] = round;
                         break;
-                    }
                     default:;
                 }
             }
