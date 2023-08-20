@@ -22,7 +22,7 @@ include_directories(
         src/endWindow
         src/gameWindow
         src/gameWindow/gameButton
-        src/playerInfo
+        src/gameInformation
         src/server
         src/startWindow
         src/startWindow/teamButton
@@ -80,8 +80,8 @@ set(
 
         src/processJson/processJson.h
 
-        src/playerInfo/playerInfo.cpp
-        src/playerInfo/playerInfo.h
+        src/gameInformation/gameInformation.cpp
+        src/gameInformation/gameInformation.h
 
         src/endWindow/endWindow.cpp
         src/endWindow/endWindow.h
