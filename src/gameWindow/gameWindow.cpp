@@ -347,21 +347,24 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     lbFocus->setFocus();
 }
 
-void GameWindow::updateWindow(bool forced) {
-    auto visible = [this](int i, int j) -> bool {
-        const int direction[9][2] = {-1, -1, -1, 0, -1, 1, 0, -1, 0, 0, 0, 1, 1, -1, 1, 0, 1, 1};
+bool GameWindow::isPositionVisible(int x, int y) {
+    if (idPlayer == -1 || (gameMode & GameMode::crystalClear))
+        return true;
+    if (gameMode & GameMode::mistyVeil)
+        return idTeam == globMap.idTeam[globMap.map[x][y].belonging - 1];
+    const int direction[9][2] = {-1, -1, -1, 0, -1, 1, 0, -1, 0, 0, 0, 1, 1, -1, 1, 0, 1, 1};
 
-        for (auto k: direction) {
-            int x = i + k[0], y = j + k[1];
-            if (focus->valid(x, y)) {
-                if (idTeam == globMap.idTeam[globMap.map[x][y].belonging - 1] ||
-                    idPlayer == -1) // All information are visible to spectators
-                    return true;
-            }
+    for (auto k: direction) {
+        int _x = x + k[0], _y = y + k[1];
+        if (focus->valid(_x, _y)) {
+            if (idTeam == globMap.idTeam[globMap.map[_x][_y].belonging - 1])
+                return true;
         }
-        return false;
-    };
+    }
+    return false;
+}
 
+void GameWindow::updateWindow(bool forced) {
     auto calcFontType = [](int number) {
         if (number < 1000) return 0;
         return std::min(int(log10(number)) - 2, fontSizeCount - 1);
@@ -375,7 +378,7 @@ void GameWindow::updateWindow(bool forced) {
             auto lbM = lbMain[i][j];
             auto lbC = lbColor[i][j];
 
-            auto vis = visible(i, j);
+            auto vis = isPositionVisible(i, j);
             auto flagNum = cell->number != _cell->number, flagVis = vis != visMain[i][j],
                     flagType = cell->type != _cell->type, flagBelonging = cell->belonging != _cell->belonging;
 
@@ -417,6 +420,7 @@ void GameWindow::updateWindow(bool forced) {
     int curRow = 0;
     lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
 
+    // TODO: Response to Game Modifiers (silentWar)
     for (const auto &stat: globMap.stat) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
@@ -439,7 +443,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
     if (msgType == "PlayerInfo") {
         idPlayer = msgData.at(0).toInt();
         idTeam = msgData.at(1).toInt();
-        gotPlayerInfo = true;
+        gotPlayerInfoMsg = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
     } else if (msgType == "PlayersInfo") {
@@ -451,21 +455,22 @@ void GameWindow::processMessage(const QByteArray &msg) {
             int team = playerData.at(2).toInt();
             playersInfo[player] = PlayerInfo(nick, player, team);
         }
-        gotPlayersInfo = true;
-    } else if (msgType == "InitMap") {
-        globMap.import(msgData.at(0).toString().toStdString());
+        gotPlayersInfoMsg = true;
+    } else if (msgType == "InitGame") {
+        gameMode = msgData.at(0).toInt();
+        globMap.import(msgData.at(1).toString().toStdString());
         _globMap = globMap;
-        gotInitMap = true;
+        gotInitMsg = true;
         init();
-    } else if (gotPlayerInfo && gotInitMap && gotPlayersInfo) {
+    } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
         } else if (!gameEnded && msgType == "UpdateMap") {
             globMap.import(msgData.at(0).toString().toStdString());
             updateWindow();
 
-            if (!gameWindowShowed) {
-                gameWindowShowed = true;
+            if (!gameWindowShown) {
+                gameWindowShown = true;
                 show();
             }
 

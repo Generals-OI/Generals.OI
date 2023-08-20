@@ -133,9 +133,9 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
             pbTeams[i]->setText(strTeam);
         }
         pbTeams[maxPlayerNum]->show();
-    } else if (!gotInitMap && msgType == "InitMap") {
-        gotInitMap = true;
-    } else if (gotInitMap && !wndHidden && msgType == "UpdateMap") {
+    } else if (!gotInitMsg && msgType == "InitGame") {
+        gotInitMsg = true;
+    } else if (gotInitMsg && !wndHidden && msgType == "UpdateMap") {
         wndHidden = true;
         wTarget->hide();
         disconnect(socket, &QWebSocket::binaryMessageReceived, this, &StartWindow::onMessageReceived);

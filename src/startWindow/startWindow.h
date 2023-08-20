@@ -54,7 +54,7 @@ private:
 
     GameWindow *gameWindow{};
 
-    bool gotInitMap{}, wndHidden{};
+    bool gotInitMsg{}, wndHidden{};
 };
 
 #endif // START_WINDOW_H

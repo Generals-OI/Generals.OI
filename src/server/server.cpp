@@ -115,7 +115,7 @@ void Server::onNewConnection() {
                 if (clients[socket].isSpect) {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
                     socket->sendBinaryMessage(baPlayersInfo);
-                    socket->sendBinaryMessage(generateMessage("InitMap",
+                    socket->sendBinaryMessage(generateMessage("InitGame",
                                                               {QString::fromStdString(serMap->exportMap(true))}));
                 }
             } else {
@@ -159,7 +159,7 @@ void Server::onNewConnection() {
                     serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, totTeam, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    emit sendMessage(generateMessage("InitMap", {QString::fromStdString(serMap->exportMap(true))}));
+                    emit sendMessage(generateMessage("InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
