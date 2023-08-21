@@ -68,6 +68,10 @@ set(
         src/gameWindow/moveInfo.cpp
         src/gameWindow/gameWindow.h
 
+        src/gameWindow/surrenderWindow/surrenderWindow.cpp
+        src/gameWindow/surrenderWindow/surrenderWindow.h
+        src/gameWindow/surrenderWindow/surrenderWindow.ui
+
         src/startWindow/startWindow.cpp
         src/startWindow/startWindow.h
         src/startWindow/startWindow.ui
