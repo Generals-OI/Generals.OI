@@ -13,7 +13,7 @@
   <property name="font">
    <font>
     <family>Quicksand Medium</family>
-    <pointsize>18</pointsize>
+    <pointsize>12</pointsize>
    </font>
   </property>
   <property name="windowTitle">
@@ -47,6 +47,12 @@
    </item>
    <item>
     <widget class="QLabel" name="lbSurrender">
+     <property name="font">
+      <font>
+       <family>Quicksand Medium</family>
+       <pointsize>23</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Confirm Surrender ?</string>
      </property>
@@ -99,6 +105,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="font">
+          <font>
+           <family>Quicksand Medium</family>
+           <pointsize>23</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Yes</string>
          </property>
@@ -111,6 +123,12 @@
            <horstretch>50</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Quicksand Medium</family>
+           <pointsize>23</pointsize>
+          </font>
          </property>
          <property name="text">
           <string>No</string>

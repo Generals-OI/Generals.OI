@@ -2,6 +2,7 @@
 #define SURRENDER_WINDOW_H
 
 #include <QWidget>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SurrenderWindow; }
