@@ -78,10 +78,10 @@ void RandomMapGenerator::setGeneral(int cntPlayer, int cntTeam, int gameMode) {
     using std::queue;
     using std::pair;
 
-    int dir4[4][2] = {{-1, 0},
-                      {1,  0},
-                      {0,  -1},
-                      {0,  1}};
+    int direction4[4][2] = {{-1, 0},
+                            {1,  0},
+                            {0,  -1},
+                            {0,  1}};
 
     vector<Point> pntCenter(cntTeam);
     pntGeneral = vector<Point>(cntPlayer);
@@ -191,14 +191,14 @@ void RandomMapGenerator::setGeneral(int cntPlayer, int cntTeam, int gameMode) {
                     }
                 }
 
-                for (auto d: dir4) {
+                for (auto d: direction4) {
                     nxt = Point(cur.x + d[0], cur.y + d[1]);
                     if (valid(nxt) && !visited[nxt.x][nxt.y]) {
                         q.emplace(nxt, dist + 1);
                         visited[nxt.x][nxt.y] = true;
                     }
                 }
-                std::shuffle(dir4, dir4 + 4, rnd);
+                std::shuffle(direction4, direction4 + 4, rnd);
             }
 
             if (minEnemyDist == 7 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
@@ -231,6 +231,11 @@ void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
     using std::swap;
     using std::max;
     using std::min;
+
+    static constexpr int direction4[4][2] = {{0,  1},
+                                             {1,  0},
+                                             {0,  -1},
+                                             {-1, 0}};
 
     vector<PointLf> pntGeomCtr(cntTeam);
     vector<vector<int>> idTeamChunk(servMap.width + 1, vector<int>(servMap.length + 1));
@@ -530,12 +535,47 @@ void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
 }
 
 void RandomMapGenerator::setCity(int cntPlayer, int cntTeam, int gameMode) {
+    int direction4[4][2] = {{0,  1},
+                            {1,  0},
+                            {0,  -1},
+                            {-1, 0}};
+
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)
             if (servMap.map[i][j].type == CellType::mountain && rnd() % 13 <= 1) {
                 servMap.map[i][j].type = CellType::city;
                 servMap.map[i][j].number = randInt(40, 50);
             }
+    if (gameMode & GameMode::cityState) {
+        for (auto gnl: pntGeneral) {
+            bool flagSuccess = false;
+            std::shuffle(direction4, direction4 + 4, rnd);
+            for (auto d: direction4) {
+                if (!valid(Point(gnl.x + d[0], gnl.y + d[1])))
+                    continue;
+                Cell &c = servMap.map[gnl.x + d[0]][gnl.y + d[1]];
+                if (c.type == CellType::city && !c.belonging || c.type == CellType::mountain) {
+                    c = Cell(0, servMap.map[gnl.x][gnl.y].belonging, CellType::city);
+                    flagSuccess = true;
+                    break;
+                }
+            }
+            if (flagSuccess)
+                continue;
+            for (auto d: direction4) {
+                if (!valid(Point(gnl.x + d[0], gnl.y + d[1])))
+                    continue;
+                Cell &c = servMap.map[gnl.x + d[0]][gnl.y + d[1]];
+                if (c.type != CellType::general) {
+                    c = Cell(0, servMap.map[gnl.x][gnl.y].belonging, CellType::city);
+                    flagSuccess = true;
+                    break;
+                }
+            }
+            if (!flagSuccess)
+                qDebug() << "[mapGenerator.cpp]setCity: no valid position to set extra city in City-State mod";
+        }
+    }
 }
 
 ServerMap RandomMapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam, int gameMode) {

@@ -19,10 +19,6 @@ private:
                                              {-1, 1},
                                              {-1, 0},
                                              {-1, -1}};
-    static constexpr int direction4[4][2] = {{0,  1},
-                                             {1,  0},
-                                             {0,  -1},
-                                             {-1, 0}};
 
     static std::mt19937 rnd;
     static ServerMap servMap;
