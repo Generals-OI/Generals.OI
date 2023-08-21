@@ -14,6 +14,8 @@ public:
 
     ServerMap(ServerMap &&) = default;
 
+    ServerMap &operator=(ServerMap &&) = default;
+
     std::string exportMap(bool);
 
     // Moves army after checking validity
