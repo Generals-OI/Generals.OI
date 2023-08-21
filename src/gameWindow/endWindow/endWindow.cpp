@@ -1,30 +1,10 @@
 #include "endWindow.h"
+#include "ui_endWindow.h"
 
-extern QString strFontBold;
-
-EndWindow::EndWindow(QWidget *parent)
-        : QWidget(parent) {
+EndWindow::EndWindow(QWidget *parent) :
+        QWidget(parent), ui(new Ui::EndWindow) {
     setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
-    auto wndWidth = parent->width();
-    auto wndHeight = parent->height();
-
-    auto wgtHeight = wndHeight / 20;
-    auto wgtWidth = wndHeight / 5;
-    auto fontSize = wgtHeight / 2;
-    auto wgtSep = fontSize;
-
-    auto subWndWidth = wgtWidth * 2;
-    auto subWndHeight = (wgtHeight + wgtSep) * 6;
-
-    auto midX = wndWidth / 2, midY = wndHeight / 2;
-    auto subX = subWndWidth / 2, subY = subWndHeight / 2;
-    auto subLeft = midX - subWndWidth / 2, subTop = midY - subWndHeight / 2;
-    auto wgtLeft = subX - wgtWidth / 2, wgtTop = subY - wgtHeight - wgtSep * 3 / 2;
-
-    setGeometry(subLeft, subTop, subWndWidth, subWndHeight);
-
-    QFont font(strFontBold, fontSize);
-    setFont(font);
+    ui->setupUi(this);
 
     QFile qssFile(":/qss/WindowWidgets.qss");
     if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -41,31 +21,22 @@ EndWindow::EndWindow(QWidget *parent)
     setAutoFillBackground(true);
     setPalette(wndPalette);
 
-    lbGeneral = new QLabel(this);
-    lbInfo = new QLabel(this);
-    btnWatch = new QPushButton(this);
-    btnExit = new QPushButton(this);
+    move(parent->geometry().center() - rect().center());
 
-    btnWatch->setText("Watch as Spectator");
-    btnExit->setText("Exit");
+    connect(ui->pbWatch, &QPushButton::clicked, this, &QWidget::hide);
+    connect(ui->pbExit, &QPushButton::clicked, qApp, &QApplication::quit);
 
-    lbInfo->setFont(font);
-    btnWatch->setFont(font);
-    btnExit->setFont(font);
-    lbInfo->setAlignment(Qt::AlignCenter);
+}
 
-    connect(btnWatch, &QPushButton::clicked, this, &QWidget::hide);
-    connect(btnExit, &QPushButton::clicked, qApp, &QApplication::quit);
+EndWindow::~EndWindow() {
+    delete ui;
+}
 
-#define geo_expr wgtLeft, (wgtTop = wgtTop + wgtHeight + wgtSep), wgtWidth, wgtHeight
+void EndWindow::updateText(QString strTitle, QString strContent) {
+    ui->lbTitle->setText(strTitle);
+    ui->lbContent->setText(strContent);
+}
 
-//    lbGeneral->setStyleSheet(QString("border-image: url(:/img/General-%1.png);").arg(flag ? "Won" : "Lost"));
-    lbGeneral->setStyleSheet("border-image: url(:/img/General-Blue.png);");
-
-    lbGeneral->setGeometry(wgtLeft, wgtSep, wgtWidth, wgtWidth * 33 / 42);
-    lbInfo->setGeometry(geo_expr);
-    btnWatch->setGeometry(geo_expr);
-    btnExit->setGeometry(geo_expr);
-
-    hide();
+void EndWindow::gameEnded() {
+    ui->pbWatch->setEnabled(false);
 }

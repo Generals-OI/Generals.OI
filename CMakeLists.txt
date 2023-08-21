@@ -73,6 +73,13 @@ set(
         src/gameWindow/surrenderWindow/surrenderWindow.h
         src/gameWindow/surrenderWindow/surrenderWindow.ui
 
+        src/gameWindow/endWindow/endWindow.cpp
+        src/gameWindow/endWindow/endWindow.h
+        src/gameWindow/endWindow/endWindow.ui
+
+        src/gameWindow/gameButton/gameButton.cpp
+        src/gameWindow/gameButton/gameButton.h
+
         src/startWindow/startWindow.cpp
         src/startWindow/startWindow.h
         src/startWindow/startWindow.ui
@@ -83,20 +90,20 @@ set(
         src/server/server.cpp
         src/server/server.h
 
-        src/processJson/processJson.h
-
-        src/gameInformation/gameInformation.cpp
-        src/gameInformation/gameInformation.h
-
-        src/gameWindow/endWindow/endWindow.cpp
-        src/gameWindow/endWindow/endWindow.h
-
         src/server/serverSettingsWindow/serverSettingsWindow.cpp
         src/server/serverSettingsWindow/serverSettingsWindow.h
         src/server/serverSettingsWindow/serverSettingsWindow.ui
 
+        src/windowFrame/windowFrame.cpp
+        src/windowFrame/windowFrame.h
+
         src/windowFrame/titleBar/titleBar.cpp
         src/windowFrame/titleBar/titleBar.h
+
+        src/processJson/processJson.h
+
+        src/gameInformation/gameInformation.cpp
+        src/gameInformation/gameInformation.h
 
         src/point/point.cpp
         src/point/point.h
@@ -112,12 +119,6 @@ set(
 
         src/geometry/geometry.cpp
         src/geometry/geometry.h
-
-        src/gameWindow/gameButton/gameButton.cpp
-        src/gameWindow/gameButton/gameButton.h
-
-        src/windowFrame/windowFrame.cpp
-        src/windowFrame/windowFrame.h
 )
 
 set(

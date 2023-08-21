@@ -486,11 +486,12 @@ void GameWindow::processMessage(const QByteArray &msg) {
 
             if (globMap.gameOver()) {
                 gameEnded = true;
-                endWindow->btnWatch->setDisabled(true);
+                endWindow->gameEnded();
                 if (globMap.stat[0].first.id == idTeam)
-                    endWindow->lbInfo->setText("You Won!");
+                    endWindow->updateText("You Won!",
+                                          "This is your crowning glory.\nYou showed your formidable capacity.");
                 else
-                    endWindow->lbInfo->setText("You Lost.");
+                    endWindow->updateText("You Lost.", "You were captured.\nYour dignity is gone.");
                 endWindow->show();
             }
 
@@ -545,6 +546,6 @@ void GameWindow::onSurrender() {
     webSocket->sendBinaryMessage(generateMessage("Surrender", {idPlayer}));
     surrendered = true;
     clearMove();
-    endWindow->lbInfo->setText("You surrendered.");
+    endWindow->updateText("You Surrendered.", "You abandoned your general\nand gave up the fight.");
     endWindow->show();
 }

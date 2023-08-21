@@ -2,19 +2,28 @@
 #define END_WINDOW_H
 
 #include <QWidget>
-#include <QLabel>
-#include <QPushButton>
 #include <QApplication>
 #include <QFile>
 
-class EndWindow : public QWidget
-{
-Q_OBJECT
-public:
-    explicit EndWindow(QWidget *);
+QT_BEGIN_NAMESPACE
+namespace Ui { class EndWindow; }
+QT_END_NAMESPACE
 
-    QLabel *lbGeneral, *lbInfo;
-    QPushButton *btnWatch, *btnExit;
+class EndWindow : public QWidget {
+Q_OBJECT
+
+public:
+    explicit EndWindow(QWidget *parent = nullptr);
+
+    ~EndWindow() override;
+
+    void updateText(QString strTitle, QString strContent = QString());
+
+    void gameEnded();
+
+private:
+    Ui::EndWindow *ui;
 };
+
 
 #endif // END_WINDOW_H
