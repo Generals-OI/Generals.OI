@@ -26,7 +26,14 @@
         <file>img/MinimizeButton-Hover.png</file>
         <file>img/Mountain.png</file>
         <file>img/Obstacle.png</file>
-        <file>img/StartWindow-Background.png</file>
         <file>img/Swamp.png</file>
+        <file>img/General-Gray.png</file>
+        <file>img/General-Blue.png</file>
+        <file>img/Icon-Blue.ico</file>
+        <file>img/Icon-Blue.png</file>
+        <file>img/RadioButton.png</file>
+        <file>img/RadioButton-Checked.png</file>
+        <file>img/CheckBox.png</file>
+        <file>img/CheckBox-Checked.png</file>
     </qresource>
 </RCC>

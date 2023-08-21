@@ -5,11 +5,6 @@ extern QString strFontBold;
 
 StartWindow::StartWindow(QWidget *parent)
         : QWidget(parent), ui(new Ui::StartWindow) {
-    QFile cssFile(":/qss/WindowWidgets.qss");
-    if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(cssFile.readAll());
-        cssFile.close();
-    }
 
     ui->setupUi(this);
 
@@ -50,17 +45,18 @@ void StartWindow::onCreateServer() {
 }
 
 void StartWindow::onConnected() {
-    auto nickName = ui->leNickName->text();
-    if (nickName.isEmpty()) {
-        nickName = QString("%1 %2").arg(socket->peerAddress().toString(), QString::number(socket->peerPort()));
-        qDebug() << QString("[startWindow.cpp] No nick name set, defaulting to %1.").arg(nickName);
+    auto nickname = ui->leNickName->text();
+    auto nicknameLen = nickname.toLocal8Bit().length();
+    if (!(3 <= nicknameLen && nicknameLen <= 15)) {
+        ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
+        return;
     }
 
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
-        gameWindow = new GameWindow(socket, nickName, nullptr);
+        gameWindow = new GameWindow(socket, nickname, nullptr);
     } else
-        socket->sendBinaryMessage(generateMessage("Connected", {nickName}));
+        socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
 
     ui->pbConnect->setText("Disconnect");
     socketStatus = WebSocketStatus::Connected;
@@ -76,7 +72,7 @@ void StartWindow::onConnected() {
 void StartWindow::onDisconnected() {
     qDebug() << "[startWindow.cpp] Disconnected from server.";
     ui->pbConnect->setText("Connect");
-    ui->lbMessage->setText("[Disconnected] " + ui->lbMessage->text().mid(12));
+    ui->lbMessage->setText("[Disconnected]\n" + ui->lbMessage->text().section("\n", 1));
 
     ui->pbConnect->setEnabled(true);
     ui->pbReady->setEnabled(false);
@@ -102,7 +98,7 @@ void StartWindow::onConnectClicked() {
         if (/*regex.match(strAddr).hasMatch()*/
                 std::regex_match(strAddr.toStdString(), reg) || strAddr.toLower() == "localhost") {
             ui->pbConnect->setText("Cancel");
-            ui->lbMessage->setText(QString("Connecting to: %1").arg(strAddr));
+            ui->lbMessage->setText(QString("[Connecting]\nLocal Server: %1").arg(strAddr));
             socket->open(QUrl(QString("ws://%1:32767").arg(strAddr)));
             socketStatus = WebSocketStatus::Connecting;
         } else {
@@ -126,7 +122,7 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
     auto msgData = json.second.toArray();
 
     if (msgType == "Status") {
-        ui->lbMessage->setText("[Connected] " + msgData.at(0).toString());
+        ui->lbMessage->setText("[Connected]\n" + msgData.at(0).toString());
         for (int i = 0, totTeam = 0; i < maxPlayerNum; i++) {
             auto teamData = msgData.at(i + 1).toArray();
             if (teamData.isEmpty()) pbTeams[i]->hide();
@@ -137,9 +133,9 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
             pbTeams[i]->setText(strTeam);
         }
         pbTeams[maxPlayerNum]->show();
-    } else if (!gotInitMap && msgType == "InitMap") {
-        gotInitMap = true;
-    } else if (gotInitMap && !wndHidden && msgType == "UpdateMap") {
+    } else if (!gotInitMsg && msgType == "InitGame") {
+        gotInitMsg = true;
+    } else if (gotInitMsg && !wndHidden && msgType == "UpdateMap") {
         wndHidden = true;
         wTarget->hide();
         disconnect(socket, &QWebSocket::binaryMessageReceived, this, &StartWindow::onMessageReceived);
@@ -148,8 +144,11 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
 
 void StartWindow::setTarget(QWidget *widget) {
     wTarget = widget;
-    // TODO: Move window to the center
-    wTarget->setSizeIncrement(1200, 800);
+
+    auto screen = qApp->primaryScreen()->geometry();
+    auto window = QSize(800, 750);
+    wTarget->setGeometry((screen.width() - window.width()) / 2, (screen.height() - window.height()) / 2,
+                         window.width(), window.height());
 }
 
 void StartWindow::onTeamButtonChosen(int idButton) {

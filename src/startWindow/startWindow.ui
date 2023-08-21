@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>750</height>
+    <width>700</width>
+    <height>753</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
+    <width>700</width>
     <height>0</height>
    </size>
   </property>
@@ -50,26 +50,26 @@
        <property name="minimumSize">
         <size>
          <width>200</width>
-         <height>200</height>
+         <height>160</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>200</width>
-         <height>200</height>
+         <height>160</height>
         </size>
        </property>
        <property name="sizeIncrement">
         <size>
          <width>200</width>
-         <height>200</height>
+         <height>160</height>
         </size>
        </property>
        <property name="text">
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../res/generals.qrc">:/img/Icon.png</pixmap>
+        <pixmap resource="../../res/generals.qrc">:/img/General-Blue.png</pixmap>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -123,12 +123,30 @@
       </spacer>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="vlInput">
+      <layout class="QVBoxLayout" name="vlInput" stretch="10,10,10,10">
        <property name="spacing">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
         <number>20</number>
        </property>
        <item>
         <widget class="QLabel" name="lbNickName">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>
@@ -137,7 +155,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Nick Name</string>
+          <string>Nickname</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -146,9 +164,21 @@
        </item>
        <item>
         <widget class="QLineEdit" name="leNickName">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Medium</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
@@ -159,16 +189,34 @@
          <property name="inputMask">
           <string/>
          </property>
+         <property name="maxLength">
+          <number>15</number>
+         </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
          <property name="placeholderText">
           <string>Anonymous</string>
          </property>
+         <property name="clearButtonEnabled">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="lbServerAddress">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>
@@ -186,18 +234,36 @@
        </item>
        <item>
         <widget class="QLineEdit" name="leServerAddress">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Medium</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
+         </property>
+         <property name="maxLength">
+          <number>15</number>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
          <property name="placeholderText">
           <string>localhost</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -322,7 +388,8 @@
         </font>
        </property>
        <property name="text">
-        <string/>
+        <string>[Disconnected]
+</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -349,9 +416,15 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbConnect">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>30</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Regular</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
@@ -379,9 +452,18 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbReady">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>30</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Regular</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
@@ -409,9 +491,15 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbCreateServer">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>30</horstretch>
+           <verstretch>20</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
-           <family>Quicksand Bold</family>
+           <family>Quicksand Regular</family>
            <pointsize>20</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>

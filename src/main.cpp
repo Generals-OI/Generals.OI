@@ -4,8 +4,7 @@
 #include "serverSettingsWindow.h"
 #include "windowFrame.h"
 
-const int maxPlayerNum = 8;
-const QString strAppVersion = "0.1.1";
+const QString strAppVersion = "1.0.0 Beta";
 
 QString strFontRegular, strFontMedium, strFontBold;
 
@@ -16,6 +15,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     QApplication::setApplicationName("Generals.OI");
     QApplication::setApplicationVersion(strAppVersion);
+    QApplication::setWindowIcon(QIcon(":/img/Icon-Blue.ico"));
 
     QCommandLineParser clp;
     clp.addHelpOption();
@@ -37,6 +37,12 @@ int main(int argc, char *argv[]) {
     qDebug() << "[main.cpp] Loaded font:" << strFontRegular << "id:" << idFontRegular;
     qDebug() << "[main.cpp] Loaded font:" << strFontMedium << "id:" << idFontMedium;
     qDebug() << "[main.cpp] Loaded font:" << strFontBold << "id:" << idFontBold;
+
+    QFile cssFile(":/qss/WindowWidgets.qss");
+    if (cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        app.setStyleSheet(cssFile.readAll());
+        cssFile.close();
+    }
 
     if (clp.isSet("s")) {
         qDebug() << "[main.cpp] Server mode enabled";

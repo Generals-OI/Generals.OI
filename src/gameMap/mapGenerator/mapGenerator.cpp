@@ -2,93 +2,89 @@
 #include "geometry.h"
 
 #include <queue>
-#include <random>
 
 #include <QDebug>
 
-ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam) {
-    using std::pair;
-    using std::make_pair;
-    using std::max;
-    using std::min;
-    using std::sqrt;
-    using std::log2;
-    using std::swap;
-    using std::endl;
-    using std::deque;
-    using std::queue;
-    using std::vector;
+std::mt19937 RandomMapGenerator::rnd;
+ServerMap RandomMapGenerator::servMap;
+std::vector<std::vector<int>> RandomMapGenerator::teamMbr;
+std::vector<Point>RandomMapGenerator::posList, RandomMapGenerator::pntGeneral;
+std::vector<int>RandomMapGenerator::teamList;
+
+int RandomMapGenerator::randInt(int l, int r) {
+    std::uniform_int_distribution<> distrib(l, r);
+    return distrib(rnd);
+}
+
+int RandomMapGenerator::mDistanceI(Point p, Point q) {
+    return abs(p.x - q.x) + abs(p.y - q.y);
+}
+
+bool RandomMapGenerator::valid(Point p) {
+    return p.x > 0 && p.x <= servMap.width && p.y > 0 && p.y <= servMap.length;
+}
+
+void RandomMapGenerator::init(int cntPlayer, int cntTeam, const std::vector<int> &idTeam, int gameMode) {
     using std::mt19937;
     using std::uniform_int_distribution;
-
-    const int direction4[4][2] = {{-1, 0},
-                                  {1,  0},
-                                  {0,  -1},
-                                  {0,  1}};
-    const int direction8[8][2] = {{1,  1},
-                                  {1,  0},
-                                  {1,  -1},
-                                  {0,  1},
-                                  {0,  -1},
-                                  {-1, 1},
-                                  {-1, 0},
-                                  {-1, -1}};
-    const int infinity = USHRT_MAX;
+    using std::vector;
 
     if (cntPlayer < 2 || cntPlayer > maxPlayerNum)
-        qDebug() << "In function MapGenerator::randomMap: wrong cntPlayer";
+        qDebug() << "[mapGenerator.cpp]RandomMapGenerator::init: wrong cntPlayer";
 
     const auto seed = time(nullptr);
-    qDebug() << "In function MapGenerator::randomMap: Random seed=" << seed;
-    mt19937 rnd(seed);
-    auto randInt = [&rnd](int rangeL, int rangeR) -> int {
-        uniform_int_distribution<> range(rangeL, rangeR);
-        return range(rnd);
-    };
+    qDebug() << "[mapGenerator.cpp]RandomMapGenerator::init: Random seed =" << seed;
+    rnd = mt19937(seed);
 
     int lBound, rBound;
-    if (cntPlayer <= 8) {
-        lBound = int(1.2857 * cntPlayer + 12.7143);
-        rBound = 2 * cntPlayer + 15;
+    if (cntTeam <= 8) {
+        lBound = int(1.2857 * cntTeam + 12.7143);
+        rBound = 2 * cntTeam + 15;
     } else {
-        lBound = int(3.7738 * cntPlayer - 10.2976);
-        rBound = int(3.6309 * cntPlayer + 1.7381);
+        lBound = int(3.7738 * cntTeam - 10.2976);
+        rBound = int(3.6309 * cntTeam + 1.7381);
     }
-    ServerMap servMap{GlobalMap(randInt(lBound, rBound), randInt(lBound, rBound), cntTeam, cntPlayer, idTeam)};
+    servMap = ServerMap(GlobalMap(randInt(lBound, rBound) + cntPlayer - cntTeam,
+                                  randInt(lBound, rBound) + cntPlayer - cntTeam, cntTeam, cntPlayer,
+                                  idTeam));
 
-    auto valid = [&servMap](Point p) -> bool {
-        return p.x > 0 && p.x <= servMap.width && p.y > 0 && p.y <= servMap.length;
-    };
+    // Initialize some static arrays
 
-    /* Manhattan distance for **class `Point`**
-     * Distinguish this with mDistance: mDistance is for `PointLf`, which can be implicitly converted from `Point`
-     */
-    auto mDistanceI = [](Point p, Point q) -> int {
-        return abs(p.x - q.x) + abs(p.y - q.y);
-    };
-
-    // Initialize some arrays
-
-    vector<Point> posList;
-    vector<vector<int>> teamMbr(cntTeam);
-    vector<int> teamList(cntTeam);
-    vector<Point> pntCenter(cntTeam), pntGeneral(cntPlayer);
-
+    posList.resize(servMap.width * servMap.length);
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)
-            posList.emplace_back(i, j);
+            posList[(i - 1) * servMap.length + j - 1] = Point(i, j);
     shuffle(posList.begin(), posList.end(), rnd);
 
+    for (auto &i: teamMbr)
+        i.clear();
+    teamMbr.clear();
+    teamMbr = vector<vector<int>>(cntTeam, vector<int>(0));
     for (int i = 0; i < cntPlayer; i++)
         teamMbr[idTeam[i] - 1].push_back(i);
+    for (auto &i: teamMbr)
+        shuffle(i.begin(), i.end(), rnd);
+
+    teamList.resize(cntTeam);
     for (int i = 0; i < cntTeam; i++)
         teamList[i] = i;
     shuffle(teamList.begin(), teamList.end(), rnd);
-    for (int i = 0; i < cntTeam; i++)
-        shuffle(teamMbr[i].begin(), teamMbr[i].end(), rnd);
-    shuffle(posList.begin(), posList.end(), rnd);
+}
 
-    // Set general position randomly
+void RandomMapGenerator::setGeneral(int cntPlayer, int cntTeam, int gameMode) {
+    using std::min;
+    using std::max;
+    using std::vector;
+    using std::queue;
+    using std::pair;
+
+    int dir4[4][2] = {{-1, 0},
+                      {1,  0},
+                      {0,  -1},
+                      {0,  1}};
+
+    vector<Point> pntCenter(cntTeam);
+    pntGeneral = vector<Point>(cntPlayer);
 
     int minDist = randInt(min(servMap.length, 38), max(servMap.width + servMap.length - 2, 57));
     for (auto t: teamList)
@@ -113,7 +109,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                 break;
 
             if (minDist == 1) {
-                qDebug() << "In function MapGenerator::randomMap: Unable to set pntCenter";
+                qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setGeneral: Unable to set pntCenter";
                 break;
             }
 
@@ -123,7 +119,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                 minDist--;
         }
 
-    qDebug() << "In function MapGenerator::randomMap: pntCenter has been set";
+    qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setGeneral: pntCenter has been set";
 
     shuffle(teamList.begin(), teamList.end(), rnd);
     for (auto t: teamList) {
@@ -154,13 +150,18 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
 
                 if (dist >= minCtrDist) {
                     bool flagValid = true;
-                    for (auto it = teamMbr[t].begin(); it != itPlayer; it++)
+                    for (auto it = teamMbr[t].begin(); it != itPlayer; it++) {
+                        if (pntGeneral[*it] == cur) {
+                            flagValid = false;
+                            break;
+                        }
                         for (auto d: direction8)
                             if (valid(Point(cur.x + d[0], cur.y + d[1])) &&
                                 pntGeneral[*it] == Point(cur.x + d[0], cur.y + d[1])) {
                                 flagValid = false;
                                 break;
                             }
+                    }
                     if (flagValid) {
                         for (auto tEnemy: teamList) {
                             if (tEnemy == t)
@@ -174,7 +175,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                                 break;
                         }
                     }
-                    if (flagValid && rnd() % minEnemyDist <= 15) {
+                    if (flagValid && rnd() % minEnemyDist <= 11) {
                         pntGeneral[*itPlayer] = cur;
                         itPlayer++;
                         if (itPlayer == teamMbr[t].end())
@@ -190,26 +191,27 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                     }
                 }
 
-                for (auto d: direction4) {
+                for (auto d: dir4) {
                     nxt = Point(cur.x + d[0], cur.y + d[1]);
                     if (valid(nxt) && !visited[nxt.x][nxt.y]) {
                         q.emplace(nxt, dist + 1);
                         visited[nxt.x][nxt.y] = true;
                     }
                 }
+                std::shuffle(dir4, dir4 + 4, rnd);
             }
 
-            if (minEnemyDist == 5 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
-                qDebug() << "In function MapGenerator::randomMap: Unable to set general";
+            if (minEnemyDist == 7 && maxCtrDist == infinity && !pntGeneral[teamMbr[t][tSize - 1]].x) {
+                qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setGeneral: Unable to set general";
                 break;
             }
 
-            if (minEnemyDist <= 15) {
+            if (minEnemyDist <= 13) {
                 minEnemyDist--;
                 minCtrDist = 0;
                 maxCtrDist = infinity;
             } else {
-                minEnemyDist = max(minEnemyDist - randInt(4, 9), 15);
+                minEnemyDist = max(minEnemyDist - randInt(4, 9), 13);
                 minCtrDist = tSize >= 6 ? maxCtrDist : int(maxCtrDist * (0.4 + tSize * 0.1));
                 maxCtrDist += randInt(3, 10);
             }
@@ -219,9 +221,16 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
             servMap.map[pntGeneral[i].x][pntGeneral[i].y] = Cell{0, i + 1, CellType::general};
     }
 
-    qDebug() << "In function MapGenerator::randomMap: generals have been set";
+    qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setGeneral: generals have been set";
+}
 
-    // Place mountains while ensuring that generals can reach each other
+void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
+    using std::vector;
+    using std::queue;
+    using std::deque;
+    using std::swap;
+    using std::max;
+    using std::min;
 
     vector<PointLf> pntGeomCtr(cntTeam);
     vector<vector<int>> idTeamChunk(servMap.width + 1, vector<int>(servMap.length + 1));
@@ -289,7 +298,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
                     }
     }
 
-    qDebug() << "In function MapGenerator::randomMap: finished calculating idTeamChunk";
+    qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setObstacle: finished calculating idTeamChunk";
 
     struct Edge {
         int u{}, v{};
@@ -316,35 +325,6 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
         return par;
     };
 
-    auto rndPath = [&servMap, mDistanceI, randInt](const Point pntStart, const Point pntEnd) -> vector<Point> {
-        const int k = mDistanceI(pntStart, pntEnd) / 8;
-        const int uBound = max(1, min(pntStart.x, pntEnd.x) - k);
-        const int dBound = min(servMap.width, max(pntStart.x, pntEnd.x) + k);
-        const int lBound = max(1, min(pntStart.y, pntEnd.y) - k);
-        const int rBound = min(servMap.length, max(pntStart.y, pntEnd.y) + k);
-
-        vector <Point> path;
-        Point cur = pntStart;
-
-        for (int i = 1; i <= k + 1; i++) {
-            Point nxt;
-            if (i == k + 1)
-                nxt = pntEnd;
-            else
-                nxt = Point(randInt(uBound, dBound), randInt(lBound, rBound));
-            while (cur != nxt) {
-                path.push_back(cur);
-                if ((cur.y == nxt.y || randInt(0, 1)) && cur.x != nxt.x)
-                    cur.x += (nxt.x - cur.x) / abs(nxt.x - cur.x);
-                else
-                    cur.y += (nxt.y - cur.y) / abs(nxt.y - cur.y);
-            }
-        }
-        path.push_back(cur);
-
-        return path;
-    };
-
     for (int i = 0; i < cntTeam; i++) {
         parent[i + 1] = i + 1;
         for (int j = i + 1; j < cntTeam; j++)
@@ -363,7 +343,28 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
             parent[parU] = parV;
             Point pntStart = pntChunkBdr[e.u][randInt(0, (int) pntChunkBdr[e.u].size() - 1)],
                     pntEnd = pntChunkBdr[e.v][randInt(0, (int) pntChunkBdr[e.v].size() - 1)];
-            vector<Point> path = rndPath(pntStart, pntEnd);
+            vector<Point> path;
+            Point cur = pntStart;
+            const int k = mDistanceI(pntStart, pntEnd) / 8;
+            const int uBound = max(1, min(pntStart.x, pntEnd.x) - k);
+            const int dBound = min(servMap.width, max(pntStart.x, pntEnd.x) + k);
+            const int lBound = max(1, min(pntStart.y, pntEnd.y) - k);
+            const int rBound = min(servMap.length, max(pntStart.y, pntEnd.y) + k);
+            for (int i = 1; i <= k + 1; i++) {
+                Point nxt;
+                if (i == k + 1)
+                    nxt = pntEnd;
+                else
+                    nxt = Point(randInt(uBound, dBound), randInt(lBound, rBound));
+                while (cur != nxt) {
+                    path.push_back(cur);
+                    if ((cur.y == nxt.y || randInt(0, 1)) && cur.x != nxt.x)
+                        cur.x += (nxt.x - cur.x) / abs(nxt.x - cur.x);
+                    else
+                        cur.y += (nxt.y - cur.y) / abs(nxt.y - cur.y);
+                }
+            }
+            path.push_back(cur);
             for (auto p: path)
                 possibleMtn[p.x][p.y] = false;
         }
@@ -372,7 +373,7 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
         for (int j = 1; j <= servMap.length; j++)
             possibleMtn[i][j] = possibleMtn[i][j] && rnd() % 7 <= 3;
 
-    qDebug() << "In function MapGenerator::randomMap: possibleMtn has been set";
+    qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setObstacle: possibleMtn has been set";
 
     vector<vector<int>> root(servMap.width + 2, vector<int>(servMap.length + 2));
     auto depth = root;
@@ -525,18 +526,26 @@ ServerMap MapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<
             }
         }
 
-    qDebug() << "In function MapGenerator::randomMap: obstacles have been placed";
+    qDebug() << "[mapGenerator.cpp]RandomMapGenerator::setObstacle: obstacles have been placed";
+}
 
-    // Change some mountains into cities
-
+void RandomMapGenerator::setCity(int cntPlayer, int cntTeam, int gameMode) {
     for (int i = 1; i <= servMap.width; i++)
         for (int j = 1; j <= servMap.length; j++)
             if (servMap.map[i][j].type == CellType::mountain && rnd() % 13 <= 1) {
                 servMap.map[i][j].type = CellType::city;
                 servMap.map[i][j].number = randInt(40, 50);
             }
+}
+
+ServerMap RandomMapGenerator::randomMap(int cntPlayer, int cntTeam, const std::vector<int> &idTeam, int gameMode) {
+    using std::vector;
+
+    init(cntPlayer, cntTeam, idTeam, gameMode);
+    setGeneral(cntPlayer, cntTeam, gameMode);
+    setObstacle(cntPlayer, cntTeam, gameMode);
+    setCity(cntPlayer, cntTeam, gameMode);
 
     servMap.calcStat();
-
-    return servMap;
+    return std::move(servMap);
 }

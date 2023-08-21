@@ -115,7 +115,7 @@ void Server::onNewConnection() {
                 if (clients[socket].isSpect) {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
                     socket->sendBinaryMessage(baPlayersInfo);
-                    socket->sendBinaryMessage(generateMessage("InitMap",
+                    socket->sendBinaryMessage(generateMessage("InitGame",
                                                               {QString::fromStdString(serMap->exportMap(true))}));
                 }
             } else {
@@ -156,10 +156,11 @@ void Server::onNewConnection() {
                     emit sendMessage(baPlayersInfo);
 
                     qDebug() << "[server.cpp] Start generating.";
-                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, totTeam, teamInfo));
+                    serMap = new ServerMap(RandomMapGenerator::randomMap(cntPlayer, totTeam, teamInfo));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    emit sendMessage(generateMessage("InitMap", {QString::fromStdString(serMap->exportMap(true))}));
+                    emit sendMessage(
+                            generateMessage("InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
@@ -174,9 +175,9 @@ void Server::onNewConnection() {
             int startY = msgData.at(2).toInt();
             int deltaX = msgData.at(3).toInt();
             int deltaY = msgData.at(4).toInt();
-            int flag50p = msgData.at(5).toInt();
+            bool flag50p = msgData.at(5).toBool();
 
-            serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p);
+            serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p, gameMode);
         }
 
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))

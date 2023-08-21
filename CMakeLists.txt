@@ -19,15 +19,15 @@ include_directories(
         src/gameMap/globalMap
         src/gameMap/serverMap
         src/gameMap/mapGenerator
-        src/endWindow
+        src/gameWindow/endWindow
         src/gameWindow
         src/gameWindow/gameButton
-        src/playerInfo
+        src/gameInformation
         src/server
         src/startWindow
         src/startWindow/teamButton
-        src/titleBar
-        src/serverSettingsWindow
+        src/windowFrame/titleBar
+        src/server/serverSettingsWindow
         src/windowFrame
         src/processJson
         res
@@ -80,18 +80,18 @@ set(
 
         src/processJson/processJson.h
 
-        src/playerInfo/playerInfo.cpp
-        src/playerInfo/playerInfo.h
+        src/gameInformation/gameInformation.cpp
+        src/gameInformation/gameInformation.h
 
-        src/endWindow/endWindow.cpp
-        src/endWindow/endWindow.h
+        src/gameWindow/endWindow/endWindow.cpp
+        src/gameWindow/endWindow/endWindow.h
 
-        src/serverSettingsWindow/serverSettingsWindow.cpp
-        src/serverSettingsWindow/serverSettingsWindow.h
-        src/serverSettingsWindow/serverSettingsWindow.ui
+        src/server/serverSettingsWindow/serverSettingsWindow.cpp
+        src/server/serverSettingsWindow/serverSettingsWindow.h
+        src/server/serverSettingsWindow/serverSettingsWindow.ui
 
-        src/titleBar/titleBar.cpp
-        src/titleBar/titleBar.h
+        src/windowFrame/titleBar/titleBar.cpp
+        src/windowFrame/titleBar/titleBar.h
 
         src/point/point.cpp
         src/point/point.h

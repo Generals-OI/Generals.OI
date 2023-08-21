@@ -6,13 +6,19 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
     dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
-    setWindowTitle("Generals.OI");
-    setWindowIcon(QIcon(":/img/Icon.png"));
+    setWindowTitle("Generals.OI - Game Window");
 
     screenGeometry = qApp->primaryScreen()->geometry();
     setGeometry(screenGeometry);
     showFullScreen();
     setAutoFillBackground(true);
+
+    QFile qssFile(":/qss/GameWindowWidgets.qss");
+    if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        setStyleSheet(qssFile.readAll());
+        qssFile.close();
+    } else
+        qDebug() << "[gameWindow.cpp] Unable to load QSS file.";
 
     QPalette wndPalette(palette());
 #if (QT_VERSION_MAJOR < 6)
@@ -22,12 +28,6 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 #endif
     setPalette(wndPalette);
     hide();
-
-    QFile qssFile(":/qss/GameWindowWidgets.qss");
-    if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        setStyleSheet(qssFile.readAll());
-        qssFile.close();
-    }
 
     gongPlayer = new QMediaPlayer(this);
 #if (QT_VERSION_MAJOR < 6)
@@ -93,18 +93,18 @@ void GameWindow::init() {
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
     wgtMap = new QWidget(this);
-    wgtButton = new QWidget(this);
     wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
-    wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
-    mapLayout = new QGridLayout(wgtMap);
-    buttonLayout = new QGridLayout(wgtButton);
+    wgtButton = new QWidget(this);
+    wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     // TODO: Change Spacing if it is necessary
+    mapLayout = new QGridLayout(wgtMap);
     mapLayout->setSpacing(2);
     mapLayout->setContentsMargins(0, 0, 0, 0);
+    buttonLayout = new QGridLayout(wgtButton);
     buttonLayout->setSpacing(0);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -162,7 +162,7 @@ void GameWindow::init() {
 
     int sumRow = globMap.cntGnl + globMap.cntTeam;
     wgtBoard = new QWidget(this);
-    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 1));
+    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
     boardLayout->setSpacing(2);
     lbBoard = QVector<BoardLabel>(sumRow + 1);
@@ -176,13 +176,13 @@ void GameWindow::init() {
     for (int i = 0; i <= sumRow; i++)
         lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
     lbBoard[0].updateContent("Name", "Army", "Land");
-    lbBoard[0].lbName->setStyleSheet("background-color: rgb(255, 255, 255);");
+    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
     new Highlighter(teChats->document(), cntPlayer, playersInfo);
 
-    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = rnkTop + unitSize * (sumRow + 3);
+    auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
     leChat->setGeometry(teLeft, screenHeight - unitSize, screenWidth - teLeft, unitSize);
 
@@ -347,21 +347,24 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     lbFocus->setFocus();
 }
 
-void GameWindow::updateWindow(bool forced) {
-    auto visible = [this](int i, int j) -> bool {
-        const int direction[9][2] = {-1, -1, -1, 0, -1, 1, 0, -1, 0, 0, 0, 1, 1, -1, 1, 0, 1, 1};
+bool GameWindow::isPositionVisible(int x, int y) {
+    if (idPlayer == -1 || (gameMode & GameMode::crystalClear))
+        return true;
+    if (gameMode & GameMode::mistyVeil)
+        return idTeam == globMap.idTeam[globMap.map[x][y].belonging - 1];
+    const int direction[9][2] = {-1, -1, -1, 0, -1, 1, 0, -1, 0, 0, 0, 1, 1, -1, 1, 0, 1, 1};
 
-        for (auto k: direction) {
-            int x = i + k[0], y = j + k[1];
-            if (focus->valid(x, y)) {
-                if (idTeam == globMap.idTeam[globMap.map[x][y].belonging - 1] ||
-                    idPlayer == -1) // All information are visible to spectators
-                    return true;
-            }
+    for (auto k: direction) {
+        int _x = x + k[0], _y = y + k[1];
+        if (focus->valid(_x, _y)) {
+            if (idTeam == globMap.idTeam[globMap.map[_x][_y].belonging - 1])
+                return true;
         }
-        return false;
-    };
+    }
+    return false;
+}
 
+void GameWindow::updateWindow(bool forced) {
     auto calcFontType = [](int number) {
         if (number < 1000) return 0;
         return std::min(int(log10(number)) - 2, fontSizeCount - 1);
@@ -375,7 +378,7 @@ void GameWindow::updateWindow(bool forced) {
             auto lbM = lbMain[i][j];
             auto lbC = lbColor[i][j];
 
-            auto vis = visible(i, j);
+            auto vis = isPositionVisible(i, j);
             auto flagNum = cell->number != _cell->number, flagVis = vis != visMain[i][j],
                     flagType = cell->type != _cell->type, flagBelonging = cell->belonging != _cell->belonging;
 
@@ -417,11 +420,12 @@ void GameWindow::updateWindow(bool forced) {
     int curRow = 0;
     lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
 
+    // TODO: Response to Game Modifiers (silentWar)
     for (const auto &stat: globMap.stat) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
                                         QString::number(teamStat.army), QString::number(teamStat.land));
-        lbBoard[curRow].lbName->setStyleSheet("background-color: rgb(255, 255, 255);");
+        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
         for (const auto &playerStat: stat.second) {
             lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
                                             QString::number(playerStat.army), QString::number(playerStat.land));
@@ -439,7 +443,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
     if (msgType == "PlayerInfo") {
         idPlayer = msgData.at(0).toInt();
         idTeam = msgData.at(1).toInt();
-        gotPlayerInfo = true;
+        gotPlayerInfoMsg = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
     } else if (msgType == "PlayersInfo") {
@@ -451,21 +455,22 @@ void GameWindow::processMessage(const QByteArray &msg) {
             int team = playerData.at(2).toInt();
             playersInfo[player] = PlayerInfo(nick, player, team);
         }
-        gotPlayersInfo = true;
-    } else if (msgType == "InitMap") {
-        globMap.import(msgData.at(0).toString().toStdString());
+        gotPlayersInfoMsg = true;
+    } else if (msgType == "InitGame") {
+        gameMode = msgData.at(0).toInt();
+        globMap.import(msgData.at(1).toString().toStdString());
         _globMap = globMap;
-        gotInitMap = true;
+        gotInitMsg = true;
         init();
-    } else if (gotPlayerInfo && gotInitMap && gotPlayersInfo) {
+    } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
         } else if (!gameEnded && msgType == "UpdateMap") {
             globMap.import(msgData.at(0).toString().toStdString());
             updateWindow();
 
-            if (!gameWindowShowed) {
-                gameWindowShowed = true;
+            if (!gameWindowShown) {
+                gameWindowShown = true;
                 show();
             }
 

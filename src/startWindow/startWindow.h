@@ -6,7 +6,6 @@
 #include <QRegularExpressionMatch>
 
 #include "gameWindow.h"
-#include "titleBar.h"
 #include "teamButton.h"
 #include "processJson.h"
 
@@ -54,7 +53,7 @@ private:
 
     GameWindow *gameWindow{};
 
-    bool gotInitMap{}, wndHidden{};
+    bool gotInitMsg{}, wndHidden{};
 };
 
 #endif // START_WINDOW_H

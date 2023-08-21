@@ -37,7 +37,7 @@
 #include "point.h"
 #include "gameButton.h"
 #include "globalMap.h"
-#include "playerInfo.h"
+#include "gameInformation.h"
 #include "endWindow.h"
 #include "processJson.h"
 
@@ -95,6 +95,8 @@ private:
 
     void setGameFieldGeometry(QRect) const;
 
+    bool isPositionVisible(int x, int y);
+
 protected:
     void keyPressEvent(QKeyEvent *) override;
 
@@ -118,7 +120,7 @@ public:
     QMediaPlayer *gongPlayer;
 //    QSoundEffect *gongSoundEffect;
 
-    bool gameWindowShowed{}, gameEnded{};
+    bool gameWindowShown{}, gameEnded{};
 
     qreal dpi;
     QRect screenGeometry;
@@ -134,6 +136,7 @@ public:
     int mapLeft{}, mapTop{};
     int rnkLeft{}, rnkTop{};
     int idTeam{}, idPlayer{};
+    int gameMode{};
     bool flagHalf{};
 
     Focus *focus{};
@@ -153,16 +156,7 @@ public:
 
     std::deque<MoveInfo> dqMsg;
 
-    struct BoardLabel {
-        QLabel *lbName{}, *lbArmy{}, *lbLand{};
-
-        void init(QWidget *parent, QFont &font, QGridLayout *layout, int row);
-
-        void updateContent(const QString &strName = QString(), const QString &strArmy = QString(),
-                           const QString &strLand = QString()) const;
-
-    };
-
+    struct BoardLabel;
     QVector<BoardLabel> lbBoard;
     QLabel *lbRound{};
 
@@ -172,7 +166,7 @@ public:
     EndWindow *endWindow{};
 
     bool moved{};
-    bool gotPlayerInfo{}, gotInitMap{}, gotPlayersInfo{};
+    bool gotPlayerInfoMsg{}, gotInitMsg{}, gotPlayersInfoMsg{};
 };
 
 struct Focus : public Point {
@@ -187,6 +181,15 @@ struct Focus : public Point {
     bool move(int, int);
 
     bool set(int, int);
+};
+
+struct GameWindow::BoardLabel {
+    QLabel *lbName{}, *lbArmy{}, *lbLand{};
+
+    void init(QWidget *parent, QFont &font, QGridLayout *layout, int row);
+
+    void updateContent(const QString &strName = QString(), const QString &strArmy = QString(),
+                       const QString &strLand = QString()) const;
 };
 
 class Highlighter : public QSyntaxHighlighter {

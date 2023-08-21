@@ -34,11 +34,10 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
 
     QPalette wndPalette(palette());
 #if (QT_VERSION_MAJOR < 6)
-    wndPalette.setColor(QPalette::Background, QColor(221, 221, 221));
+    wndPalette.setColor(QPalette::Background, QColor(36, 36, 36));
 #else
-    wndPalette.setColor(QPalette::Window, QColor(221, 221, 221));
+    wndPalette.setColor(QPalette::Window, QColor(36, 36, 36));
 #endif
-    wndPalette.setColor(QPalette::WindowText, QColor(34, 128, 128));
     setAutoFillBackground(true);
     setPalette(wndPalette);
 
@@ -58,7 +57,8 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
 
 #define geo_expr wgtLeft, (wgtTop = wgtTop + wgtHeight + wgtSep), wgtWidth, wgtHeight
 
-    lbGeneral->setStyleSheet(QString("border-image: url(:/img/General-%1.png);").arg(flag ? "Won" : "Lost"));
+//    lbGeneral->setStyleSheet(QString("border-image: url(:/img/General-%1.png);").arg(flag ? "Won" : "Lost"));
+    lbGeneral->setStyleSheet("border-image: url(:/img/General-Blue.png);");
 
     lbGeneral->setGeometry(wgtLeft, wgtSep, wgtWidth, wgtWidth * 33 / 42);
     lbInfo->setGeometry(geo_expr);

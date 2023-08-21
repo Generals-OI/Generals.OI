@@ -2,7 +2,7 @@
 #define SERVER_H
 
 #include "serverMap.h"
-#include "playerInfo.h"
+#include "gameInformation.h"
 #include "mapGenerator.h"
 
 #include <QWebSocket>
