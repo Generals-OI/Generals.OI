@@ -5,6 +5,17 @@
 SurrenderWindow::SurrenderWindow(QWidget *parent) :
         QWidget(parent), ui(new Ui::SurrenderWindow) {
     ui->setupUi(this);
+
+    QPalette wndPalette(palette());
+#if (QT_VERSION_MAJOR < 6)
+    wndPalette.setColor(QPalette::Background, QColor(36, 36, 36));
+#else
+    wndPalette.setColor(QPalette::Window, QColor(36, 36, 36));
+#endif
+    setPalette(wndPalette);
+
+    move(parent->geometry().center() - rect().center());
+
     connect(ui->pbNo, &QPushButton::clicked, this, &QWidget::hide);
     connect(ui->pbYes, &QPushButton::clicked, this, &SurrenderWindow::surrender);
     hide();

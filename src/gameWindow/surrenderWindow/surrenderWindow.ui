@@ -12,6 +12,7 @@
   </property>
   <property name="font">
    <font>
+    <family>Quicksand Medium</family>
     <pointsize>18</pointsize>
    </font>
   </property>
