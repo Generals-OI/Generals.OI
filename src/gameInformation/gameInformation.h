@@ -17,7 +17,7 @@ struct PlayerInfo {
 
 enum GameMode {
     /// Client
-    nearsightedness = 1,
+    nearsighted = 1,
     mistyVeil = 2,
     crystalClear = 4,
     silentWar = 128,

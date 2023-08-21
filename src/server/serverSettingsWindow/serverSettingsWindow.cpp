@@ -18,7 +18,7 @@ void ServerSettingsWindow::setTarget(QWidget *target) {
 void ServerSettingsWindow::onCreateButtonClicked() {
     wTarget->hide();
 
-    const int viewTypeOptions[] = {0, 0, GameMode::nearsightedness, GameMode::mistyVeil, GameMode::crystalClear};
+    const int viewTypeOptions[] = {0, 0, GameMode::nearsighted, GameMode::mistyVeil, GameMode::crystalClear};
     const double speedOptions[] = {0, 0, 1, 1.5, 2, 3, 5, 10};
     const int teamOptions[] = {0, 0, GameMode::allowTeaming, 0};
 
