@@ -40,6 +40,7 @@
 #include "gameInformation.h"
 #include "endWindow.h"
 #include "processJson.h"
+#include "surrenderWindow.h"
 
 #include <QDebug>
 
@@ -97,6 +98,8 @@ private:
 
     bool isPositionVisible(int x, int y);
 
+    void onSurrender();
+
 protected:
     void keyPressEvent(QKeyEvent *) override;
 
@@ -120,7 +123,7 @@ public:
     QMediaPlayer *gongPlayer;
 //    QSoundEffect *gongSoundEffect;
 
-    bool gameWindowShown{}, gameEnded{};
+    bool gameWindowShown{}, gameEnded{}, surrendered{};
 
     qreal dpi;
     QRect screenGeometry;
@@ -163,6 +166,7 @@ public:
     QTextEdit *teChats{};
     QLineEdit *leChat{};
 
+    SurrenderWindow *surrenderWindow{};
     EndWindow *endWindow{};
 
     bool moved{};

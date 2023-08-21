@@ -2,8 +2,8 @@
 
 extern QString strFontBold;
 
-EndWindow::EndWindow(QWidget *parent, bool flag)
-        : QWidget{parent} {
+EndWindow::EndWindow(QWidget *parent)
+        : QWidget(parent) {
     setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
     auto wndWidth = parent->width();
     auto wndHeight = parent->height();
@@ -46,14 +46,16 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
     btnWatch = new QPushButton(this);
     btnExit = new QPushButton(this);
 
-    lbInfo->setText(flag ? "You Won!" : "You Lost.");
-    btnWatch->setText("Watch");
+    btnWatch->setText("Watch as Spectator");
     btnExit->setText("Exit");
 
     lbInfo->setFont(font);
     btnWatch->setFont(font);
     btnExit->setFont(font);
     lbInfo->setAlignment(Qt::AlignCenter);
+
+    connect(btnWatch, &QPushButton::clicked, this, &QWidget::hide);
+    connect(btnExit, &QPushButton::clicked, qApp, &QApplication::quit);
 
 #define geo_expr wgtLeft, (wgtTop = wgtTop + wgtHeight + wgtSep), wgtWidth, wgtHeight
 
@@ -65,8 +67,5 @@ EndWindow::EndWindow(QWidget *parent, bool flag)
     btnWatch->setGeometry(geo_expr);
     btnExit->setGeometry(geo_expr);
 
-    lbGeneral->show();
-    lbInfo->show();
-    btnWatch->show();
-    btnExit->show();
+    hide();
 }

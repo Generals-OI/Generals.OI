@@ -92,6 +92,10 @@ void GameWindow::init() {
     }
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
+    endWindow = new EndWindow(this);
+    surrenderWindow = new SurrenderWindow(this);
+    connect(surrenderWindow, &SurrenderWindow::surrendered, this, &GameWindow::onSurrender);
+
     wgtMap = new QWidget(this);
     wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
@@ -267,9 +271,15 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             unitSize -= 1;
             resized = true;
             break;
+        case Qt::Key_Escape:
+            if (!surrendered) {
+                surrenderWindow->show();
+                surrenderWindow->raise();
+            }
+            break;
     }
 
-    if (idDirection != -1) {
+    if (idDirection != -1 && idPlayer != -1 && !surrendered) {
         updateFocus(false, idDirection);
         flagHalf = false;
     }
@@ -475,12 +485,13 @@ void GameWindow::processMessage(const QByteArray &msg) {
             }
 
             if (globMap.gameOver()) {
-                bool flagWon = globMap.stat[0].first.id == idTeam;
-                endWindow = new EndWindow(this, flagWon);
-                endWindow->show();
-                endWindow->btnWatch->setDisabled(true);
-                connect(endWindow->btnExit, &QPushButton::clicked, qApp, &QApplication::quit);
                 gameEnded = true;
+                endWindow->btnWatch->setDisabled(true);
+                if (globMap.stat[0].first.id == idTeam)
+                    endWindow->lbInfo->setText("You Won!");
+                else
+                    endWindow->lbInfo->setText("You Lost.");
+                endWindow->show();
             }
 
             if (moved)
@@ -496,9 +507,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 jsonData.push_back(dtDirection[moveData.direction].x);
                 jsonData.push_back(dtDirection[moveData.direction].y);
                 jsonData.push_back(moveData.flag50p);
-
-                if (idPlayer != -1) // Spectators are not allow to move
-                    webSocket->sendBinaryMessage(generateMessage("Move", jsonData));
+                webSocket->sendBinaryMessage(generateMessage("Move", jsonData));
             }
 
             moved = move;
@@ -530,4 +539,12 @@ void GameWindow::sendChatMessage() {
 
 GameWindow::~GameWindow() {
     delete focus;
+}
+
+void GameWindow::onSurrender() {
+    webSocket->sendBinaryMessage(generateMessage("Surrender", {idPlayer}));
+    surrendered = true;
+    clearMove();
+    endWindow->lbInfo->setText("You surrendered.");
+    endWindow->show();
 }

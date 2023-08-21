@@ -19,6 +19,7 @@ include_directories(
         src/gameMap/globalMap
         src/gameMap/serverMap
         src/gameMap/mapGenerator
+        src/gameWindow/surrenderWindow
         src/gameWindow/endWindow
         src/gameWindow
         src/gameWindow/gameButton

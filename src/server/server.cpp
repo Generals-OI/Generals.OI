@@ -178,6 +178,9 @@ void Server::onNewConnection() {
             bool flag50p = msgData.at(5).toBool();
 
             serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p, gameMode);
+        } else if (msgType == "Surrender") {
+            int idPlayer = msgData.at(0).toInt();
+            serMap->surrender(idPlayer);
         }
 
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))

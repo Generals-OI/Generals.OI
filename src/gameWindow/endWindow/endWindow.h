@@ -11,7 +11,7 @@ class EndWindow : public QWidget
 {
 Q_OBJECT
 public:
-    explicit EndWindow(QWidget *, bool);
+    explicit EndWindow(QWidget *);
 
     QLabel *lbGeneral, *lbInfo;
     QPushButton *btnWatch, *btnExit;
