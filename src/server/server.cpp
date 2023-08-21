@@ -156,7 +156,7 @@ void Server::onNewConnection() {
                     emit sendMessage(baPlayersInfo);
 
                     qDebug() << "[server.cpp] Start generating.";
-                    serMap = new ServerMap(MapGenerator::randomMap(cntPlayer, totTeam, teamInfo));
+                    serMap = new ServerMap(RandomMapGenerator::randomMap(cntPlayer, totTeam, teamInfo, gameMode));
                     qDebug() << "[server.cpp] Game map generated.";
 
                     emit sendMessage(
