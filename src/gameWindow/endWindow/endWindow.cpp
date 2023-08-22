@@ -32,7 +32,7 @@ EndWindow::~EndWindow() {
     delete ui;
 }
 
-void EndWindow::updateText(QString strTitle, QString strContent) {
+void EndWindow::updateText(const QString &strTitle, const QString &strContent) {
     ui->lbTitle->setText(strTitle);
     ui->lbContent->setText(strContent);
 }

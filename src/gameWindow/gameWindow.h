@@ -178,7 +178,7 @@ struct Focus : public Point {
 
     Focus();
 
-    bool valid(int, int);
+    bool valid(int, int) const;
 
     void init(int, int);
 
@@ -207,7 +207,7 @@ public:
 protected:
     void highlightBlock(const QString &) override;
 
-    QString transExpr(const QString &);
+    static QString transExpr(const QString &);
 
 private:
     struct HighlightingRule {

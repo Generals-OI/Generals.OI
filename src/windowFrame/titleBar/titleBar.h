@@ -27,11 +27,11 @@ public:
     QPushButton *btnMinimize, *btnClose;
 
 protected:
-    void mousePressEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *) override;
 
-    void mouseReleaseEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *) override;
 
-    void mouseMoveEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *) override;
 
     bool mPressed{};
     QPoint pStart;

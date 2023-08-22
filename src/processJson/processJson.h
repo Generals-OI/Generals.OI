@@ -13,7 +13,7 @@
 
 class ProcessJson {
 public:
-    QByteArray generateMessage(const QString &type, const QJsonArray &data) {
+    static QByteArray generateMessage(const QString &type, const QJsonArray &data) {
         QJsonObject object;
         object.insert("type", type);
         object.insert("data", data);
@@ -28,7 +28,7 @@ public:
         return generateMessage(type, array);
     }
 
-    QPair<QJsonValue, QJsonValue> loadJson(const QByteArray &json) {
+    static QPair<QJsonValue, QJsonValue> loadJson(const QByteArray &json) {
         QJsonParseError jsonError;
         auto jsonDoc = QJsonDocument::fromJson(json, &jsonError);
         if (jsonError.error != QJsonParseError::NoError) {

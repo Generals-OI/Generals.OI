@@ -17,7 +17,7 @@ public:
 
     ~EndWindow() override;
 
-    void updateText(QString strTitle, QString strContent = QString());
+    void updateText(const QString& strTitle, const QString& strContent = QString());
 
     void gameEnded();
 

@@ -4,7 +4,7 @@ Focus::Focus() {
     x = y = -1;
 }
 
-bool Focus::valid(int _x, int _y) {
+bool Focus::valid(int _x, int _y) const {
     return 0 < _x && _x <= height && 0 < _y && _y <= width;
 }
 
