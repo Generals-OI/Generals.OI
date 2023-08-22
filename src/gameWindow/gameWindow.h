@@ -51,12 +51,23 @@ class Highlighter;
 class GameWindow;
 
 const QString strColor[] = {
+        "#DCDCDC",
+        "#0288D1", "#E57373", "#9575CD", "#FF9800",
+        "#FFCA28", "#8D6E63", "#66BB6A", "#4DB6AC",
+        "#3949AB", "#D32F2F", "#5E35B1", "#FF5722",
+        "#AFB42B", "#5D4037", "#2E7D32", "#00695C",
+        "#FFFFFF"
+};
+
+/*
+const QString strColor[] = {
         "#dcdcdc",
         "#ff0000", "#4363d8", "#008000", "#008080",
         "#800080", "#0000ff", "#f58231", "#483d8b",
         "#b09f30", "#f032e6", "#9a6324", "#7ab78c",
         "#800000"
 };
+*/
 
 /*
 const QString strColor[] = {
