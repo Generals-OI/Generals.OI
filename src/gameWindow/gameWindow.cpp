@@ -491,7 +491,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
                     endWindow->updateText("You Won!",
                                           "This is your crowning glory.\nYou showed your formidable capacity.");
                 else
-                    endWindow->updateText("You Lost.", "You were captured.\nYour dignity is gone.");
+                    endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
                 endWindow->show();
             }
 
