@@ -32,5 +32,5 @@ QString Highlighter::transExpr(const QString &str) {
             res.append("\\");
         res.append(c);
     }
-    return QString("(@%1)").arg(res);
+    return QString("((@%1)|(%2:))").arg(res, res);
 }

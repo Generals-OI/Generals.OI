@@ -12,7 +12,7 @@ struct PointLf {
     PointLf() = default;
 
     // This constructor is not marked explicit for convenience, BEWARE!
-    explicit PointLf(Point p) : x(p.x), y(p.y) {}
+    PointLf(Point p) : x(p.x), y(p.y) {}
 
     PointLf(double x, double y) : x(x), y(y) {}
 };
