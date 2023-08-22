@@ -9,7 +9,7 @@
 #include <iostream>
 #include <climits>
 
-const int maxPlayerNum = 8;
+const int maxPlayerNum = 16;
 
 enum CellType {
     land, general, city, mountain, swamp
