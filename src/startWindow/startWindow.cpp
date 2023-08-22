@@ -10,10 +10,12 @@ StartWindow::StartWindow(QWidget *parent)
 
     socket = new QWebSocket;
     pbTeams = QVector<TeamButton *>(maxPlayerNum + 1);
+    QSizePolicy spButtons(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     ui->lbTeam->hide();
     for (int i = 0; i <= maxPlayerNum; i++) {
         pbTeams[i] = new TeamButton(this, i + 1);
+        pbTeams[i]->setSizePolicy(spButtons);
         pbTeams[i]->hide();
         ui->hlTeam->insertWidget(i + 1, pbTeams[i]);
         connect(pbTeams[i], &TeamButton::chosen, this, &StartWindow::onTeamButtonChosen);
