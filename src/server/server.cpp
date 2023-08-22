@@ -115,8 +115,8 @@ void Server::onNewConnection() {
                 if (clients[socket].isSpect) {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
                     socket->sendBinaryMessage(baPlayersInfo);
-                    socket->sendBinaryMessage(generateMessage("InitGame",
-                                                              {QString::fromStdString(serMap->exportMap(true))}));
+                    socket->sendBinaryMessage(generateMessage(
+                            "InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
                 }
             } else {
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
