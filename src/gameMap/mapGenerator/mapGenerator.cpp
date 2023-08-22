@@ -2,6 +2,7 @@
 #include "geometry.h"
 
 #include <queue>
+#include <chrono>
 
 #include <QDebug>
 
@@ -32,7 +33,7 @@ void RandomMapGenerator::init(int cntPlayer, int cntTeam, const std::vector<int>
     if (cntPlayer < 2 || cntPlayer > maxPlayerNum)
         qDebug() << "[mapGenerator.cpp]RandomMapGenerator::init: wrong cntPlayer";
 
-    const auto seed = time(nullptr);
+    const auto seed = (unsigned int) std::chrono::steady_clock::now().time_since_epoch().count();
     qDebug() << "[mapGenerator.cpp]RandomMapGenerator::init: Random seed =" << seed;
     rnd = mt19937(seed);
 
@@ -124,11 +125,11 @@ void RandomMapGenerator::setGeneral(int cntPlayer, int cntTeam, int gameMode) {
     shuffle(teamList.begin(), teamList.end(), rnd);
     for (auto t: teamList) {
         const int tSize = (int) teamMbr[t].size();
-        if (tSize == 1) {
-            pntGeneral[teamMbr[t][0]] = pntCenter[t];
-            servMap.map[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0] + 1, CellType::general);
-            continue;
-        }
+//        if (tSize == 1) {
+//            pntGeneral[teamMbr[t][0]] = pntCenter[t];
+//            servMap.map[pntCenter[t].x][pntCenter[t].y] = Cell(0, teamMbr[t][0] + 1, CellType::general);
+//            continue;
+//        }
 
         int minEnemyDist = randInt(min(18, servMap.length), max(35, servMap.width + servMap.length));
         int maxCtrDist = randInt(3, minDist);
@@ -232,10 +233,10 @@ void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
     using std::max;
     using std::min;
 
-    static constexpr int direction4[4][2] = {{0,  1},
-                                             {1,  0},
-                                             {0,  -1},
-                                             {-1, 0}};
+    constexpr int direction4[4][2] = {{0,  1},
+                                      {1,  0},
+                                      {0,  -1},
+                                      {-1, 0}};
 
     vector<PointLf> pntGeomCtr(cntTeam);
     vector<vector<int>> idTeamChunk(servMap.width + 1, vector<int>(servMap.length + 1));
@@ -416,16 +417,16 @@ void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
 
     auto expandMountains = [&]() {
         while (!q.empty()) {
-            Point cur = q.front(), nxt;
+            const Point cur = q.front();
             q.pop();
             for (auto d: direction8) {
-                nxt = Point(cur.x + d[0], cur.y + d[1]);
+                const Point nxt(cur.x + d[0], cur.y + d[1]);
                 if (!valid(nxt) || !possibleMtn[nxt.x][nxt.y] || visited[nxt.x][nxt.y])
                     continue;
 
                 visited[nxt.x][nxt.y] = true;
                 bool flagExpand = false;
-                if (depth[nxt.x][nxt.y] <= 3) {
+                if (depth[cur.x][cur.y] <= 2) {
                     flagExpand = rnd() % 2 == 1;
                 } else {
                     flagExpand = true;
@@ -445,22 +446,24 @@ void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
                             }
                         }
 
-                    flagExpand = flagExpand || rnd() % 7 <= 4;
+                    flagExpand = flagExpand && rnd() % 7 <= 4;
                 }
 
                 if (flagExpand) {
                     for (auto i: direction4) {
-                        Point p(nxt.x + i[0], nxt.y + i[1]);
-                        if (valid(p) && servMap.map[p.x][p.y].type == CellType::general) {
-                            bool surrounded = true;
-                            for (auto j: direction4)
-                                if (valid(Point(p.x + j[0], p.y + j[1])))
-                                    surrounded = surrounded &&
-                                                 servMap.map[p.x + j[0]][p.y + j[1]].type != CellType::land;
-                            if (surrounded) {
-                                flagExpand = false;
-                                break;
-                            }
+                        Point p1(nxt.x + i[0], nxt.y + i[1]);
+                        if (!valid(p1) || servMap.map[p1.x][p1.y].type != CellType::general)
+                            continue;
+                        bool surrounded = true;
+                        for (auto j: direction4) {
+                            Point p2(p1.x + j[0], p1.y + j[1]);
+                            if (valid(p2))
+                                surrounded = surrounded &&
+                                             (p2 == nxt || servMap.map[p2.x][p2.y].type == CellType::mountain);
+                        }
+                        if (surrounded) {
+                            flagExpand = false;
+                            break;
                         }
                     }
                 }
@@ -513,7 +516,7 @@ void RandomMapGenerator::setObstacle(int cntPlayer, int cntTeam, int gameMode) {
                         servMap.map[a.x][a.y].type == CellType::mountain &&
                         servMap.map[b.x][b.y].type == CellType::mountain) {
                         int dist = cycleLength(a, b);
-                        if (!idTeamChunk[p.x][p.y] && dist > 10 || idTeamChunk[p.x][p.y] && dist > 5) {
+                        if (!idTeamChunk[p.x][p.y] && dist > 8 || idTeamChunk[p.x][p.y] && dist > 5) {
                             flagValid = false;
                             break;
                         }
