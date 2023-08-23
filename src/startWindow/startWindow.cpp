@@ -184,12 +184,13 @@ void StartWindow::onTeamButtonChosen(int idButton) {
 }
 
 void StartWindow::mediateWindow(bool useDefault) {
+    QSize defaultSize(800, 750);
     if (useDefault) {
-        QSize defaultSize(800, 750);
         wTarget->setMinimumSize(defaultSize);
         wTarget->resize(defaultSize);
     } else {
-        QSize minimumSize(std::max(sumBtnLen[0], sumBtnLen[1]) + std::max(cntTeam[0], cntTeam[1]) * 30, 900);
+        int width = std::max(sumBtnLen[0], sumBtnLen[1]) + std::max(cntTeam[0], cntTeam[1]) * 30;
+        QSize minimumSize(std::max(defaultSize.width(), width), 900);
         wTarget->setMinimumSize(minimumSize);
         wTarget->resize(minimumSize);
     }
