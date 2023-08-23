@@ -1,8 +1,8 @@
 #include "clientMap.h"
+#include <QDebug>
 
-ClientMap::ClientMap(int width, int length, int cntTeam, int cntGnl, const std::vector<int> &teamInfo) {
-    init(width, length, cntTeam, cntGnl, teamInfo);
-}
+ClientMap::ClientMap(int width, int length, int cntPlayer, int cntTeam, const std::vector<int> &idTeam)
+        : BasicMap(width, length), cntPlayer(cntPlayer), cntTeam(cntTeam), idTeam(idTeam) {}
 
 void ClientMap::calcStat(const std::vector<int> &roundLose) {
     using std::vector;
@@ -42,74 +42,29 @@ void ClientMap::calcStat(const std::vector<int> &roundLose) {
     });
 }
 
-void ClientMap::init(int _width, int _length, int _cntTeam, int _cntGnl, const std::vector<int> &_teamInfo) {
-    using std::vector;
-
-    width = _width;
-    length = _length;
-    cntTeam = _cntTeam;
-    cntPlayer = _cntGnl;
-    map = vector<vector<Cell>>(width + 1, vector<Cell>(length + 1));
-    round = 0;
-    idTeam = _teamInfo;
+void ClientMap::importCM(const QVector<qint32> &vecMap) {
+    int p = 2 + vecMap[0] * vecMap[1] * 3;
+    importBM(vecMap.first(p));
+    auto it = vecMap.begin() + p;
+    cntPlayer = *it++;
+    cntTeam = *it++;
+    for (int i = 1; i <= cntPlayer; i++)
+        idTeam.push_back(*it++);
+    std::vector<int> roundLose;
+    for (int i = 1; i <= cntPlayer; i++)
+        roundLose.push_back(*it++);
+    calcStat(roundLose);
 }
 
-void ClientMap::import(const std::string &strMap) {
-    using std::string;
-
-    std::vector<int> numbers;
-    for (int num = 0, i = 0; i < strMap.size(); i++)
-        if (strMap[i] == '_') {
-            numbers.push_back(num);
-            num = 0;
-        } else
-            num = num * 10 + strMap[i] - '0';
-
-    if (numbers[0] && numbers.size() != 2 * numbers[4] + 6 + numbers[1] * numbers[2] * 3 ||
-        !numbers[0] && numbers.size() != 2 + cntPlayer + width * length * 3) {
-        std::cout << "In function ClientMap::import: input is invalid" << std::endl;
-        return;
+void ClientMap::loadDiff(const QVector<qint32> &diff) {
+    auto it = diff.begin();
+    std::vector<int> roundLose;
+    for (int i = 1; i <= cntPlayer; i++)
+        roundLose.push_back(*it++);
+    while (it != diff.end()) {
+        map[*it][*(it + 1)] = Cell(*(it + 2), *(it + 3), CellType(*(it + 4)));
+        it += 5;
     }
-
-    if (numbers[0]) {
-        std::vector<int> _idTeam;
-        for (int i = 5; i <= numbers[4] + 4; i++)
-            _idTeam.push_back(numbers[i]);
-        init(numbers[1], numbers[2], numbers[3], numbers[4], _idTeam);
-    }
-
-    auto it = numbers[0] ? numbers.begin() + numbers[4] + 5 : numbers.begin() + 1;
-    std::vector<int> roundLose(cntPlayer);
-    round = *(it++);
-    for (int &i: roundLose)
-        i = *(it++);
-    for (int i = 1; i <= width; i++)
-        for (int j = 1; j <= length; j++) {
-            Cell &c = map[i][j];
-            switch (*it) {
-                case 0:
-                    c.type = CellType::land;
-                    break;
-                case 1:
-                    c.type = CellType::general;
-                    break;
-                case 2:
-                    c.type = CellType::city;
-                    break;
-                case 3:
-                    c.type = CellType::mountain;
-                    break;
-                case 4:
-                    c.type = CellType::swamp;
-                    break;
-                default:
-                    std::cout << "In function ClientMap::import: invalid CellType" << std::endl;
-            }
-            c.belonging = *++it;
-            c.number = *++it;
-            it++;
-        }
-
     calcStat(roundLose);
 }
 

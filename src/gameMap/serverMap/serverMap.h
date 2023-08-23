@@ -7,6 +7,8 @@
 class ServerMap : public ClientMap {
 private:
     std::vector<int> roundLose;
+
+    std::vector<std::vector<bool>> flagDiff;
 public:
     explicit ServerMap(ClientMap &&);
 
@@ -16,7 +18,9 @@ public:
 
     ServerMap &operator=(ServerMap &&) = default;
 
-    std::string exportMap(bool);
+    QVector<qint32> toVectorSM();
+
+    QVector<qint32> exportDiff();
 
     // Moves army after checking validity
     bool move(int, Point, int, int, bool, int);

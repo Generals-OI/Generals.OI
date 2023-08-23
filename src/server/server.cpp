@@ -116,7 +116,7 @@ void Server::onNewConnection() {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
                     socket->sendBinaryMessage(baPlayersInfo);
                     socket->sendBinaryMessage(generateMessage(
-                            "InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
+                            "InitGame", QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) + gameMode));
                 }
             } else {
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
@@ -160,7 +160,9 @@ void Server::onNewConnection() {
                     qDebug() << "[server.cpp] Game map generated.";
 
                     emit sendMessage(
-                            generateMessage("InitGame", {gameMode, QString::fromStdString(serMap->exportMap(true))}));
+                            generateMessage("InitGame",
+                                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) +
+                                            gameMode));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
@@ -190,8 +192,7 @@ void Server::onNewConnection() {
 
 void Server::broadcastMessage() {
     serMap->addRound();
-    auto mapInfo = QString::fromStdString(serMap->exportMap(false));
-    emit sendMessage(generateMessage("UpdateMap", {mapInfo}));
+    emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 
     if (flagGameOvered) {

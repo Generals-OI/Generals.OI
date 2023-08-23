@@ -157,7 +157,7 @@ public:
     QLabel *lbFocus{}, *lbShadow[4]{};
     std::vector<std::vector<GameButton *>> btnFocus;
 
-    ClientMap globMap{}, _globMap{};
+    ClientMap cltMap{}, _cltMap{};
 
     QWidget *wgtMap{}, *wgtButton{}, *wgtBoard{};
     QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{};

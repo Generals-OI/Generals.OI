@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <QObject>
+#include <QVariantList>
 
 enum CellType {
     land, general, city, mountain, swamp
@@ -24,6 +24,8 @@ public:
 
     BasicMap() = default;
 
+    BasicMap(int, int);
+
     BasicMap(const BasicMap &) = default;
 
     BasicMap(BasicMap &&) = default;
@@ -32,9 +34,13 @@ public:
 
     BasicMap &operator=(const BasicMap &) = default;
 
-    QVector<int> toVector();
+    QVector<qint32> exportBM();
 
-    void import(const QVector<int> &);
+    void importBM(const QVector<qint32> &);
 };
+
+QVariantList toVariantList(const QVector<qint32> &);
+
+QVector<qint32> toVectorInt(const QVariantList &);
 
 #endif // BASIC_MAP_H

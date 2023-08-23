@@ -53,8 +53,8 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 }
 
 void GameWindow::init() {
-    width = globMap.length;
-    height = globMap.width;
+    width = cltMap.length;
+    height = cltMap.width;
     screenWidth = screenGeometry.width();
     screenHeight = screenGeometry.height();
 
@@ -123,7 +123,7 @@ void GameWindow::init() {
 
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
-            Cell *cell = &globMap.map[i][j];
+            Cell *cell = &cltMap.map[i][j];
             QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
             QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
             QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
@@ -164,7 +164,7 @@ void GameWindow::init() {
         }
     }
 
-    int sumRow = globMap.cntPlayer + globMap.cntTeam;
+    int sumRow = cltMap.cntPlayer + cltMap.cntTeam;
     wgtBoard = new QWidget(this);
     wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
@@ -344,7 +344,7 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
         auto isLegal = pos.move(dir[i][0], dir[i][1]);
-        if (isLegal && (!visMain[pos.x][pos.y] || globMap.map[pos.x][pos.y].type != CellType::mountain)) {
+        if (isLegal && (!visMain[pos.x][pos.y] || cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
@@ -361,13 +361,13 @@ bool GameWindow::isPositionVisible(int x, int y) {
     if (idPlayer == -1 || (gameMode & GameMode::crystalClear))
         return true;
     if (gameMode & GameMode::mistyVeil)
-        return idTeam == globMap.idTeam[globMap.map[x][y].belonging - 1];
+        return idTeam == cltMap.idTeam[cltMap.map[x][y].belonging - 1];
     const int direction[9][2] = {-1, -1, -1, 0, -1, 1, 0, -1, 0, 0, 0, 1, 1, -1, 1, 0, 1, 1};
 
     for (auto k: direction) {
         int _x = x + k[0], _y = y + k[1];
         if (focus->valid(_x, _y)) {
-            if (idTeam == globMap.idTeam[globMap.map[_x][_y].belonging - 1])
+            if (idTeam == cltMap.idTeam[cltMap.map[_x][_y].belonging - 1])
                 return true;
         }
     }
@@ -382,8 +382,8 @@ void GameWindow::updateWindow(bool forced) {
 
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
-            auto cell = &globMap.map[i][j];
-            auto _cell = &_globMap.map[i][j];
+            auto cell = &cltMap.map[i][j];
+            auto _cell = &_cltMap.map[i][j];
             auto lbO = lbObstacle[i][j];
             auto lbM = lbMain[i][j];
             auto lbC = lbColor[i][j];
@@ -428,10 +428,10 @@ void GameWindow::updateWindow(bool forced) {
     }
 
     int curRow = 0;
-    lbRound->setText(QString("Round: ").append(QString::number(globMap.round)));
+    lbRound->setText(QString("Round: ").append(QString::number(cltMap.round)));
 
     // TODO: Response to Game Modifiers (silentWar)
-    for (const auto &stat: globMap.stat) {
+    for (const auto &stat: cltMap.stat) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
                                         QString::number(teamStat.army), QString::number(teamStat.land));
@@ -467,16 +467,20 @@ void GameWindow::processMessage(const QByteArray &msg) {
         }
         gotPlayersInfoMsg = true;
     } else if (msgType == "InitGame") {
-        gameMode = msgData.at(0).toInt();
-        globMap.import(msgData.at(1).toString().toStdString());
-        _globMap = globMap;
+        auto gameInfo = toVectorInt(msgData.toVariantList());
+        qDebug() << "1";
+        gameMode = gameInfo[gameInfo.size() - 1];
+        qDebug() << "2";
+        cltMap.importCM(gameInfo.first(gameInfo.size() - 1));
+        qDebug() << "ClientMap loaded";
+        _cltMap = cltMap;
         gotInitMsg = true;
         init();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
         } else if (!gameEnded && msgType == "UpdateMap") {
-            globMap.import(msgData.at(0).toString().toStdString());
+            cltMap.loadDiff(toVectorInt(msgData.toVariantList()));
             updateWindow();
 
             if (!gameWindowShown) {
@@ -484,10 +488,10 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 show();
             }
 
-            if (globMap.gameOver()) {
+            if (cltMap.gameOver()) {
                 gameEnded = true;
                 endWindow->gameEnded();
-                if (globMap.stat[0].first.id == idTeam)
+                if (cltMap.stat[0].first.id == idTeam)
                     endWindow->updateText("You Won!",
                                           "This is your crowning glory.\nYou showed your formidable capacity.");
                 else

@@ -1,5 +1,5 @@
-#ifndef GLOBAL_MAP_H
-#define GLOBAL_MAP_H
+#ifndef CLIENT_MAP_H
+#define CLIENT_MAP_H
 
 #include "point.h"
 #include "basicMap.h"
@@ -19,8 +19,6 @@ struct Statistics {
 
 class ClientMap : public BasicMap {
 protected:
-    void init(int, int, int, int, const std::vector<int> &);
-
     void calcStat(const std::vector<int> &);
 
 public:
@@ -34,13 +32,15 @@ public:
 
     ClientMap(ClientMap &&) = default;
 
-    ClientMap& operator=(const ClientMap &) = default;
+    ClientMap &operator=(const ClientMap &) = default;
 
-    void import(const std::string &);
+    void importCM(const QVector<qint32> &);
+
+    void loadDiff(const QVector<qint32> &);
 
     bool gameOver();
 
     void print();
 };
 
-#endif // GLOBAL_MAP_H
+#endif // CLIENT_MAP_H
