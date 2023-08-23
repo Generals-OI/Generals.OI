@@ -1,14 +1,16 @@
 #ifndef SERVER_MAP_H
 #define SERVER_MAP_H
 
-#include "globalMap.h"
+#include "clientMap.h"
 #include "gameInformation.h"
 
-class ServerMap : public GlobalMap {
+class ServerMap : public ClientMap {
 private:
     std::vector<int> roundLose;
+
+    std::vector<std::vector<bool>> flagDiff;
 public:
-    explicit ServerMap(GlobalMap &&);
+    explicit ServerMap(ClientMap &&);
 
     ServerMap() = default;
 
@@ -16,7 +18,9 @@ public:
 
     ServerMap &operator=(ServerMap &&) = default;
 
-    std::string exportMap(bool);
+    QVector<qint32> toVectorSM();
+
+    QVector<qint32> exportDiff();
 
     // Moves army after checking validity
     bool move(int, Point, int, int, bool, int);

@@ -16,7 +16,8 @@ include_directories(
         src/geometry
         src/point
         src/gameMap
-        src/gameMap/globalMap
+        src/gameMap/basicMap
+        src/gameMap/clientMap
         src/gameMap/serverMap
         src/gameMap/mapGenerator
         src/gameWindow/surrenderWindow
@@ -115,8 +116,11 @@ set(
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
-        src/gameMap/globalMap/globalMap.cpp
-        src/gameMap/globalMap/globalMap.h
+        src/gameMap/clientMap/clientMap.cpp
+        src/gameMap/clientMap/clientMap.h
+
+        src/gameMap/basicMap/basicMap.cpp
+        src/gameMap/basicMap/basicMap.h
 
         src/gameMap/mapGenerator/mapGenerator.cpp
         src/gameMap/mapGenerator/mapGenerator.h
@@ -145,11 +149,14 @@ add_executable(
         src/point/point.cpp
         src/point/point.h
 
+        src/gameMap/basicMap/basicMap.cpp
+        src/gameMap/basicMap/basicMap.h
+
         src/gameMap/serverMap/serverMap.cpp
         src/gameMap/serverMap/serverMap.h
 
-        src/gameMap/globalMap/globalMap.cpp
-        src/gameMap/globalMap/globalMap.h
+        src/gameMap/clientMap/clientMap.cpp
+        src/gameMap/clientMap/clientMap.h
 
         src/gameMap/mapGenerator/mapGenerator.cpp
         src/gameMap/mapGenerator/mapGenerator.h
