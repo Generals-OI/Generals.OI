@@ -25,6 +25,7 @@ include_directories(
         src/gameWindow/gameButton
         src/gameInformation
         src/server
+        src/server/recorder
         src/startWindow
         src/startWindow/teamButton
         src/windowFrame/titleBar
@@ -90,6 +91,9 @@ set(
         src/server/server.cpp
         src/server/server.h
 
+        src/server/recorder/recorder.cpp
+        src/server/recorder/recorder.h
+
         src/server/serverSettingsWindow/serverSettingsWindow.cpp
         src/server/serverSettingsWindow/serverSettingsWindow.h
         src/server/serverSettingsWindow/serverSettingsWindow.ui
@@ -151,7 +155,17 @@ add_executable(
         src/gameMap/mapGenerator/mapGenerator.h
 
         src/geometry/geometry.cpp
-        src/geometry/geometry.h)
+        src/geometry/geometry.h
+)
+
+add_executable(
+        Test-Recorder
+
+        src/test-recorder.cpp
+
+        src/server/recorder/recorder.cpp
+        src/server/recorder/recorder.h
+)
 
 target_link_libraries(
         Generals.OI PRIVATE
@@ -164,6 +178,11 @@ target_link_libraries(
 
 target_link_libraries(
         Test-Generate PRIVATE
+        Qt${QT_VERSION_MAJOR}::Core
+)
+
+target_link_libraries(
+        Test-Recorder PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
 )
 
