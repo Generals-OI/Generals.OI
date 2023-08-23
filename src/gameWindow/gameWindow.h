@@ -36,7 +36,7 @@
 
 #include "point.h"
 #include "gameButton.h"
-#include "globalMap.h"
+#include "clientMap.h"
 #include "gameInformation.h"
 #include "endWindow.h"
 #include "processJson.h"
@@ -157,7 +157,7 @@ public:
     QLabel *lbFocus{}, *lbShadow[4]{};
     std::vector<std::vector<GameButton *>> btnFocus;
 
-    GlobalMap globMap{}, _globMap{};
+    ClientMap globMap{}, _globMap{};
 
     QWidget *wgtMap{}, *wgtButton{}, *wgtBoard{};
     QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{};

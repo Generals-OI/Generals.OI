@@ -45,7 +45,7 @@ void RandomMapGenerator::init(int cntPlayer, int cntTeam, const std::vector<int>
         lBound = int(3.7738 * cntTeam - 10.2976);
         rBound = int(3.6309 * cntTeam + 1.7381);
     }
-    servMap = ServerMap(GlobalMap(randInt(lBound, rBound) + cntPlayer - cntTeam,
+    servMap = ServerMap(ClientMap(randInt(lBound, rBound) + cntPlayer - cntTeam,
                                   randInt(lBound, rBound) + cntPlayer - cntTeam, cntTeam, cntPlayer,
                                   idTeam));
 

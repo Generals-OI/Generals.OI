@@ -70,7 +70,7 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
 }
 
 void ServerMap::calcStat() {
-    GlobalMap::calcStat(roundLose);
+    ClientMap::calcStat(roundLose);
 }
 
 void ServerMap::addRound() {
@@ -95,7 +95,7 @@ void ServerMap::addRound() {
                 if (map[i][j].belonging)
                     map[i][j].number++;
 
-    GlobalMap::calcStat(roundLose);
+    ClientMap::calcStat(roundLose);
     round++;
 }
 
@@ -104,8 +104,8 @@ void ServerMap::surrender(int id) {
     roundLose[id - 1] = round;
 }
 
-ServerMap::ServerMap(GlobalMap &&globMap) : GlobalMap(std::move(globMap)) {
-    roundLose = std::vector<int>(cntGnl, INT_MAX);
+ServerMap::ServerMap(ClientMap &&globMap) : ClientMap(std::move(globMap)) {
+    roundLose = std::vector<int>(cntPlayer, INT_MAX);
 }
 
 std::string ServerMap::exportMap(bool flagComplete) {
@@ -119,7 +119,7 @@ std::string ServerMap::exportMap(bool flagComplete) {
         numbers.push_back(width);
         numbers.push_back(length);
         numbers.push_back(cntTeam);
-        numbers.push_back(cntGnl);
+        numbers.push_back(cntPlayer);
         for (const auto i: idTeam)
             numbers.push_back(i);
     }

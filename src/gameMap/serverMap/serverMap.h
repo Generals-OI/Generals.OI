@@ -1,14 +1,14 @@
 #ifndef SERVER_MAP_H
 #define SERVER_MAP_H
 
-#include "globalMap.h"
+#include "clientMap.h"
 #include "gameInformation.h"
 
-class ServerMap : public GlobalMap {
+class ServerMap : public ClientMap {
 private:
     std::vector<int> roundLose;
 public:
-    explicit ServerMap(GlobalMap &&);
+    explicit ServerMap(ClientMap &&);
 
     ServerMap() = default;
 

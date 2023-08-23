@@ -164,7 +164,7 @@ void GameWindow::init() {
         }
     }
 
-    int sumRow = globMap.cntGnl + globMap.cntTeam;
+    int sumRow = globMap.cntPlayer + globMap.cntTeam;
     wgtBoard = new QWidget(this);
     wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);

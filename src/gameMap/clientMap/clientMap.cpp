@@ -1,20 +1,17 @@
-#include "globalMap.h"
+#include "clientMap.h"
 
-Cell::Cell(int number, int belonging, CellType type)
-        : number(number), belonging(belonging), type(type) {}
-
-GlobalMap::GlobalMap(int width, int length, int cntTeam, int cntGnl, const std::vector<int> &teamInfo) {
+ClientMap::ClientMap(int width, int length, int cntTeam, int cntGnl, const std::vector<int> &teamInfo) {
     init(width, length, cntTeam, cntGnl, teamInfo);
 }
 
-void GlobalMap::calcStat(const std::vector<int> &roundLose) {
+void ClientMap::calcStat(const std::vector<int> &roundLose) {
     using std::vector;
     using std::pair;
     typedef pair<Statistics, vector<Statistics>> Data;
 
-    vector<Statistics> statPlayer(cntGnl);
+    vector<Statistics> statPlayer(cntPlayer);
 
-    for (int i = 0; i < cntGnl; i++) {
+    for (int i = 0; i < cntPlayer; i++) {
         statPlayer[i].id = i + 1;
         statPlayer[i].roundLose = roundLose[i];
     }
@@ -29,7 +26,7 @@ void GlobalMap::calcStat(const std::vector<int> &roundLose) {
         }
 
     stat = vector<Data>(cntTeam);
-    for (int i = 0; i < cntGnl; i++) {
+    for (int i = 0; i < cntPlayer; i++) {
         Data &d = stat[idTeam[i] - 1];
         d.first.army += statPlayer[i].army;
         d.first.land += statPlayer[i].land;
@@ -45,19 +42,19 @@ void GlobalMap::calcStat(const std::vector<int> &roundLose) {
     });
 }
 
-void GlobalMap::init(int _width, int _length, int _cntTeam, int _cntGnl, const std::vector<int> &_teamInfo) {
+void ClientMap::init(int _width, int _length, int _cntTeam, int _cntGnl, const std::vector<int> &_teamInfo) {
     using std::vector;
 
     width = _width;
     length = _length;
     cntTeam = _cntTeam;
-    cntGnl = _cntGnl;
+    cntPlayer = _cntGnl;
     map = vector<vector<Cell>>(width + 1, vector<Cell>(length + 1));
     round = 0;
     idTeam = _teamInfo;
 }
 
-void GlobalMap::import(const std::string &strMap) {
+void ClientMap::import(const std::string &strMap) {
     using std::string;
 
     std::vector<int> numbers;
@@ -69,8 +66,8 @@ void GlobalMap::import(const std::string &strMap) {
             num = num * 10 + strMap[i] - '0';
 
     if (numbers[0] && numbers.size() != 2 * numbers[4] + 6 + numbers[1] * numbers[2] * 3 ||
-        !numbers[0] && numbers.size() != 2 + cntGnl + width * length * 3) {
-        std::cout << "In function GlobalMap::import: input is invalid" << std::endl;
+        !numbers[0] && numbers.size() != 2 + cntPlayer + width * length * 3) {
+        std::cout << "In function ClientMap::import: input is invalid" << std::endl;
         return;
     }
 
@@ -82,7 +79,7 @@ void GlobalMap::import(const std::string &strMap) {
     }
 
     auto it = numbers[0] ? numbers.begin() + numbers[4] + 5 : numbers.begin() + 1;
-    std::vector<int> roundLose(cntGnl);
+    std::vector<int> roundLose(cntPlayer);
     round = *(it++);
     for (int &i: roundLose)
         i = *(it++);
@@ -106,7 +103,7 @@ void GlobalMap::import(const std::string &strMap) {
                     c.type = CellType::swamp;
                     break;
                 default:
-                    std::cout << "In function GlobalMap::import: invalid CellType" << std::endl;
+                    std::cout << "In function ClientMap::import: invalid CellType" << std::endl;
             }
             c.belonging = *++it;
             c.number = *++it;
@@ -116,7 +113,7 @@ void GlobalMap::import(const std::string &strMap) {
     calcStat(roundLose);
 }
 
-void GlobalMap::print() {
+void ClientMap::print() {
     using std::cout;
     using std::endl;
     using std::setw;
@@ -144,7 +141,7 @@ void GlobalMap::print() {
     }
 }
 
-bool GlobalMap::gameOver() {
+bool ClientMap::gameOver() {
     int cnt = 0;
     for (const auto &p: stat)
         if (p.first.roundLose == INT_MAX)

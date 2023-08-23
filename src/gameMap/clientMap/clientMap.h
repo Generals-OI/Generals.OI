@@ -2,8 +2,8 @@
 #define GLOBAL_MAP_H
 
 #include "point.h"
+#include "basicMap.h"
 
-#include <vector>
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
@@ -11,46 +11,30 @@
 
 const int maxPlayerNum = 16;
 
-enum CellType {
-    land, general, city, mountain, swamp
-};
-
-struct Cell {
-    int number;
-    int belonging;
-    CellType type;
-
-    explicit Cell(int = 0, int = 0, CellType = land);
-};
-
 struct Statistics {
     int army{}, land{}, id{}, roundLose{INT_MAX};
 
     bool operator>(Statistics cmp) const;
 };
 
-class GlobalMap {
+class ClientMap : public BasicMap {
 protected:
     void init(int, int, int, int, const std::vector<int> &);
 
     void calcStat(const std::vector<int> &);
 
 public:
-    int width{}, length{};
-    int cntGnl{}, cntTeam{}, round{};
-    std::vector<std::vector<Cell>> map;
+    int cntPlayer{}, cntTeam{}, round{};
     std::vector<int> idTeam;
     std::vector<std::pair<Statistics, std::vector<Statistics>>> stat;
 
-    GlobalMap(int, int, int, int, const std::vector<int> &);
+    ClientMap(int, int, int, int, const std::vector<int> &);
 
-    GlobalMap() = default;
+    ClientMap() = default;
 
-    GlobalMap(GlobalMap &&) = default;
+    ClientMap(ClientMap &&) = default;
 
-    GlobalMap(const GlobalMap &) = default;
-
-    GlobalMap &operator=(const GlobalMap &) = default;
+    ClientMap& operator=(const ClientMap &) = default;
 
     void import(const std::string &);
 
