@@ -1,7 +1,7 @@
 #include "startWindow.h"
 #include "ui_startWindow.h"
 
-extern QString strFontBold;
+extern QString strFontRegular;
 
 StartWindow::StartWindow(QWidget *parent)
         : QWidget(parent), ui(new Ui::StartWindow) {
@@ -11,13 +11,24 @@ StartWindow::StartWindow(QWidget *parent)
     socket = new QWebSocket;
     pbTeams = QVector<TeamButton *>(maxPlayerNum + 1);
     QSizePolicy spButtons(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    QFont fButtons(strFontRegular, 14);
+    fmTeamBtn = new QFontMetrics(fButtons);
+
+    for (auto &hlTeamButton: hlTeamButtons) {
+        hlTeamButton = new QHBoxLayout();
+        hlTeamButton->setSpacing(10);
+        hlTeamButton->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        hlTeamButton->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        ui->vlTeam->addLayout(hlTeamButton);
+    }
 
     ui->lbTeam->hide();
     for (int i = 0; i <= maxPlayerNum; i++) {
         pbTeams[i] = new TeamButton(this, i + 1);
+        pbTeams[i]->setFont(fButtons);
         pbTeams[i]->setSizePolicy(spButtons);
         pbTeams[i]->hide();
-        ui->hlTeam->insertWidget(i + 1, pbTeams[i]);
+        hlTeamButtons[i / btnPerLine]->insertWidget(i % btnPerLine + 1, pbTeams[i]);
         connect(pbTeams[i], &TeamButton::chosen, this, &StartWindow::onTeamButtonChosen);
     }
     pbTeams[maxPlayerNum]->setText("Create and Join\nNew Team");
@@ -38,6 +49,7 @@ StartWindow::StartWindow(QWidget *parent)
 
 StartWindow::~StartWindow() {
     delete socket;
+    delete fmTeamBtn;
 }
 
 void StartWindow::onCreateServer() {
@@ -48,12 +60,6 @@ void StartWindow::onCreateServer() {
 
 void StartWindow::onConnected() {
     auto nickname = ui->leNickName->text();
-    auto nicknameLen = nickname.toLocal8Bit().length();
-    if (!(3 <= nicknameLen && nicknameLen <= 15)) {
-        ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
-        return;
-    }
-
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket, nickname, nullptr);
@@ -87,9 +93,16 @@ void StartWindow::onDisconnected() {
     ui->lbTeam->hide();
     for (int i = 0; i <= maxPlayerNum; i++)
         pbTeams[i]->hide();
+    mediateWindow(true);
 }
 
 void StartWindow::onConnectClicked() {
+    auto nicknameLen = ui->lbNickName->text().toLocal8Bit().length();
+    if (!(3 <= nicknameLen && nicknameLen <= 15)) {
+        ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
+        return;
+    }
+
     static std::regex reg(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
                           R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5]))");
 //    static QRegularExpression regex(R"((\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.)"
@@ -125,16 +138,33 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
 
     if (msgType == "Status") {
         ui->lbMessage->setText("[Connected]\n" + msgData.at(0).toString());
-        for (int i = 0, totTeam = 0; i < maxPlayerNum; i++) {
+        for (auto &cnt: cntTeam) cnt = 0;
+        for (auto &sum: sumBtnLen) sum = 0;
+
+        for (int i = 0, currentTeam = 0; i < maxPlayerNum; i++) {
             auto teamData = msgData.at(i + 1).toArray();
-            if (teamData.isEmpty()) pbTeams[i]->hide();
-            else pbTeams[i]->show();
-            QString strTeam = QString("Team %1").arg(QString::number(++totTeam));
-            for (auto nickname: teamData)
-                strTeam.append(QString("\n%1").arg(nickname.toString()));
+            if (teamData.isEmpty()) {
+                pbTeams[i]->hide();
+                pbTeams[i]->setText(QString());
+                pbTeams[i]->setMinimumWidth(0);
+                continue;
+            }
+            pbTeams[i]->show();
+            cntTeam[i / btnPerLine]++;
+
+            QString strTeam = QString("Team %1").arg(QString::number(++currentTeam));
+            int maxWidth = fmTeamBtn->horizontalAdvance(strTeam);
+            for (auto value: teamData) {
+                auto nickname = value.toString();
+                maxWidth = std::max(maxWidth, fmTeamBtn->horizontalAdvance(nickname));
+                strTeam.append(QString("\n%1").arg(nickname));
+            }
             pbTeams[i]->setText(strTeam);
+            pbTeams[i]->setMinimumWidth(maxWidth);
+            sumBtnLen[i / btnPerLine] += maxWidth;
         }
         pbTeams[maxPlayerNum]->show();
+        mediateWindow();
     } else if (!gotInitMsg && msgType == "InitGame") {
         gotInitMsg = true;
     } else if (gotInitMsg && !wndHidden && msgType == "UpdateMap") {
@@ -146,13 +176,22 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
 
 void StartWindow::setTarget(QWidget *widget) {
     wTarget = widget;
-
-    auto screen = qApp->primaryScreen()->geometry();
-    auto window = QSize(800, 750);
-    wTarget->setGeometry((screen.width() - window.width()) / 2, (screen.height() - window.height()) / 2,
-                         window.width(), window.height());
+    mediateWindow(true);
 }
 
 void StartWindow::onTeamButtonChosen(int idButton) {
     socket->sendBinaryMessage(generateMessage("ChooseTeam", {idButton}));
+}
+
+void StartWindow::mediateWindow(bool useDefault) {
+    if (useDefault) {
+        QSize defaultSize(800, 750);
+        wTarget->setMinimumSize(defaultSize);
+        wTarget->resize(defaultSize);
+    } else {
+        QSize minimumSize(std::max(sumBtnLen[0], sumBtnLen[1]) + std::max(cntTeam[0], cntTeam[1]) * 30, 900);
+        wTarget->setMinimumSize(minimumSize);
+        wTarget->resize(minimumSize);
+    }
+    wTarget->move(qApp->primaryScreen()->geometry().center() - wTarget->rect().center());
 }

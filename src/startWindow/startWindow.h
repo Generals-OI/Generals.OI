@@ -40,13 +40,20 @@ private:
 
     void onTeamButtonChosen(int idButton);
 
+    void mediateWindow(bool useDefault = false);
+
     enum WebSocketStatus {
         Disconnected, Connecting, Connected
     };
 
     Ui::StartWindow *ui;
     QWidget *wTarget{};
+    QFontMetrics *fmTeamBtn;
+
+    static const int btnLinesNum = 2, btnPerLine = 9;
+    QHBoxLayout *hlTeamButtons[btnLinesNum]{};
     QVector<TeamButton*> pbTeams;
+    int cntTeam[btnLinesNum]{}, sumBtnLen[btnLinesNum]{};
 
     QWebSocket *socket{};
     WebSocketStatus socketStatus = WebSocketStatus::Disconnected;
