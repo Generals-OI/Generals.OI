@@ -101,6 +101,8 @@ private:
 
     void updateWindow(bool = false);
 
+    void setFocusGnl();
+
     void clearMove();
 
     void cancelMove(bool = false);

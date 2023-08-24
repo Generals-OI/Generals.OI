@@ -456,6 +456,8 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gotPlayerInfoMsg = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
+        if(gotInitMsg)
+            setFocusGnl();
     } else if (msgType == "PlayersInfo") {
         cntPlayer = msgData.at(0).toInt();
         for (int i = 1; i <= cntPlayer; i++) {
@@ -476,6 +478,8 @@ void GameWindow::processMessage(const QByteArray &msg) {
         _cltMap = cltMap;
         gotInitMsg = true;
         init();
+        if(gotPlayerInfoMsg)
+            setFocusGnl();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
@@ -552,4 +556,18 @@ void GameWindow::onSurrender() {
     clearMove();
     endWindow->updateText("You Surrendered.", "You abandoned your general\nand gave up the fight.");
     endWindow->show();
+}
+
+
+void GameWindow::setFocusGnl() {
+    // TODO: Lower time complexity
+    int x = 0, y = 0;
+    for (int i = 1; i <= cltMap.width && !x; i++)
+        for (int j = 1; j <= cltMap.length; j++)
+            if (cltMap.map[i][j].type == CellType::general && cltMap.map[i][j].belonging == idPlayer) {
+                x = i;
+                y = j;
+                break;
+            }
+    updateFocus(true, 0, x, y);
 }
