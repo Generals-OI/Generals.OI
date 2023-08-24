@@ -6,7 +6,6 @@
 
 #include <QDebug>
 
-unsigned RandomMapGenerator::seed{};
 std::mt19937 RandomMapGenerator::rnd;
 ServerMap RandomMapGenerator::servMap;
 std::vector<std::vector<int>> RandomMapGenerator::teamMbr;
@@ -34,7 +33,7 @@ void RandomMapGenerator::init(int cntPlayer, int cntTeam, const std::vector<int>
     if (cntPlayer < 2 || cntPlayer > maxPlayerNum)
         qDebug() << "[mapGenerator.cpp]RandomMapGenerator::init: wrong cntPlayer";
 
-    seed = (unsigned) std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto seed = (unsigned int) std::chrono::steady_clock::now().time_since_epoch().count();
     qDebug() << "[mapGenerator.cpp]RandomMapGenerator::init: Random seed =" << seed;
     rnd = mt19937(seed);
 
@@ -592,8 +591,4 @@ ServerMap RandomMapGenerator::randomMap(int cntPlayer, int cntTeam, const std::v
 
     servMap.calcStat();
     return std::move(servMap);
-}
-
-unsigned int RandomMapGenerator::lastSeed() {
-    return seed;
 }

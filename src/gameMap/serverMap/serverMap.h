@@ -28,8 +28,8 @@ public:
     // Calculates value in stat
     void calcStat();
 
-    // Adds game round
-    void addRound();
+    // Adds game round, returns id of newly-lost players
+    std::vector<int> addRound();
 
     // Make player with specified ID surrender
     void surrender(int);

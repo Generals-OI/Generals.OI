@@ -46,8 +46,8 @@ void Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
         b[18] = flag;
     }
     // 读入是否50%
-    for (bool i : b) {
-        if (i) {
+    for (int i = 0; i < 19; i++) {
+        if (b[i]) {
             c = c + (1 << (7 - pos));
         }
         if (++pos >= 8) {
@@ -76,7 +76,7 @@ bool Recorder::importRecord(QByteArray &record) {
 
 bool Recorder::getNextRecord(int &id, int &x, int &y, int &dx, int &dy, bool &flag) {
     bool b[19] = {}, isEnd = false;
-    for (bool & i : b) {
+    for (int i = 0; i < 19; i++) {
         if (pos == 0) {
             if (++p >= data.size()) {
                 isEnd = true;
@@ -89,17 +89,17 @@ bool Recorder::getNextRecord(int &id, int &x, int &y, int &dx, int &dy, bool &fl
             //qDebug()<<'!'<<int(c);
         }
         if (c & (1 << (7 - pos))) {
-            i = true;
+            b[i] = true;
         } else {
-            i = false;
+            b[i] = false;
         }
         if (++pos > 7) {
             pos = 0;
         }
     }
     bool isSep = true; // 回合分隔符标志
-    for (bool i : b) {
-        if (!i) {
+    for (int i = 0; i < 19; i++) {
+        if (!b[i]) {
             isSep = false;
         }
         //qDebug()<<i<<b[i];

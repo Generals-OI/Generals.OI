@@ -75,7 +75,7 @@ void ServerMap::calcStat() {
     ClientMap::calcStat(roundLose);
 }
 
-void ServerMap::addRound() {
+std::vector<int> ServerMap::addRound() {
     if (round % 2 == 0)
         for (int i = 1; i <= width; i++)
             for (int j = 1; j <= length; j++) {
@@ -102,7 +102,14 @@ void ServerMap::addRound() {
                 }
 
     ClientMap::calcStat(roundLose);
+
+    std::vector<int> result;
+    for (int i = 0; i < cntPlayer; i++)
+        if (roundLose[i] == round)
+            result.push_back(i + 1);
+
     round++;
+    return result;
 }
 
 
