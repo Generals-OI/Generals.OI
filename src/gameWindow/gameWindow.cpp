@@ -104,7 +104,7 @@ void GameWindow::init() {
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
-    // TODO: Change Spacing if it is necessary
+    // TODO: Change Spacing if necessary
     mapLayout = new QGridLayout(wgtMap);
     mapLayout->setSpacing(2);
     mapLayout->setContentsMargins(0, 0, 0, 0);
@@ -430,7 +430,7 @@ void GameWindow::updateWindow(bool forced) {
     int curRow = 0;
     lbRound->setText(QString("Round: ").append(QString::number(cltMap.round)));
 
-    // TODO: Response to Game Modifiers (silentWar)
+    // TODO: Respond to Game Modifiers (silentWar)
     for (const auto &stat: cltMap.stat) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
@@ -492,7 +492,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 show();
             }
 
-            if (cltMap.gameOver()) {
+            if (cltMap.gameOver() && !surrendered) {
                 gameEnded = true;
                 endWindow->gameEnded();
                 if (cltMap.stat[0].first.id == idTeam)

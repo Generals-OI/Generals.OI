@@ -66,6 +66,7 @@ void ClientMap::loadDiff(const QVector<qint32> &diff) {
         it += 5;
     }
     calcStat(roundLose);
+    round++;
 }
 
 void ClientMap::print() {

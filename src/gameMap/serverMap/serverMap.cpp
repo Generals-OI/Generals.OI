@@ -93,7 +93,7 @@ std::vector<int> ServerMap::addRound() {
                     flagDiff[i][j] = true;
                 }
             }
-    if (round % 50 == 0)
+    if (round % 50 == 0 && round)
         for (int i = 1; i <= width; i++)
             for (int j = 1; j <= length; j++)
                 if (map[i][j].belonging) {
