@@ -101,7 +101,7 @@ private:
 
     void updateWindow(bool = false);
 
-    void setFocusGnl();
+    void focusGeneral();
 
     void clearMove();
 
@@ -112,6 +112,8 @@ private:
     bool isPositionVisible(int x, int y);
 
     void onSurrender();
+
+    void onSpectate();
 
 protected:
     void keyPressEvent(QKeyEvent *) override;
@@ -136,7 +138,7 @@ public:
     QMediaPlayer *gongPlayer;
 //    QSoundEffect *gongSoundEffect;
 
-    bool gameWindowShown{}, gameEnded{}, surrendered{};
+    bool gameWindowShown{}, gameEnded{}, surrendered{}, spectated{};
 
     qreal dpi;
     QRect screenGeometry;
