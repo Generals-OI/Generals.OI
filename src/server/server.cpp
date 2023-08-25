@@ -9,6 +9,7 @@ Server::Server(int gameMode, double gameSpeed) :
         teamMbrCnt = QVector<int>(maxPlayerNum + 1);
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
         nicknames.append("Generals.OI");
+        nicknames.append("Server");
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
         qApp->quit();
@@ -169,9 +170,8 @@ void Server::onNewConnection() {
                     gameTimer->start(int(500 / gameSpeed));
 
                     emit sendMessage(generateMessage("Chat", {"Generals.OI", QString(
-                            "The ID of this game is %1. "
-                            "If you faced problems, please include this ID in your feedback. "
-                            "Have a good time!").arg(QString::number(RandomMapGenerator::lastSeed()))}
+                            "If you faced problems, please include the game ID \"%1\" in your feedback. "
+                            "Thanks a lot! Have a good time!").arg(QString::number(RandomMapGenerator::lastSeed()))}
                     ));
                 }
             }
@@ -189,6 +189,8 @@ void Server::onNewConnection() {
         } else if (msgType == "Surrender") {
             int idPlayer = msgData.at(0).toInt();
             serMap->surrender(idPlayer);
+            emit sendMessage(generateMessage(
+                    "Chat", {"Server", QString("@%1 surrendered.").arg(clients[socket].nickName)}));
         }
 
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))
@@ -197,7 +199,7 @@ void Server::onNewConnection() {
 }
 
 void Server::broadcastMessage() {
-    serMap->addRound();
+    auto losers = serMap->addRound();
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 

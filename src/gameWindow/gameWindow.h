@@ -215,12 +215,14 @@ class Highlighter : public QSyntaxHighlighter {
 Q_OBJECT
 
 public:
-    explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &);
+    explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &, const QFont &);
 
     ~Highlighter() override = default;
 
 protected:
     void highlightBlock(const QString &) override;
+
+    void addRule(const QString &, QColor, const QFont &);
 
     static QString transExpr(const QString &);
 

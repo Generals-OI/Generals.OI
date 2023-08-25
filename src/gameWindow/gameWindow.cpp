@@ -185,7 +185,7 @@ void GameWindow::init() {
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
-    new Highlighter(teChats->document(), cntPlayer, playersInfo);
+    new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
 
     auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
@@ -480,8 +480,9 @@ void GameWindow::processMessage(const QByteArray &msg) {
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
-        } else if (!gameEnded && msgType == "UpdateMap") {
+        } else if (msgType == "UpdateMap") {
             cltMap.loadDiff(toVectorInt(msgData.toVariantList()));
+            updateWindow();
 
             if (!gameWindowShown) {
                 gameWindowShown = true;
@@ -490,6 +491,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
 
             if (cltMap.gameOver()) {
                 gameEnded = true;
+                updateWindow(true);
                 endWindow->gameEnded();
                 if (cltMap.stat[0].first.id == idTeam)
                     endWindow->updateText("You Won!",
@@ -499,13 +501,11 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 endWindow->show();
             }
 
-            updateWindow();
-
             if (moved)
                 cancelMove(true);
             bool move = !dqMsg.empty();
 
-            if (move) {
+            if (move && !gameEnded) {
                 auto moveData = dqMsg.front();
                 QJsonArray jsonData;
                 jsonData.push_back(idPlayer);
