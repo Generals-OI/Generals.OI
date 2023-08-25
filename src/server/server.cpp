@@ -8,6 +8,7 @@ Server::Server(int gameMode, double gameSpeed) :
     if (server->listen(address, 32767)) {
         teamMbrCnt = QVector<int>(maxPlayerNum + 1);
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
+        nicknames.append("Generals.OI");
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
         qApp->quit();
@@ -76,7 +77,7 @@ void Server::onNewConnection() {
                 auto playerNickname = msgData.at(0).toString();
                 if (!checkNickname(playerNickname)) {
                     socket->sendBinaryMessage(generateMessage(
-                            "Status", {"Invalid nickname."}));
+                            "Status", {"Conflicting nickname."}));
                     socket->close();
                     return;
                 }
@@ -159,14 +160,19 @@ void Server::onNewConnection() {
                     serMap = new ServerMap(RandomMapGenerator::randomMap(cntPlayer, totTeam, teamInfo, gameMode));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    emit sendMessage(
-                            generateMessage("InitGame",
-                                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) +
-                                            gameMode));
+                    emit sendMessage(generateMessage(
+                            "InitGame",
+                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) + gameMode));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
                     gameTimer->start(int(500 / gameSpeed));
+
+                    emit sendMessage(generateMessage("Chat", {"Generals.OI", QString(
+                            "The ID of this game is %1. "
+                            "If you faced problems, please include this ID in your feedback. "
+                            "Have a good time!").arg(QString::number(RandomMapGenerator::lastSeed()))}
+                    ));
                 }
             }
         } else if (msgType == "Chat") {
