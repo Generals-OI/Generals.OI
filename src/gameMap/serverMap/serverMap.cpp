@@ -41,11 +41,18 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
                         cell = Cell{num - cEnd.number, cStart.belonging, cEnd.type};
                         break;
                     case CellType::general:
+                        for (int i = 1; i <= width; i++)
+                            for (int j = 1; j <= length; j++)
+                                if (map[i][j].belonging == cEnd.belonging)
+                                    flagDiff[i][j] = true;
                         if (gameMode & GameMode::leapfrog) {
                             for (int i = 1; i <= width; i++)
                                 for (int j = 1; j <= length; j++) {
-                                    if (map[i][j].belonging == cStart.belonging && map[i][j].type == CellType::general)
+                                    if (map[i][j].belonging == cStart.belonging &&
+                                        map[i][j].type == CellType::general) {
                                         map[i][j].type = CellType::city;
+                                        flagDiff[i][j] = true;
+                                    }
                                     if (map[i][j].belonging == cEnd.belonging && Point(i, j) != pntEnd)
                                         map[i][j] = Cell{(map[i][j].number + 1) / 2, cStart.belonging, map[i][j].type};
                                 }
