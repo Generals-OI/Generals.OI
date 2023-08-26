@@ -9,6 +9,8 @@ class RandomMapGenerator {
 public:
     static ServerMap randomMap(int, int, const std::vector<int> &, int);
 
+    static unsigned int lastSeed();
+
 private:
     static constexpr int infinity = USHRT_MAX;
     static constexpr int direction8[8][2] = {{1,  1},
@@ -20,6 +22,7 @@ private:
                                              {-1, 0},
                                              {-1, -1}};
 
+    static unsigned seed;
     static std::mt19937 rnd;
     static ServerMap servMap;
     static std::vector<std::vector<int>> teamMbr;

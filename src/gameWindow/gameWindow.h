@@ -101,7 +101,7 @@ private:
 
     void updateWindow(bool = false);
 
-    void setFocusGnl();
+    void focusGeneral();
 
     void clearMove();
 
@@ -113,6 +113,8 @@ private:
 
     void onSurrender();
 
+    void onSpectate();
+
 protected:
     void keyPressEvent(QKeyEvent *) override;
 
@@ -123,7 +125,7 @@ public slots:
 public:
     static const int fontSizeCount = 6;
     const Point dtDirection[4] = {Point(-1, 0), Point(1, 0), Point(0, -1), Point(0, 1)};
-    const double mapFontSizePct[fontSizeCount] = {0.36, 0.3, 0.25, 0.20, 0.16, 0.13};
+    const double mapFontSizePct[fontSizeCount] = {0.36, 0.28, 0.22, 0.18, 0.16, 0.13};
 
     int cntPlayer{};
     std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(maxPlayerNum + 5);
@@ -136,7 +138,7 @@ public:
     QMediaPlayer *gongPlayer;
 //    QSoundEffect *gongSoundEffect;
 
-    bool gameWindowShown{}, gameEnded{}, surrendered{};
+    bool gameWindowShown{}, gameEnded{}, surrendered{}, spectated{};
 
     qreal dpi;
     QRect screenGeometry;
@@ -213,12 +215,14 @@ class Highlighter : public QSyntaxHighlighter {
 Q_OBJECT
 
 public:
-    explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &);
+    explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &, const QFont &);
 
     ~Highlighter() override = default;
 
 protected:
     void highlightBlock(const QString &) override;
+
+    void addRule(const QString &, QColor, const QFont &);
 
     static QString transExpr(const QString &);
 

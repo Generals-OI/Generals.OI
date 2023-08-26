@@ -23,9 +23,8 @@ EndWindow::EndWindow(QWidget *parent) :
 
     move(parent->geometry().center() - rect().center());
 
-    connect(ui->pbWatch, &QPushButton::clicked, this, &QWidget::hide);
+    connect(ui->pbWatch, &QPushButton::clicked, this, &EndWindow::onWatchButtonClicked);
     connect(ui->pbExit, &QPushButton::clicked, qApp, &QApplication::quit);
-
 }
 
 EndWindow::~EndWindow() {
@@ -39,4 +38,9 @@ void EndWindow::updateText(const QString &strTitle, const QString &strContent) {
 
 void EndWindow::gameEnded() {
     ui->pbWatch->setEnabled(false);
+}
+
+void EndWindow::onWatchButtonClicked() {
+    hide();
+    emit watch();
 }

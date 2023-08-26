@@ -17,9 +17,16 @@ public:
 
     ~EndWindow() override;
 
-    void updateText(const QString& strTitle, const QString& strContent = QString());
+    void updateText(const QString &strTitle, const QString &strContent = QString());
 
     void gameEnded();
+
+signals:
+
+    void watch();
+
+protected:
+    void onWatchButtonClicked();
 
 private:
     Ui::EndWindow *ui;

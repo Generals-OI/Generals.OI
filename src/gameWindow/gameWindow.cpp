@@ -95,6 +95,7 @@ void GameWindow::init() {
     endWindow = new EndWindow(this);
     surrenderWindow = new SurrenderWindow(this);
     connect(surrenderWindow, &SurrenderWindow::surrendered, this, &GameWindow::onSurrender);
+    connect(endWindow, &EndWindow::watch, this, &GameWindow::onSpectate);
 
     wgtMap = new QWidget(this);
     wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
@@ -184,7 +185,7 @@ void GameWindow::init() {
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
-    new Highlighter(teChats->document(), cntPlayer, playersInfo);
+    new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
 
     auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
@@ -358,7 +359,8 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
 }
 
 bool GameWindow::isPositionVisible(int x, int y) {
-    if (idPlayer == -1 || (gameMode & GameMode::crystalClear))
+    // TODO: spectate globally when team lost
+    if (idPlayer == -1 || (gameMode & GameMode::crystalClear) || gameEnded)
         return true;
     if (gameMode & GameMode::mistyVeil)
         return idTeam == cltMap.idTeam[cltMap.map[x][y].belonging - 1];
@@ -456,8 +458,6 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gotPlayerInfoMsg = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
-        if(gotInitMsg)
-            setFocusGnl();
     } else if (msgType == "PlayersInfo") {
         cntPlayer = msgData.at(0).toInt();
         for (int i = 1; i <= cntPlayer; i++) {
@@ -470,20 +470,17 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gotPlayersInfoMsg = true;
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
-        qDebug() << "1";
         gameMode = gameInfo[gameInfo.size() - 1];
-        qDebug() << "2";
         cltMap.importCM(gameInfo.first(gameInfo.size() - 1));
-        qDebug() << "ClientMap loaded";
+        qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
         gotInitMsg = true;
         init();
-        if(gotPlayerInfoMsg)
-            setFocusGnl();
+        focusGeneral();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
-        } else if (!gameEnded && msgType == "UpdateMap") {
+        } else if (msgType == "UpdateMap") {
             cltMap.loadDiff(toVectorInt(msgData.toVariantList()));
             updateWindow();
 
@@ -492,13 +489,14 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 show();
             }
 
-            if (cltMap.gameOver() && !surrendered) {
+            if (cltMap.gameOver()) {
                 gameEnded = true;
+                updateWindow(true);
                 endWindow->gameEnded();
                 if (cltMap.stat[0].first.id == idTeam)
                     endWindow->updateText("You Won!",
                                           "This is your crowning glory.\nYou showed your formidable capacity.");
-                else
+                else if (!surrendered)
                     endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
                 endWindow->show();
             }
@@ -507,7 +505,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 cancelMove(true);
             bool move = !dqMsg.empty();
 
-            if (move) {
+            if (move && !gameEnded) {
                 auto moveData = dqMsg.front();
                 QJsonArray jsonData;
                 jsonData.push_back(idPlayer);
@@ -558,8 +556,12 @@ void GameWindow::onSurrender() {
     endWindow->show();
 }
 
+void GameWindow::onSpectate() {
+    if (surrendered)
+        spectated = true;
+}
 
-void GameWindow::setFocusGnl() {
+void GameWindow::focusGeneral() {
     // TODO: Lower time complexity
     int x = 0, y = 0;
     for (int i = 1; i <= cltMap.width && !x; i++)
