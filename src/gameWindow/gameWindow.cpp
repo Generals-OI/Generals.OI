@@ -67,8 +67,8 @@ void GameWindow::init() {
 
     mapLeft = (screenWidth - unitSize * totWidth) / 2;
     mapTop = (screenHeight - unitSize * height) / 2;
-    rnkLeft = screenWidth - rnkUnitWidth * 4;
-    rnkTop = mapTop;
+    rnkLeft = screenWidth - unitSize * rnkWidth;
+    rnkTop = 0;
 
     qDebug() << "[gameWindow.cpp] Unit Size:" << unitSize;
 
@@ -167,7 +167,7 @@ void GameWindow::init() {
 
     int sumRow = cltMap.cntPlayer + cltMap.cntTeam;
     wgtBoard = new QWidget(this);
-    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
+    wgtBoard->setGeometry(rnkLeft, rnkTop, unitSize * rnkWidth, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
     boardLayout->setSpacing(2);
     lbBoard = QVector<BoardLabel>(sumRow + 1);
@@ -181,7 +181,7 @@ void GameWindow::init() {
     for (int i = 0; i <= sumRow; i++)
         lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
     lbBoard[0].updateContent("Name", "Army", "Land");
-    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
+    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
@@ -440,7 +440,7 @@ void GameWindow::updateWindow(bool forced) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
                                         QString::number(teamStat.army), QString::number(teamStat.land));
-        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
+        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
         for (const auto &playerStat: stat.second) {
             lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
                                             QString::number(playerStat.army), QString::number(playerStat.land));
