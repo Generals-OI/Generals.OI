@@ -46,9 +46,7 @@ GameWindow::GameWindow(QWebSocket *socket) {
 //    gongSoundEffect->setVolume(1);
 
     webSocket = socket;
-
     connect(webSocket, &QWebSocket::binaryMessageReceived, this, &GameWindow::processMessage);
-    webSocket->sendBinaryMessage(generateMessage("Connected", {nickName}));
 }
 
 void GameWindow::setNickname(const QString &nick) {

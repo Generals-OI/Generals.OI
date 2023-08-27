@@ -64,8 +64,8 @@ void StartWindow::onConnected() {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket);
         qDebug() << "[startWindow.cpp] Game window created.";
-    } else
-        socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
+    }
+    socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
     gameWindow->setNickname(nickname);
 
     ui->pbConnect->setText("Disconnect");
