@@ -202,7 +202,8 @@ void GameWindow::init() {
     for (auto &i: lbShadow) {
         i = new QLabel(this);
         i->setObjectName("Shadow");
-        i->show();
+        if (idPlayer != -1) i->show();
+        else i->hide();
     }
 
     focus = new Focus;
@@ -273,7 +274,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             resized = true;
             break;
         case Qt::Key_Escape:
-            if (!surrendered) {
+            if (!surrendered && idPlayer != -1) {
                 surrenderWindow->show();
                 surrenderWindow->raise();
             }
@@ -345,7 +346,8 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
         auto isLegal = pos.move(dir[i][0], dir[i][1]);
-        if (isLegal && (!visMain[pos.x][pos.y] || cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
+        if (idPlayer != -1 && isLegal &&
+            (!visMain[pos.x][pos.y] || cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
@@ -493,11 +495,17 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 gameEnded = true;
                 updateWindow(true);
                 endWindow->gameEnded();
-                if (cltMap.stat[0].first.id == idTeam)
-                    endWindow->updateText("You Won!",
-                                          "This is your crowning glory.\nYou showed your formidable capacity.");
-                else if (!surrendered)
-                    endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
+
+                if (idPlayer != -1) {
+                    if (cltMap.stat[0].first.id == idTeam)
+                        endWindow->updateText("You Won!",
+                                              "This is your crowning glory.\nYou showed your formidable capacity.");
+                    else if (!surrendered)
+                        endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
+                } else {
+                    endWindow->updateText("Game Over.", "You witnessed fierce battles with ingenious tactics. "
+                                                        "Hope you find it rewarding.");
+                }
                 endWindow->show();
             }
 
