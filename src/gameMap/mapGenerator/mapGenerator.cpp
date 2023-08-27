@@ -6,6 +6,14 @@
 
 #include <QDebug>
 
+const int RandomMapGenerator::direction8[8][2] = {{1,  1},
+                                                  {1,  0},
+                                                  {1,  -1},
+                                                  {0,  1},
+                                                  {0,  -1},
+                                                  {-1, 1},
+                                                  {-1, 0},
+                                                  {-1, -1}};
 unsigned RandomMapGenerator::seed{};
 std::mt19937 RandomMapGenerator::rnd;
 ServerMap RandomMapGenerator::servMap;

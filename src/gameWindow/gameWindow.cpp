@@ -260,17 +260,17 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             }
             break;
         case Qt::Key_0:
-            mapLeft -= width / 2;
-            mapTop -= height / 2;
-            unitSize += 1;
+            mapLeft -= width;
+            mapTop -= height;
+            unitSize += 2;
             resized = true;
             break;
         case Qt::Key_9:
-            if (unitSize <= minUnitSize)
+            if (unitSize - 1 < minUnitSize)
                 break;
-            mapLeft += width / 2;
-            mapTop += height / 2;
-            unitSize -= 1;
+            mapLeft += width;
+            mapTop += height;
+            unitSize -= 2;
             resized = true;
             break;
         case Qt::Key_Escape:
@@ -282,7 +282,12 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     }
 
     if (idDirection != -1 && idPlayer != -1 && !surrendered) {
-        updateFocus(false, idDirection);
+        if (event->modifiers() == Qt::ShiftModifier) {
+            auto pos = *focus;
+            if (pos.move(dtDirection[idDirection].x, dtDirection[idDirection].y))
+                updateFocus(true, -1, pos.x, pos.y);
+        } else
+            updateFocus(false, idDirection);
         flagHalf = false;
     }
 
@@ -474,7 +479,11 @@ void GameWindow::processMessage(const QByteArray &msg) {
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
         gameMode = gameInfo[gameInfo.size() - 1];
+#if (QT_VERSION_MAJOR < 6)
+        cltMap.importCM(gameInfo.mid(0, gameInfo.size() - 1));
+#else
         cltMap.importCM(gameInfo.first(gameInfo.size() - 1));
+#endif
         qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
         gotInitMsg = true;

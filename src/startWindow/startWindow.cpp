@@ -63,6 +63,7 @@ void StartWindow::onConnected() {
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket, nickname, nullptr);
+        qDebug() << "[startWindow.cpp] Game window created.";
     } else
         socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
 

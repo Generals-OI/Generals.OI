@@ -51,7 +51,7 @@
 
 QLabel {
     qproperty-focusPolicy: 0;
-    qproperty-alignment: 132;
+    qproperty-alignment: AlignCenter;
     color: #ffffff;
     background-color: transparent;
 }

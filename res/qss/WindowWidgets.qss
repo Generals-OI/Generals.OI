@@ -12,7 +12,7 @@ QLineEdit {
 QLabel {
     background-color: transparent;
     color: #81d4fa;
-    qproperty-alignment: 132;
+    qproperty-alignment: AlignCenter;
 }
 
 QCheckBox {

@@ -60,6 +60,9 @@ find_package(
         Multimedia
 )
 
+message("Current Qt version: " ${QT_VERSION_MAJOR})
+message("Current build type: " ${CMAKE_BUILD_TYPE})
+
 set(
         PROJECT_SOURCES
 

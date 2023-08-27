@@ -44,7 +44,11 @@ void ClientMap::calcStat(const std::vector<int> &roundLose) {
 
 void ClientMap::importCM(const QVector<qint32> &vecMap) {
     int p = 2 + vecMap[0] * vecMap[1] * 3;
+#if (QT_VERSION_MAJOR < 6)
+    importBM(vecMap.mid(0, p));
+#else
     importBM(vecMap.first(p));
+#endif
     auto it = vecMap.begin() + p;
     cntPlayer = *it++;
     cntTeam = *it++;
