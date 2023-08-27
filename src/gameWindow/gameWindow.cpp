@@ -347,7 +347,8 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
         auto pos = *focus;
         auto isLegal = pos.move(dir[i][0], dir[i][1]);
         if (idPlayer != -1 && isLegal &&
-            (!(isPositionVisible(pos.x, pos.y) || !flag) || cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
+            (!(isPositionVisible(pos.x, pos.y) || !flag && !(gameMode & GameMode::mistyVeil)) ||
+             cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
