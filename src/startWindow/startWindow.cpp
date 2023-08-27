@@ -62,9 +62,11 @@ void StartWindow::onConnected() {
     auto nickname = ui->leNickName->text();
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
-        gameWindow = new GameWindow(socket, nickname, nullptr);
-    } else
-        socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
+        gameWindow = new GameWindow(socket);
+        qDebug() << "[startWindow.cpp] Game window created.";
+    }
+    socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
+    gameWindow->setNickname(nickname);
 
     ui->pbConnect->setText("Disconnect");
     socketStatus = WebSocketStatus::Connected;
@@ -97,9 +99,16 @@ void StartWindow::onDisconnected() {
 }
 
 void StartWindow::onConnectClicked() {
-    auto nicknameLen = ui->lbNickName->text().toLocal8Bit().length();
+    auto nickname = ui->leNickName->text();
+    auto nicknameLen = nickname.toLocal8Bit().length();
+    qDebug() << "[startWindow.cpp] Current nickname length:" << nicknameLen;
     if (!(3 <= nicknameLen && nicknameLen <= 15)) {
         ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
+        return;
+    }
+    static QRegularExpression regSpace("\\s");
+    if (regSpace.match(*nickname.begin()).hasMatch() || regSpace.match(*nickname.rbegin()).hasMatch()) {
+        ui->lbMessage->setText("[Disconnected]\n Error: Invisible prefixes and suffixes are prohibited");
         return;
     }
 

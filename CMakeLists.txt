@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Generals.OI VERSION 0.1.1 LANGUAGES CXX)
+project(Generals.OI VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -42,7 +42,8 @@ include_directories(
 
 find_package(
         QT NAMES
-        Qt5 Qt6
+        Qt5
+        Qt6
         REQUIRED COMPONENTS
         Core
         Gui
@@ -58,6 +59,9 @@ find_package(
         WebSockets
         Multimedia
 )
+
+message("Current Qt version: " ${QT_VERSION_MAJOR})
+message("Current build type: " ${CMAKE_BUILD_TYPE})
 
 set(
         PROJECT_SOURCES
@@ -138,7 +142,8 @@ if (${QT_VERSION_MAJOR} GREATER_EQUAL 5)
     add_executable(
             Generals.OI
             ${PROJECT_SOURCES}
-            ${PROJECT_RESOURCES})
+            ${PROJECT_RESOURCES}
+    )
 endif ()
 
 add_executable(

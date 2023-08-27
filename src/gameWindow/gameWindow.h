@@ -82,9 +82,11 @@ class GameWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit GameWindow(QWebSocket *, QString, QWidget * = nullptr);
+    explicit GameWindow(QWebSocket *);
 
     ~GameWindow() override;
+
+    void setNickname(const QString&);
 
 private:
     void init();
@@ -131,7 +133,7 @@ public:
     std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(maxPlayerNum + 5);
 
     int rnkUnitWidth{};
-    int rnkWidth = 8, itvWidth = 2;
+    int rnkWidth = 10, itvWidth = 2;
 
     QString nickName;
     QWebSocket *webSocket;

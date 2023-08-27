@@ -2,7 +2,7 @@
 
 extern QString strFontRegular, strFontMedium, strFontBold;
 
-GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWidget(parent) {
+GameWindow::GameWindow(QWebSocket *socket) {
     dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
@@ -45,11 +45,12 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 //    gongSoundEffect->setLoopCount(1);
 //    gongSoundEffect->setVolume(1);
 
-    nickName = std::move(name);
     webSocket = socket;
-
     connect(webSocket, &QWebSocket::binaryMessageReceived, this, &GameWindow::processMessage);
-    webSocket->sendBinaryMessage(generateMessage("Connected", {nickName}));
+}
+
+void GameWindow::setNickname(const QString &nick) {
+    nickName = nick;
 }
 
 void GameWindow::init() {
@@ -67,8 +68,8 @@ void GameWindow::init() {
 
     mapLeft = (screenWidth - unitSize * totWidth) / 2;
     mapTop = (screenHeight - unitSize * height) / 2;
-    rnkLeft = screenWidth - rnkUnitWidth * 4;
-    rnkTop = mapTop;
+    rnkLeft = screenWidth - unitSize * rnkWidth;
+    rnkTop = 0;
 
     qDebug() << "[gameWindow.cpp] Unit Size:" << unitSize;
 
@@ -167,7 +168,7 @@ void GameWindow::init() {
 
     int sumRow = cltMap.cntPlayer + cltMap.cntTeam;
     wgtBoard = new QWidget(this);
-    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
+    wgtBoard->setGeometry(rnkLeft, rnkTop, unitSize * rnkWidth, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
     boardLayout->setSpacing(2);
     lbBoard = QVector<BoardLabel>(sumRow + 1);
@@ -181,7 +182,7 @@ void GameWindow::init() {
     for (int i = 0; i <= sumRow; i++)
         lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
     lbBoard[0].updateContent("Name", "Army", "Land");
-    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
+    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
@@ -202,7 +203,8 @@ void GameWindow::init() {
     for (auto &i: lbShadow) {
         i = new QLabel(this);
         i->setObjectName("Shadow");
-        i->show();
+        if (idPlayer != -1) i->show();
+        else i->hide();
     }
 
     focus = new Focus;
@@ -262,21 +264,21 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             }
             break;
         case Qt::Key_0:
-            mapLeft -= width / 2;
-            mapTop -= height / 2;
-            unitSize += 1;
+            mapLeft -= width;
+            mapTop -= height;
+            unitSize += 2;
             resized = true;
             break;
         case Qt::Key_9:
-            if (unitSize <= minUnitSize)
+            if (unitSize - 1 < minUnitSize)
                 break;
-            mapLeft += width / 2;
-            mapTop += height / 2;
-            unitSize -= 1;
+            mapLeft += width;
+            mapTop += height;
+            unitSize -= 2;
             resized = true;
             break;
         case Qt::Key_Escape:
-            if (!surrendered) {
+            if (!surrendered && idPlayer != -1) {
                 surrenderWindow->show();
                 surrenderWindow->raise();
             }
@@ -284,7 +286,12 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     }
 
     if (idDirection != -1 && idPlayer != -1 && !surrendered) {
-        updateFocus(false, idDirection);
+        if (event->modifiers() == Qt::ShiftModifier) {
+            auto pos = *focus;
+            if (pos.move(dtDirection[idDirection].x, dtDirection[idDirection].y))
+                updateFocus(true, -1, pos.x, pos.y);
+        } else
+            updateFocus(false, idDirection);
         flagHalf = false;
     }
 
@@ -348,7 +355,9 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
         auto isLegal = pos.move(dir[i][0], dir[i][1]);
-        if (isLegal && (!visMain[pos.x][pos.y] || cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
+        if (idPlayer != -1 && isLegal &&
+            (!(isPositionVisible(pos.x, pos.y) || !flag && !(gameMode & GameMode::mistyVeil)) ||
+             cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
@@ -440,7 +449,7 @@ void GameWindow::updateWindow(bool forced) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
                                         QString::number(teamStat.army), QString::number(teamStat.land));
-        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
+        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
         for (const auto &playerStat: stat.second) {
             lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
                                             QString::number(playerStat.army), QString::number(playerStat.land));
@@ -474,7 +483,11 @@ void GameWindow::processMessage(const QByteArray &msg) {
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
         gameMode = gameInfo[gameInfo.size() - 1];
+#if (QT_VERSION_MAJOR < 6)
+        cltMap.importCM(gameInfo.mid(0, gameInfo.size() - 1));
+#else
         cltMap.importCM(gameInfo.first(gameInfo.size() - 1));
+#endif
         qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
         gotInitMsg = true;
@@ -496,11 +509,17 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 gameEnded = true;
                 updateWindow(true);
                 endWindow->gameEnded();
-                if (cltMap.stat[0].first.id == idTeam)
-                    endWindow->updateText("You Won!",
-                                          "This is your crowning glory.\nYou showed your formidable capacity.");
-                else if (!surrendered)
-                    endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
+
+                if (idPlayer != -1) {
+                    if (cltMap.stat[0].first.id == idTeam)
+                        endWindow->updateText("You Won!",
+                                              "This is your crowning glory.\nYou showed your formidable capacity.");
+                    else if (!surrendered)
+                        endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
+                } else {
+                    endWindow->updateText("Game Over.", "You witnessed fierce battles with ingenious tactics. "
+                                                        "Hope you find it rewarding.");
+                }
                 endWindow->show();
             }
 
