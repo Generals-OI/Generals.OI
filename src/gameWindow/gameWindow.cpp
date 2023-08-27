@@ -249,6 +249,9 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
         case Qt::Key_Z:
             flagHalf = !flagHalf;
             break;
+        case Qt::Key_G:
+            focusGeneral();
+            break;
         case Qt::Key_Return:
             if (!leChat->hasFocus()) {
                 leChat->setEnabled(true);

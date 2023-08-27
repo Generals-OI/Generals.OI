@@ -204,8 +204,8 @@ void Server::broadcastMessage() {
                 "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
         else
             emit sendMessage(generateMessage(
-                "Chat", {"Server", QString("@%1 was captured by @%2 .").arg(nicknames.at(i.first + 1),
-                                                                                        nicknames.at(i.second + 1))}));
+                "Chat", {"Server", QString("@%1 captured @%2 .").arg(nicknames.at(i.second + 1),
+                                                                                   nicknames.at(i.first + 1))}));
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 
