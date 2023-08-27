@@ -189,8 +189,6 @@ void Server::onNewConnection() {
         } else if (msgType == "Surrender") {
             int idPlayer = msgData.at(0).toInt();
             serMap->surrender(idPlayer);
-            emit sendMessage(generateMessage(
-                    "Chat", {"Server", QString("@%1 surrendered.").arg(clients[socket].nickName)}));
         }
 
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))
@@ -200,6 +198,14 @@ void Server::onNewConnection() {
 
 void Server::broadcastMessage() {
     auto losers = serMap->addRound();
+    for (auto i: losers)
+        if (i.second == i.first)
+            emit sendMessage(generateMessage(
+                "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
+        else
+            emit sendMessage(generateMessage(
+                "Chat", {"Server", QString("@%1 was captured by @%2 .").arg(nicknames.at(i.first + 1),
+                                                                                        nicknames.at(i.second + 1))}));
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 
