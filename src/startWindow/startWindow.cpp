@@ -62,10 +62,11 @@ void StartWindow::onConnected() {
     auto nickname = ui->leNickName->text();
     if (gameWindow == nullptr) {
         qDebug() << "[startWindow.cpp] Creating game window.";
-        gameWindow = new GameWindow(socket, nickname, nullptr);
+        gameWindow = new GameWindow(socket);
         qDebug() << "[startWindow.cpp] Game window created.";
     } else
         socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
+    gameWindow->setNickname(nickname);
 
     ui->pbConnect->setText("Disconnect");
     socketStatus = WebSocketStatus::Connected;

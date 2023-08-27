@@ -82,9 +82,11 @@ class GameWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit GameWindow(QWebSocket *, QString, QWidget * = nullptr);
+    explicit GameWindow(QWebSocket *);
 
     ~GameWindow() override;
+
+    void setNickname(const QString&);
 
 private:
     void init();

@@ -2,7 +2,7 @@
 
 extern QString strFontRegular, strFontMedium, strFontBold;
 
-GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWidget(parent) {
+GameWindow::GameWindow(QWebSocket *socket) {
     dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
@@ -45,11 +45,14 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 //    gongSoundEffect->setLoopCount(1);
 //    gongSoundEffect->setVolume(1);
 
-    nickName = std::move(name);
     webSocket = socket;
 
     connect(webSocket, &QWebSocket::binaryMessageReceived, this, &GameWindow::processMessage);
     webSocket->sendBinaryMessage(generateMessage("Connected", {nickName}));
+}
+
+void GameWindow::setNickname(const QString &nick) {
+    nickName = nick;
 }
 
 void GameWindow::init() {
