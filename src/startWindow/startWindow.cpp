@@ -99,10 +99,16 @@ void StartWindow::onDisconnected() {
 }
 
 void StartWindow::onConnectClicked() {
-    auto nicknameLen = ui->leNickName->text().toLocal8Bit().length();
+    auto nickname = ui->leNickName->text();
+    auto nicknameLen = nickname.toLocal8Bit().length();
     qDebug() << "[startWindow.cpp] Current nickname length:" << nicknameLen;
     if (!(3 <= nicknameLen && nicknameLen <= 15)) {
         ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
+        return;
+    }
+    static QRegularExpression regSpace("\\s");
+    if (regSpace.match(*nickname.begin()).hasMatch() || regSpace.match(*nickname.rbegin()).hasMatch()) {
+        ui->lbMessage->setText("[Disconnected]\n Error: Invisible prefixes and suffixes are prohibited");
         return;
     }
 

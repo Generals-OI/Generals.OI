@@ -34,10 +34,17 @@ void Highlighter::highlightBlock(const QString &text) {
 QString Highlighter::transExpr(const QString &str) {
     const QString specials = "$()*+.[]?\\^{}|";
     QString res{};
+    QRegularExpression regSpace("\\s");
+
     for (auto c: str) {
-        if (specials.indexOf(c) != -1)
-            res.append("\\");
-        res.append(c);
+        if (regSpace.match(c).hasMatch())
+            res.append("\\s");
+        else {
+            if (specials.indexOf(c) != -1)
+                res.append("\\");
+            res.append(c);
+        }
     }
-    return QString("((@%1\\s)|(%2:))").arg(res, res);
+
+    return QString("((@%1)|(%2:))").arg(res, res);
 }
