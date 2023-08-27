@@ -41,6 +41,7 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
                         cell = Cell{num - cEnd.number, cStart.belonging, cEnd.type};
                         break;
                     case CellType::general:
+                        loseInfo[cEnd.belonging - 1] = cStart.belonging;
                         for (int i = 1; i <= width; i++)
                             for (int j = 1; j <= length; j++)
                                 if (map[i][j].belonging == cEnd.belonging)
@@ -82,7 +83,7 @@ void ServerMap::calcStat() {
     ClientMap::calcStat(roundLose);
 }
 
-std::vector<int> ServerMap::addRound() {
+std::vector<std::pair<int, int>> ServerMap::addRound() {
     if (round % 2 == 0)
         for (int i = 1; i <= width; i++)
             for (int j = 1; j <= length; j++) {
@@ -110,10 +111,10 @@ std::vector<int> ServerMap::addRound() {
 
     ClientMap::calcStat(roundLose);
 
-    std::vector<int> result;
+    std::vector<std::pair<int, int>> result;
     for (int i = 0; i < cntPlayer; i++)
         if (roundLose[i] == round)
-            result.push_back(i + 1);
+            result.emplace_back(i + 1, loseInfo[i]);
 
     round++;
     return result;
@@ -122,10 +123,11 @@ std::vector<int> ServerMap::addRound() {
 
 void ServerMap::surrender(int id) {
     roundLose[id - 1] = round;
+    loseInfo[id - 1] = id;
 }
 
 ServerMap::ServerMap(ClientMap &&cltMap)
-        : ClientMap(std::move(cltMap)), roundLose(cntPlayer, INT_MAX) {
+        : ClientMap(std::move(cltMap)), roundLose(cntPlayer, INT_MAX), loseInfo(cntPlayer) {
     flagDiff = std::vector<std::vector<bool>>(width + 1, std::vector<bool>(length + 1));
 }
 
