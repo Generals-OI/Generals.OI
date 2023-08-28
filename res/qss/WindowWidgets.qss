@@ -37,7 +37,7 @@ QCheckBox {
     outline: 0;
 }
 
-.QRadioButton:disabled {
+.QRadioButton:disabled, .QCheckBox:disabled {
     color: rgba(129, 212, 250, 50%);
 }
 
