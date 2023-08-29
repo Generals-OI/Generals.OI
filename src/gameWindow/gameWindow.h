@@ -86,7 +86,7 @@ public:
 
     ~GameWindow() override;
 
-    void setNickname(const QString&);
+    void setNickname(const QString &);
 
 private:
     void init();
@@ -206,6 +206,8 @@ struct Focus : public Point {
 
 struct GameWindow::BoardLabel {
     QLabel *lbName{}, *lbArmy{}, *lbLand{};
+
+    static QLabel *create(QWidget *parent, QFont &font);
 
     void init(QWidget *parent, QFont &font, QGridLayout *layout, int row);
 

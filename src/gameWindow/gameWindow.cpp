@@ -135,6 +135,7 @@ void GameWindow::init() {
             lbC->setSizePolicy(spMap);
             lbM->setSizePolicy(spMap);
             btnF->setSizePolicy(spMap);
+            lbM->setAlignment(Qt::AlignCenter);
 
             for (int k = 0; k < 4; k++) {
                 QLabel *lbA = lbArrow[k][i][j] = new QLabel(wgtMap);
@@ -175,6 +176,7 @@ void GameWindow::init() {
 
     lbRound = new QLabel(wgtBoard);
     lbRound->setObjectName("Rank");
+    lbRound->setAlignment(Qt::AlignCenter);
     lbRound->setFont(boardFont);
     lbRound->show();
     boardLayout->addWidget(lbRound, 0, 0, 1, 3);

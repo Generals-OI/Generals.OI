@@ -1,21 +1,21 @@
 #include "gameWindow.h"
 
 void GameWindow::BoardLabel::init(QWidget *parent, QFont &font, QGridLayout *layout, int row) {
-    lbName = new QLabel(parent);
-    lbName->setFont(font);
-    lbName->show();
-    lbName->setObjectName("Rank");
+    lbName = create(parent, font);
     layout->addWidget(lbName, row, 0);
-    lbArmy = new QLabel(parent);
-    lbArmy->setFont(font);
-    lbArmy->setObjectName("Rank");
-    lbArmy->show();
+    lbArmy = create(parent, font);
     layout->addWidget(lbArmy, row, 1);
-    lbLand = new QLabel(parent);
-    lbLand->setFont(font);
-    lbLand->setObjectName("Rank");
-    lbLand->show();
+    lbLand = create(parent, font);
     layout->addWidget(lbLand, row, 2);
+}
+
+QLabel *GameWindow::BoardLabel::create(QWidget *parent, QFont &font) {
+    auto target = new QLabel(parent);
+    target->setFont(font);
+    target->setAlignment(Qt::AlignCenter);
+    target->setObjectName("Rank");
+    target->show();
+    return target;
 }
 
 void GameWindow::BoardLabel::updateContent(const QString &strName, const QString &strArmy,

@@ -22,10 +22,6 @@
     border-image: url(":/img/Swamp.png");
 }
 
-#Land {
-    qproperty-focusPolicy: 0;
-}
-
 #Rank {
     background-color: rgba(255, 255, 255, 96);
     color: #e1f5fe;
@@ -46,18 +42,15 @@
 }
 
 .QTextEdit {
-    qproperty-readOnly: 1;
+    qproperty-readOnly: true;
 }
 
 QLabel {
-    qproperty-focusPolicy: 0;
-    qproperty-alignment: AlignCenter;
     color: #ffffff;
     background-color: transparent;
 }
 
 GameButton {
-    /*qproperty-flat: 1;*/
     background-color: transparent;
-    qproperty-focusPolicy: 0;
+    border-image: url(":/img/GameButton.png");
 }
