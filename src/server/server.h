@@ -10,6 +10,8 @@
 #include <QWidget>
 #include <QApplication>
 #include <QTimer>
+#include <QMessageBox>
+#include <QNetworkInterface>
 
 #include "processJson.h"
 

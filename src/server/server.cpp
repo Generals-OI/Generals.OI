@@ -10,8 +10,25 @@ Server::Server(int gameMode, double gameSpeed) :
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
         nicknames.append("Generals.OI");
         nicknames.append("Server");
+
+        // TODO: Replace QMessageBox with our customized MessageBox
+        QMessageBox msgBox;
+        QString text("Info:\nServer created. Possible addresses:");
+        QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+        for (const auto &addr: addresses)
+            if (addr.protocol() == QAbstractSocket::IPv4Protocol && !addr.toString().startsWith("127.0"))
+                text.append('\n').append(addr.toString());
+        msgBox.setWindowTitle("Generals.OI Server");
+        msgBox.setText(text);
+        msgBox.addButton(QMessageBox::StandardButton::Ok);
+        msgBox.exec();
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Generals.OI Server");
+        msgBox.setText("Error:\nUnable to listen to the port.\nCheck if another server is running.");
+        msgBox.addButton(QMessageBox::StandardButton::Ok);
+        msgBox.exec();
         qApp->quit();
     }
 }

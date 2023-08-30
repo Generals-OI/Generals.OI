@@ -75,6 +75,10 @@ TeamButton {
     font-size: 14px;
 }
 
+QMessageBox {
+    background-color: rgb(36, 36, 36);
+}
+
 #CloseButton {
     border-image: url(":/img/CloseButton.png");
     background-color: transparent;
