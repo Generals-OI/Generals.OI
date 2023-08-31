@@ -82,34 +82,34 @@ class GameWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit GameWindow(QWebSocket *);
+    explicit GameWindow(QWebSocket *socket, QWidget *parent = nullptr);
 
     ~GameWindow() override;
 
-    void setNickname(const QString &);
+    void setNickname(const QString &newNickname);
 
 private:
     void init();
 
     void calcMapFontSize();
 
-    void processMessage(const QByteArray &);
+    void processMessage(const QByteArray &msg);
 
     void sendChatMessage();
 
-    void updateFocus(bool, int, int = 0, int = 0);
+    void updateFocus(bool clicked, int id, int x = 0, int y = 0);
 
-    QRect mapPosition(int, int);
+    QRect mapPosition(int x, int y);
 
-    void updateWindow(bool = false);
+    void updateWindow(bool forced = false);
 
     void focusGeneral();
 
     void clearMove();
 
-    void cancelMove(bool = false);
+    void cancelMove(bool flagFront = false);
 
-    void setGameFieldGeometry(QRect) const;
+    void setGameFieldGeometry(QRect geometry) const;
 
     bool isPositionVisible(int x, int y);
 
@@ -118,11 +118,11 @@ private:
     void onSpectate();
 
 protected:
-    void keyPressEvent(QKeyEvent *) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
 
-    void onGameButtonFocused(const int &, const int &);
+    void onGameButtonFocused(const int &x, const int &y);
 
 public:
     static const int fontSizeCount = 6;
@@ -143,7 +143,7 @@ public:
     bool gameWindowShown{}, gameEnded{}, surrendered{}, spectated{};
 
     qreal dpi;
-    QRect screenGeometry;
+    QRect wndGeometry;
     QLabel *lbMapBgd{};
     int screenWidth{}, screenHeight{};
     int width{}, height{};
@@ -195,13 +195,13 @@ struct Focus : public Point {
 
     Focus();
 
-    bool valid(int, int) const;
+    bool valid(int _x, int _y) const;
 
-    void init(int, int);
+    void init(int _width, int _height);
 
-    bool move(int, int);
+    bool move(int dx, int dy);
 
-    bool set(int, int);
+    bool set(int _x, int _y);
 };
 
 struct GameWindow::BoardLabel {
@@ -219,16 +219,17 @@ class Highlighter : public QSyntaxHighlighter {
 Q_OBJECT
 
 public:
-    explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &, const QFont &);
+    explicit Highlighter(QTextDocument *parent, int &cntPlayer, std::vector<PlayerInfo> &playersInfo,
+                         const QFont &font);
 
     ~Highlighter() override = default;
 
 protected:
-    void highlightBlock(const QString &) override;
+    void highlightBlock(const QString &text) override;
 
-    void addRule(const QString &, QColor, const QFont &);
+    void addRule(const QString &str, QColor color, const QFont &font);
 
-    static QString transExpr(const QString &);
+    static QString transExpr(const QString &str);
 
 private:
     struct HighlightingRule {
@@ -245,9 +246,9 @@ struct MoveInfo {
 
     MoveInfo();
 
-    MoveInfo(Point, int, bool);
+    MoveInfo(Point start, int direction, bool flag50p);
 
-    MoveInfo(int, int, int, bool);
+    MoveInfo(int startX, int startY, int direction, bool flag50p);
 };
 
 #endif // GAME_WINDOW_H

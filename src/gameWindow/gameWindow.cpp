@@ -2,15 +2,17 @@
 
 extern QString strFontRegular, strFontMedium, strFontBold;
 
-GameWindow::GameWindow(QWebSocket *socket) {
+GameWindow::GameWindow(QWebSocket *socket, QWidget *parent) : QWidget(parent) {
     dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     setWindowTitle("Generals.OI - Game Window");
 
-    screenGeometry = qApp->primaryScreen()->geometry();
-    setGeometry(screenGeometry);
-    showFullScreen();
+    if (parent)
+        wndGeometry = parent->geometry();
+    else
+        wndGeometry = qApp->primaryScreen()->geometry();
+    setGeometry(wndGeometry);
     setAutoFillBackground(true);
 
     QFile qssFile(":/qss/GameWindowWidgets.qss");
@@ -49,15 +51,15 @@ GameWindow::GameWindow(QWebSocket *socket) {
     connect(webSocket, &QWebSocket::binaryMessageReceived, this, &GameWindow::processMessage);
 }
 
-void GameWindow::setNickname(const QString &nick) {
-    nickName = nick;
+void GameWindow::setNickname(const QString &newNickname) {
+    nickName = newNickname;
 }
 
 void GameWindow::init() {
     width = cltMap.length;
     height = cltMap.width;
-    screenWidth = screenGeometry.width();
-    screenHeight = screenGeometry.height();
+    screenWidth = wndGeometry.width();
+    screenHeight = wndGeometry.height();
 
     // TODO: Another solution may be better
     int totWidth = width + rnkWidth + itvWidth;
@@ -335,14 +337,14 @@ void GameWindow::clearMove() {
         cancelMove();
 }
 
-void GameWindow::updateFocus(const bool flag, const int id, const int x, const int y) {
+void GameWindow::updateFocus(const bool clicked, const int id, const int x, const int y) {
     int delta = unitSize / 15;
     const int dir[4][2] = {{-1, 0},
                            {0,  -1},
                            {1,  0},
                            {0,  1}};
 
-    if (flag) {
+    if (clicked) {
         flagHalf ^= focus->x == x && focus->y == y;
         focus->set(x, y);
     } else {
@@ -358,7 +360,7 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
         auto pos = *focus;
         auto isLegal = pos.move(dir[i][0], dir[i][1]);
         if (idPlayer != -1 && isLegal &&
-            (!(isPositionVisible(pos.x, pos.y) || !flag && !(gameMode & GameMode::mistyVeil)) ||
+            (!(isPositionVisible(pos.x, pos.y) || !clicked && !(gameMode & GameMode::mistyVeil)) ||
              cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
