@@ -33,6 +33,7 @@ include_directories(
         src/server/serverSettingsWindow
         src/windowFrame
         src/processJson
+        src/replayWindow
         res
         res/aud
         res/font
@@ -113,6 +114,10 @@ set(
 
         src/gameInformation/gameInformation.cpp
         src/gameInformation/gameInformation.h
+
+        src/replayWindow/replayWindow.cpp
+        src/replayWindow/replayWindow.h
+        src/replayWindow/controlPanel.ui
 
         src/point/point.cpp
         src/point/point.h
