@@ -203,6 +203,7 @@ void GameWindow::init() {
 
     teChats->show();
     leChat->show();
+    leChat->setEnabled(false);
 
     for (auto &i: lbShadow) {
         i = new QLabel(this);
@@ -218,9 +219,12 @@ void GameWindow::init() {
 
     lbFocus = new QLabel(this);
     lbFocus->setObjectName("Focus");
-    updateFocus(true, -1, 1, 1);
-    lbFocus->show();
-    lbFocus->setFocus();
+    if (idPlayer != -1) {
+        updateFocus(true, -1, 1, 1);
+        lbFocus->show();
+        lbFocus->setFocus();
+    } else
+        lbFocus->hide();
 
     wgtButton->raise();
 }
@@ -259,12 +263,14 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             focusGeneral();
             break;
         case Qt::Key_Return:
-            if (!leChat->hasFocus()) {
-                leChat->setEnabled(true);
-                leChat->setFocus();
-            } else {
-                leChat->setEnabled(false);
-                lbFocus->setFocus();
+            if (idPlayer != -1) {
+                if (!leChat->isEnabled() && !gameEnded) {
+                    leChat->setEnabled(true);
+                    leChat->setFocus();
+                } else {
+                    leChat->setEnabled(false);
+                    lbFocus->setFocus();
+                }
             }
             break;
         case Qt::Key_0:
@@ -302,8 +308,10 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     if (resized) {
         calcMapFontSize();
         setGameFieldGeometry(QRect(mapLeft, mapTop, unitSize * width, unitSize * height));
-        updateFocus(true, -1, focus->x, focus->y);
-        flagHalf = !flagHalf;
+        if (idPlayer != -1) {
+            updateFocus(true, -1, focus->x, focus->y);
+            flagHalf = !flagHalf;
+        }
         qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
     }
 
@@ -327,7 +335,7 @@ void GameWindow::cancelMove(bool flagFront) {
 
         if ((--cntArrow[data.direction][data.startX][data.startY]) == 0)
             lbArrow[data.direction][data.startX][data.startY]->hide();
-        if (!flagFront)
+        if (!flagFront && idPlayer != -1)
             updateFocus(true, -1, data.startX, data.startY);
     }
 }
@@ -549,7 +557,9 @@ void GameWindow::processMessage(const QByteArray &msg) {
 }
 
 void GameWindow::onGameButtonFocused(const int &x, const int &y) {
-    updateFocus(true, -1, x, y);
+    if (idPlayer != -1)
+        updateFocus(true, -1, x, y);
+    leChat->setEnabled(false);
 }
 
 void GameWindow::calcMapFontSize() {
@@ -561,13 +571,9 @@ void GameWindow::calcMapFontSize() {
 
 void GameWindow::sendChatMessage() {
     auto msg = leChat->text();
-    if (msg.size()) {
+    if (!msg.isEmpty())
         webSocket->sendBinaryMessage(generateMessage("Chat", {nickName, msg}));
-    }
-
     leChat->clear();
-    leChat->setEnabled(false);
-    lbFocus->setFocus();
 }
 
 GameWindow::~GameWindow() {
@@ -597,5 +603,6 @@ void GameWindow::focusGeneral() {
                 y = j;
                 break;
             }
-    updateFocus(true, 0, x, y);
+    if (idPlayer != -1)
+        updateFocus(true, 0, x, y);
 }
