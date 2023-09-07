@@ -8,8 +8,27 @@ Server::Server(int gameMode, double gameSpeed) :
     if (server->listen(address, 32767)) {
         teamMbrCnt = QVector<int>(maxPlayerNum + 1);
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
+        nicknames.append("Generals.OI");
+        nicknames.append("Server");
+
+        // TODO: Replace QMessageBox with our customized MessageBox
+        QMessageBox msgBox;
+        QString text("Info:\nServer created. Possible addresses:");
+        QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+        for (const auto &addr: addresses)
+            if (addr.protocol() == QAbstractSocket::IPv4Protocol && !addr.toString().startsWith("127.0"))
+                text.append('\n').append(addr.toString());
+        msgBox.setWindowTitle("Generals.OI Server");
+        msgBox.setText(text);
+        msgBox.addButton(QMessageBox::StandardButton::Ok);
+        msgBox.exec();
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Generals.OI Server");
+        msgBox.setText("Error:\nUnable to listen to the port.\nCheck if another server is running.");
+        msgBox.addButton(QMessageBox::StandardButton::Ok);
+        msgBox.exec();
         qApp->quit();
     }
 }
@@ -76,7 +95,7 @@ void Server::onNewConnection() {
                 auto playerNickname = msgData.at(0).toString();
                 if (!checkNickname(playerNickname)) {
                     socket->sendBinaryMessage(generateMessage(
-                            "Status", {"Invalid nickname."}));
+                            "Status", {"Conflicting nickname."}));
                     socket->close();
                     return;
                 }
@@ -159,14 +178,18 @@ void Server::onNewConnection() {
                     serMap = new ServerMap(RandomMapGenerator::randomMap(cntPlayer, totTeam, teamInfo, gameMode));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    emit sendMessage(
-                            generateMessage("InitGame",
-                                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) +
-                                            gameMode));
+                    emit sendMessage(generateMessage(
+                            "InitGame",
+                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) + gameMode));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
                     gameTimer->start(int(500 / gameSpeed));
+
+                    emit sendMessage(generateMessage("Chat", {"Generals.OI", QString(
+                            "If you faced problems, please include the game ID \"%1\" in your feedback. "
+                            "Thanks a lot! Have a good time!").arg(QString::number(RandomMapGenerator::lastSeed()))}
+                    ));
                 }
             }
         } else if (msgType == "Chat") {
@@ -191,7 +214,15 @@ void Server::onNewConnection() {
 }
 
 void Server::broadcastMessage() {
-    serMap->addRound();
+    auto losers = serMap->addRound();
+    for (auto i: losers)
+        if (i.second == i.first)
+            emit sendMessage(generateMessage(
+                "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
+        else
+            emit sendMessage(generateMessage(
+                "Chat", {"Server", QString("@%1 captured @%2 .").arg(nicknames.at(i.second + 1),
+                                                                                   nicknames.at(i.first + 1))}));
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 

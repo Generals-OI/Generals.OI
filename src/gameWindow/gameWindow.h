@@ -35,7 +35,7 @@
 #include <cmath>
 
 #include "point.h"
-#include "gameButton.h"
+#include "gameMapGrid.h"
 #include "clientMap.h"
 #include "gameInformation.h"
 #include "endWindow.h"
@@ -45,6 +45,7 @@
 #include <QDebug>
 
 struct Focus;
+
 struct MoveInfo;
 
 class Highlighter;
@@ -82,43 +83,47 @@ class GameWindow : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit GameWindow(QWebSocket *, QString, QWidget * = nullptr);
+    explicit GameWindow(QWebSocket *socket, QWidget *parent = nullptr);
 
     ~GameWindow() override;
+
+    void setNickname(const QString &newNickname);
 
 private:
     void init();
 
     void calcMapFontSize();
 
-    void processMessage(const QByteArray &);
+    void processMessage(const QByteArray &msg);
 
     void sendChatMessage();
 
-    void updateFocus(bool, int, int = 0, int = 0);
+    void updateFocus(bool clicked, int id, int x = 0, int y = 0);
 
-    QRect mapPosition(int, int);
+    QRect mapPosition(int x, int y);
 
-    void updateWindow(bool = false);
+    void updateWindow(bool forced = false);
 
-    void setFocusGnl();
+    void focusGeneral();
 
     void clearMove();
 
-    void cancelMove(bool = false);
+    void cancelMove(bool flagFront = false);
 
-    void setGameFieldGeometry(QRect) const;
+    void setGameFieldGeometry(QRect geometry) const;
 
     bool isPositionVisible(int x, int y);
 
     void onSurrender();
 
+    void onSpectate();
+
 protected:
-    void keyPressEvent(QKeyEvent *) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
 
-    void onGameButtonFocused(const int &, const int &);
+    void onGameButtonFocused(const int &x, const int &y);
 
 public:
     static const int fontSizeCount = 6;
@@ -129,18 +134,17 @@ public:
     std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(maxPlayerNum + 5);
 
     int rnkUnitWidth{};
-    int rnkWidth = 8, itvWidth = 2;
+    int rnkWidth = 10, itvWidth = 2;
 
     QString nickName;
     QWebSocket *webSocket;
     QMediaPlayer *gongPlayer;
 //    QSoundEffect *gongSoundEffect;
 
-    bool gameWindowShown{}, gameEnded{}, surrendered{};
+    bool gameWindowShown{}, gameEnded{}, surrendered{}, spectated{};
 
     qreal dpi;
-    QRect screenGeometry;
-    QLabel *lbMapBgd{};
+    QRect wndGeometry;
     int screenWidth{}, screenHeight{};
     int width{}, height{};
     int unitSize{}, minUnitSize{};
@@ -157,17 +161,15 @@ public:
 
     Focus *focus{};
     QLabel *lbFocus{}, *lbShadow[4]{};
-    std::vector<std::vector<GameButton *>> btnFocus;
-
+    
     ClientMap cltMap{}, _cltMap{};
 
-    QWidget *wgtMap{}, *wgtButton{}, *wgtBoard{};
-    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{};
+    GameMapGrid *gameMapGrid{};
+    QWidget *wgtBoard{};
+    QGridLayout *boardLayout{};
 
-    std::vector<std::vector<QLabel *>> lbArrow[4];
     std::vector<std::vector<int>> cntArrow[4];
 
-    std::vector<std::vector<QLabel *>> lbObstacle, lbColor, lbMain;
     std::vector<std::vector<bool>> visMain;
 
     std::deque<MoveInfo> dqMsg;
@@ -191,17 +193,19 @@ struct Focus : public Point {
 
     Focus();
 
-    bool valid(int, int) const;
+    bool valid(int _x, int _y) const;
 
-    void init(int, int);
+    void init(int _width, int _height);
 
-    bool move(int, int);
+    bool move(int dx, int dy);
 
-    bool set(int, int);
+    bool set(int _x, int _y);
 };
 
 struct GameWindow::BoardLabel {
     QLabel *lbName{}, *lbArmy{}, *lbLand{};
+
+    static QLabel *create(QWidget *parent, QFont &font);
 
     void init(QWidget *parent, QFont &font, QGridLayout *layout, int row);
 
@@ -213,14 +217,17 @@ class Highlighter : public QSyntaxHighlighter {
 Q_OBJECT
 
 public:
-    explicit Highlighter(QTextDocument *, int &, std::vector<PlayerInfo> &);
+    explicit Highlighter(QTextDocument *parent, int &cntPlayer, std::vector<PlayerInfo> &playersInfo,
+                         const QFont &font);
 
     ~Highlighter() override = default;
 
 protected:
-    void highlightBlock(const QString &) override;
+    void highlightBlock(const QString &text) override;
 
-    static QString transExpr(const QString &);
+    void addRule(const QString &str, QColor color, const QFont &font);
+
+    static QString transExpr(const QString &str);
 
 private:
     struct HighlightingRule {
@@ -237,9 +244,9 @@ struct MoveInfo {
 
     MoveInfo();
 
-    MoveInfo(Point, int, bool);
+    MoveInfo(Point start, int direction, bool flag50p);
 
-    MoveInfo(int, int, int, bool);
+    MoveInfo(int startX, int startY, int direction, bool flag50p);
 };
 
 #endif // GAME_WINDOW_H

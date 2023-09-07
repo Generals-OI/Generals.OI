@@ -2,15 +2,17 @@
 
 extern QString strFontRegular, strFontMedium, strFontBold;
 
-GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWidget(parent) {
+GameWindow::GameWindow(QWebSocket *socket, QWidget *parent) : QWidget(parent) {
     dpi = qApp->primaryScreen()->logicalDotsPerInch() / 96.0;
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 
     setWindowTitle("Generals.OI - Game Window");
 
-    screenGeometry = qApp->primaryScreen()->geometry();
-    setGeometry(screenGeometry);
-    showFullScreen();
+    if (parent)
+        wndGeometry = parent->geometry();
+    else
+        wndGeometry = qApp->primaryScreen()->geometry();
+    setGeometry(wndGeometry);
     setAutoFillBackground(true);
 
     QFile qssFile(":/qss/GameWindowWidgets.qss");
@@ -45,18 +47,19 @@ GameWindow::GameWindow(QWebSocket *socket, QString name, QWidget *parent) : QWid
 //    gongSoundEffect->setLoopCount(1);
 //    gongSoundEffect->setVolume(1);
 
-    nickName = std::move(name);
     webSocket = socket;
-
     connect(webSocket, &QWebSocket::binaryMessageReceived, this, &GameWindow::processMessage);
-    webSocket->sendBinaryMessage(generateMessage("Connected", {nickName}));
+}
+
+void GameWindow::setNickname(const QString &newNickname) {
+    nickName = newNickname;
 }
 
 void GameWindow::init() {
     width = cltMap.length;
     height = cltMap.width;
-    screenWidth = screenGeometry.width();
-    screenHeight = screenGeometry.height();
+    screenWidth = wndGeometry.width();
+    screenHeight = wndGeometry.height();
 
     // TODO: Another solution may be better
     int totWidth = width + rnkWidth + itvWidth;
@@ -67,8 +70,8 @@ void GameWindow::init() {
 
     mapLeft = (screenWidth - unitSize * totWidth) / 2;
     mapTop = (screenHeight - unitSize * height) / 2;
-    rnkLeft = screenWidth - rnkUnitWidth * 4;
-    rnkTop = mapTop;
+    rnkLeft = screenWidth - unitSize * rnkWidth;
+    rnkTop = 0;
 
     qDebug() << "[gameWindow.cpp] Unit Size:" << unitSize;
 
@@ -83,40 +86,32 @@ void GameWindow::init() {
     chatFont.setPointSize(int(chatFontSize / dpi));
     chatFont.setStyleStrategy(QFont::PreferAntialias);
 
-    btnFocus = std::vector<std::vector<GameButton *>>(height + 1, std::vector<GameButton *>(width + 1));
-    lbObstacle = lbMain = lbColor = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
     visMain = std::vector<std::vector<bool>>(height + 1, std::vector<bool>(width + 1));
-    for (int i = 0; i < 4; i++) {
-        lbArrow[i] = std::vector<std::vector<QLabel *>>(height + 1, std::vector<QLabel *>(width + 1));
+    for (int i = 0; i < 4; i++) 
         cntArrow[i] = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
-    }
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
     endWindow = new EndWindow(this);
     surrenderWindow = new SurrenderWindow(this);
     connect(surrenderWindow, &SurrenderWindow::surrendered, this, &GameWindow::onSurrender);
-
-    wgtMap = new QWidget(this);
-    wgtMap->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
-
-    wgtButton = new QWidget(this);
-    wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+    connect(endWindow, &EndWindow::watch, this, &GameWindow::onSpectate);
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
-    // TODO: Change Spacing if necessary
-    mapLayout = new QGridLayout(wgtMap);
-    mapLayout->setSpacing(2);
-    mapLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout = new QGridLayout(wgtButton);
-    buttonLayout->setSpacing(0);
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
+    gameMapGrid = new GameMapGrid(width, height, this);
+    gameMapGrid->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
+    gameMapGrid->wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
-    lbMapBgd = new QLabel(this);
-    lbMapBgd->setObjectName("Background");
-    lbMapBgd->setSizePolicy(spMap);
-    lbMapBgd->show();
-    mapLayout->addWidget(lbMapBgd, 1, 1, height, width);
+    // TODO: Change Spacing if necessary
+    gameMapGrid->mapLayout->setSpacing(2);
+    gameMapGrid->mapLayout->setContentsMargins(0, 0, 0, 0);
+    gameMapGrid->buttonLayout->setSpacing(0);
+    gameMapGrid->buttonLayout->setContentsMargins(0, 0, 0, 0);
+
+    gameMapGrid->lbMapBgd->setObjectName("Background");
+    gameMapGrid->lbMapBgd->setSizePolicy(spMap);
+    gameMapGrid->lbMapBgd->show();
+    gameMapGrid->mapLayout->addWidget(gameMapGrid->lbMapBgd, 1, 1, height, width);
 
     const QString strCell[] = {"Land", "General", "City", "Mountain", "Swamp"};
     const QString strArrow[] = {"Up", "Down", "Left", "Right"};
@@ -124,18 +119,19 @@ void GameWindow::init() {
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
             Cell *cell = &cltMap.map[i][j];
-            QLabel *lbO = lbObstacle[i][j] = new QLabel(wgtMap);
-            QLabel *lbC = lbColor[i][j] = new QLabel(wgtMap);
-            QLabel *lbM = lbMain[i][j] = new QLabel(wgtMap);
-            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtButton, wgtMap);
+            QLabel *lbO = gameMapGrid->lbObstacle[i][j] = new QLabel(gameMapGrid);
+            QLabel *lbC = gameMapGrid->lbColor[i][j] = new QLabel(gameMapGrid);
+            QLabel *lbM = gameMapGrid->lbMain[i][j] = new QLabel(gameMapGrid);
+            GameButton *btnF = gameMapGrid->btnFocus[i][j] = new GameButton(i, j, gameMapGrid->wgtButton, gameMapGrid);
 
             lbO->setSizePolicy(spMap);
             lbC->setSizePolicy(spMap);
             lbM->setSizePolicy(spMap);
             btnF->setSizePolicy(spMap);
+            lbM->setAlignment(Qt::AlignCenter);
 
             for (int k = 0; k < 4; k++) {
-                QLabel *lbA = lbArrow[k][i][j] = new QLabel(wgtMap);
+                QLabel *lbA = gameMapGrid->lbArrow[k][i][j] = new QLabel(gameMapGrid);
                 lbA->setSizePolicy(spMap);
                 lbA->setStyleSheet(QString("border-image: url(:/img/Arrow-%1.png);").arg(strArrow[k]));
                 lbA->hide();
@@ -156,23 +152,24 @@ void GameWindow::init() {
 
             lbC->show(), lbO->show(), lbM->show(), btnF->show();
 
-            mapLayout->addWidget(lbO, i, j, 1, 1);
-            mapLayout->addWidget(lbC, i, j, 1, 1);
-            mapLayout->addWidget(lbM, i, j, 1, 1);
-            for (auto &k: lbArrow) mapLayout->addWidget(k[i][j], i, j, 1, 1);
-            buttonLayout->addWidget(btnF, i, j, 1, 1);
+            gameMapGrid->mapLayout->addWidget(lbO, i, j, 1, 1);
+            gameMapGrid->mapLayout->addWidget(lbC, i, j, 1, 1);
+            gameMapGrid->mapLayout->addWidget(lbM, i, j, 1, 1);
+            for (auto &k: gameMapGrid->lbArrow) gameMapGrid->mapLayout->addWidget(k[i][j], i, j, 1, 1);
+            gameMapGrid->buttonLayout->addWidget(btnF, i, j, 1, 1);
         }
     }
 
     int sumRow = cltMap.cntPlayer + cltMap.cntTeam;
     wgtBoard = new QWidget(this);
-    wgtBoard->setGeometry(rnkLeft, rnkTop, rnkUnitWidth * 4, unitSize * (sumRow + 2));
+    wgtBoard->setGeometry(rnkLeft, rnkTop, unitSize * rnkWidth, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
     boardLayout->setSpacing(2);
     lbBoard = QVector<BoardLabel>(sumRow + 1);
 
     lbRound = new QLabel(wgtBoard);
     lbRound->setObjectName("Rank");
+    lbRound->setAlignment(Qt::AlignCenter);
     lbRound->setFont(boardFont);
     lbRound->show();
     boardLayout->addWidget(lbRound, 0, 0, 1, 3);
@@ -180,11 +177,11 @@ void GameWindow::init() {
     for (int i = 0; i <= sumRow; i++)
         lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
     lbBoard[0].updateContent("Name", "Army", "Land");
-    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
+    lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
 
     teChats = new QTextEdit(this);
     leChat = new QLineEdit(this);
-    new Highlighter(teChats->document(), cntPlayer, playersInfo);
+    new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
 
     auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
@@ -197,11 +194,13 @@ void GameWindow::init() {
 
     teChats->show();
     leChat->show();
+    leChat->setEnabled(false);
 
     for (auto &i: lbShadow) {
         i = new QLabel(this);
         i->setObjectName("Shadow");
-        i->show();
+        if (idPlayer != -1) i->show();
+        else i->hide();
     }
 
     focus = new Focus;
@@ -211,11 +210,14 @@ void GameWindow::init() {
 
     lbFocus = new QLabel(this);
     lbFocus->setObjectName("Focus");
-    updateFocus(true, -1, 1, 1);
-    lbFocus->show();
-    lbFocus->setFocus();
+    if (idPlayer != -1) {
+        updateFocus(true, -1, 1, 1);
+        lbFocus->show();
+        lbFocus->setFocus();
+    } else
+        lbFocus->hide();
 
-    wgtButton->raise();
+    gameMapGrid->wgtButton->raise();
 }
 
 void GameWindow::keyPressEvent(QKeyEvent *event) {
@@ -248,31 +250,36 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
         case Qt::Key_Z:
             flagHalf = !flagHalf;
             break;
+        case Qt::Key_G:
+            focusGeneral();
+            break;
         case Qt::Key_Return:
-            if (!leChat->hasFocus()) {
-                leChat->setEnabled(true);
-                leChat->setFocus();
-            } else {
-                leChat->setEnabled(false);
-                lbFocus->setFocus();
+            if (idPlayer != -1) {
+                if (!leChat->isEnabled() && !gameEnded) {
+                    leChat->setEnabled(true);
+                    leChat->setFocus();
+                } else {
+                    leChat->setEnabled(false);
+                    lbFocus->setFocus();
+                }
             }
             break;
         case Qt::Key_0:
-            mapLeft -= width / 2;
-            mapTop -= height / 2;
-            unitSize += 1;
+            mapLeft -= width;
+            mapTop -= height;
+            unitSize += 2;
             resized = true;
             break;
         case Qt::Key_9:
-            if (unitSize <= minUnitSize)
+            if (unitSize - 1 < minUnitSize)
                 break;
-            mapLeft += width / 2;
-            mapTop += height / 2;
-            unitSize -= 1;
+            mapLeft += width;
+            mapTop += height;
+            unitSize -= 2;
             resized = true;
             break;
         case Qt::Key_Escape:
-            if (!surrendered) {
+            if (!surrendered && idPlayer != -1) {
                 surrenderWindow->show();
                 surrenderWindow->raise();
             }
@@ -280,15 +287,22 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     }
 
     if (idDirection != -1 && idPlayer != -1 && !surrendered) {
-        updateFocus(false, idDirection);
+        if (event->modifiers() == Qt::ShiftModifier) {
+            auto pos = *focus;
+            if (pos.move(dtDirection[idDirection].x, dtDirection[idDirection].y))
+                updateFocus(true, -1, pos.x, pos.y);
+        } else
+            updateFocus(false, idDirection);
         flagHalf = false;
     }
 
     if (resized) {
         calcMapFontSize();
         setGameFieldGeometry(QRect(mapLeft, mapTop, unitSize * width, unitSize * height));
-        updateFocus(true, -1, focus->x, focus->y);
-        flagHalf = !flagHalf;
+        if (idPlayer != -1) {
+            updateFocus(true, -1, focus->x, focus->y);
+            flagHalf = !flagHalf;
+        }
         qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
     }
 
@@ -296,12 +310,12 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
 }
 
 void GameWindow::setGameFieldGeometry(QRect geometry) const {
-    wgtMap->setGeometry(geometry);
-    wgtButton->setGeometry(geometry);
+    gameMapGrid->setGeometry(geometry);
+    gameMapGrid->wgtButton->setGeometry(geometry);
 }
 
 QRect GameWindow::mapPosition(const int x, const int y) {
-    mapLeft = wgtMap->x(), mapTop = wgtMap->y();
+    mapLeft = gameMapGrid->x(), mapTop = gameMapGrid->y();
     return {mapLeft + (y - 1) * unitSize, mapTop + (x - 1) * unitSize, unitSize, unitSize};
 }
 
@@ -311,8 +325,8 @@ void GameWindow::cancelMove(bool flagFront) {
         flagFront ? dqMsg.pop_front() : dqMsg.pop_back();
 
         if ((--cntArrow[data.direction][data.startX][data.startY]) == 0)
-            lbArrow[data.direction][data.startX][data.startY]->hide();
-        if (!flagFront)
+            gameMapGrid->lbArrow[data.direction][data.startX][data.startY]->hide();
+        if (!flagFront && idPlayer != -1)
             updateFocus(true, -1, data.startX, data.startY);
     }
 }
@@ -322,20 +336,20 @@ void GameWindow::clearMove() {
         cancelMove();
 }
 
-void GameWindow::updateFocus(const bool flag, const int id, const int x, const int y) {
+void GameWindow::updateFocus(const bool clicked, const int id, const int x, const int y) {
     int delta = unitSize / 15;
     const int dir[4][2] = {{-1, 0},
                            {0,  -1},
                            {1,  0},
                            {0,  1}};
 
-    if (flag) {
+    if (clicked) {
         flagHalf ^= focus->x == x && focus->y == y;
         focus->set(x, y);
     } else {
         auto _focus = *focus;
         if (focus->move(dtDirection[id].x, dtDirection[id].y)) {
-            lbArrow[id][_focus.x][_focus.y]->show();
+            gameMapGrid->lbArrow[id][_focus.x][_focus.y]->show();
             cntArrow[id][_focus.x][_focus.y]++;
             dqMsg.emplace_back(_focus, id, flagHalf);
         }
@@ -344,7 +358,9 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
         auto isLegal = pos.move(dir[i][0], dir[i][1]);
-        if (isLegal && (!visMain[pos.x][pos.y] || cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
+        if (idPlayer != -1 && isLegal &&
+            (!(isPositionVisible(pos.x, pos.y) || !clicked && !(gameMode & GameMode::mistyVeil)) ||
+             cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             auto mPos = mapPosition(pos.x, pos.y);
             lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
             lbShadow[i]->show();
@@ -358,7 +374,8 @@ void GameWindow::updateFocus(const bool flag, const int id, const int x, const i
 }
 
 bool GameWindow::isPositionVisible(int x, int y) {
-    if (idPlayer == -1 || (gameMode & GameMode::crystalClear))
+    // TODO: spectate globally when team lost
+    if (idPlayer == -1 || (gameMode & GameMode::crystalClear) || gameEnded)
         return true;
     if (gameMode & GameMode::mistyVeil)
         return idTeam == cltMap.idTeam[cltMap.map[x][y].belonging - 1];
@@ -384,9 +401,9 @@ void GameWindow::updateWindow(bool forced) {
         for (int j = 1; j <= width; j++) {
             auto cell = &cltMap.map[i][j];
             auto _cell = &_cltMap.map[i][j];
-            auto lbO = lbObstacle[i][j];
-            auto lbM = lbMain[i][j];
-            auto lbC = lbColor[i][j];
+            auto lbO = gameMapGrid->lbObstacle[i][j];
+            auto lbM = gameMapGrid->lbMain[i][j];
+            auto lbC = gameMapGrid->lbColor[i][j];
 
             auto vis = isPositionVisible(i, j);
             auto flagNum = cell->number != _cell->number, flagVis = vis != visMain[i][j],
@@ -435,7 +452,7 @@ void GameWindow::updateWindow(bool forced) {
         const auto &teamStat = stat.first;
         lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
                                         QString::number(teamStat.army), QString::number(teamStat.land));
-        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 50);");
+        lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
         for (const auto &playerStat: stat.second) {
             lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
                                             QString::number(playerStat.army), QString::number(playerStat.land));
@@ -456,8 +473,6 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gotPlayerInfoMsg = true;
         gongPlayer->play();
 //        gongSoundEffect->play();
-        if(gotInitMsg)
-            setFocusGnl();
     } else if (msgType == "PlayersInfo") {
         cntPlayer = msgData.at(0).toInt();
         for (int i = 1; i <= cntPlayer; i++) {
@@ -470,20 +485,21 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gotPlayersInfoMsg = true;
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
-        qDebug() << "1";
         gameMode = gameInfo[gameInfo.size() - 1];
-        qDebug() << "2";
+#if (QT_VERSION_MAJOR < 6)
+        cltMap.importCM(gameInfo.mid(0, gameInfo.size() - 1));
+#else
         cltMap.importCM(gameInfo.first(gameInfo.size() - 1));
-        qDebug() << "ClientMap loaded";
+#endif
+        qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
         gotInitMsg = true;
         init();
-        if(gotPlayerInfoMsg)
-            setFocusGnl();
+        focusGeneral();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
-        } else if (!gameEnded && msgType == "UpdateMap") {
+        } else if (msgType == "UpdateMap") {
             cltMap.loadDiff(toVectorInt(msgData.toVariantList()));
             updateWindow();
 
@@ -492,14 +508,21 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 show();
             }
 
-            if (cltMap.gameOver() && !surrendered) {
+            if (cltMap.gameOver()) {
                 gameEnded = true;
+                updateWindow(true);
                 endWindow->gameEnded();
-                if (cltMap.stat[0].first.id == idTeam)
-                    endWindow->updateText("You Won!",
-                                          "This is your crowning glory.\nYou showed your formidable capacity.");
-                else
-                    endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
+
+                if (idPlayer != -1) {
+                    if (cltMap.stat[0].first.id == idTeam)
+                        endWindow->updateText("You Won!",
+                                              "This is your crowning glory.\nYou showed your formidable capacity.");
+                    else if (!surrendered)
+                        endWindow->updateText("You Lost.", "You were captured\nand your efforts were in vain.");
+                } else {
+                    endWindow->updateText("Game Over.", "You witnessed fierce battles with ingenious tactics. "
+                                                        "Hope you find it rewarding.");
+                }
                 endWindow->show();
             }
 
@@ -507,7 +530,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 cancelMove(true);
             bool move = !dqMsg.empty();
 
-            if (move) {
+            if (move && !gameEnded) {
                 auto moveData = dqMsg.front();
                 QJsonArray jsonData;
                 jsonData.push_back(idPlayer);
@@ -525,7 +548,9 @@ void GameWindow::processMessage(const QByteArray &msg) {
 }
 
 void GameWindow::onGameButtonFocused(const int &x, const int &y) {
-    updateFocus(true, -1, x, y);
+    if (idPlayer != -1)
+        updateFocus(true, -1, x, y);
+    leChat->setEnabled(false);
 }
 
 void GameWindow::calcMapFontSize() {
@@ -537,13 +562,9 @@ void GameWindow::calcMapFontSize() {
 
 void GameWindow::sendChatMessage() {
     auto msg = leChat->text();
-    if (msg.size()) {
+    if (!msg.isEmpty())
         webSocket->sendBinaryMessage(generateMessage("Chat", {nickName, msg}));
-    }
-
     leChat->clear();
-    leChat->setEnabled(false);
-    lbFocus->setFocus();
 }
 
 GameWindow::~GameWindow() {
@@ -558,8 +579,12 @@ void GameWindow::onSurrender() {
     endWindow->show();
 }
 
+void GameWindow::onSpectate() {
+    if (surrendered)
+        spectated = true;
+}
 
-void GameWindow::setFocusGnl() {
+void GameWindow::focusGeneral() {
     // TODO: Lower time complexity
     int x = 0, y = 0;
     for (int i = 1; i <= cltMap.width && !x; i++)
@@ -569,5 +594,6 @@ void GameWindow::setFocusGnl() {
                 y = j;
                 break;
             }
-    updateFocus(true, 0, x, y);
+    if (idPlayer != -1)
+        updateFocus(true, 0, x, y);
 }

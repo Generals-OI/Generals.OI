@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Generals.OI VERSION 0.1.1 LANGUAGES CXX)
+project(Generals.OI VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -12,6 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(
+        res
+        res/aud
+        res/font
+        res/img
+        res/qss
         src
         src/geometry
         src/point
@@ -23,7 +28,6 @@ include_directories(
         src/gameWindow/surrenderWindow
         src/gameWindow/endWindow
         src/gameWindow
-        src/gameWindow/gameButton
         src/gameInformation
         src/server
         src/server/recorder
@@ -33,16 +37,15 @@ include_directories(
         src/server/serverSettingsWindow
         src/windowFrame
         src/processJson
-        res
-        res/aud
-        res/font
-        res/img
-        res/qss
+        src/replayWindow
+        src/gameMapGrid/gameButton
+        src/gameMapGrid
 )
 
 find_package(
         QT NAMES
-        Qt5 Qt6
+        Qt5
+        Qt6
         REQUIRED COMPONENTS
         Core
         Gui
@@ -59,10 +62,31 @@ find_package(
         Multimedia
 )
 
+message("Current Qt version: " ${QT_VERSION_MAJOR})
+message("Current build type: " ${CMAKE_BUILD_TYPE})
+
 set(
         PROJECT_SOURCES
 
         src/main.cpp
+
+        src/point/point.cpp
+        src/point/point.h
+
+        src/gameMap/serverMap/serverMap.cpp
+        src/gameMap/serverMap/serverMap.h
+
+        src/gameMap/clientMap/clientMap.cpp
+        src/gameMap/clientMap/clientMap.h
+
+        src/gameMap/basicMap/basicMap.cpp
+        src/gameMap/basicMap/basicMap.h
+
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
+        src/geometry/geometry.cpp
+        src/geometry/geometry.h
 
         src/gameWindow/focus.cpp
         src/gameWindow/gameWindow.cpp
@@ -78,9 +102,6 @@ set(
         src/gameWindow/endWindow/endWindow.cpp
         src/gameWindow/endWindow/endWindow.h
         src/gameWindow/endWindow/endWindow.ui
-
-        src/gameWindow/gameButton/gameButton.cpp
-        src/gameWindow/gameButton/gameButton.h
 
         src/startWindow/startWindow.cpp
         src/startWindow/startWindow.h
@@ -110,23 +131,15 @@ set(
         src/gameInformation/gameInformation.cpp
         src/gameInformation/gameInformation.h
 
-        src/point/point.cpp
-        src/point/point.h
+        src/replayWindow/replayWindow.cpp
+        src/replayWindow/replayWindow.h
+        src/replayWindow/controlPanel.ui
 
-        src/gameMap/serverMap/serverMap.cpp
-        src/gameMap/serverMap/serverMap.h
+        src/gameMapGrid/gameMapGrid.cpp
+        src/gameMapGrid/gameMapGrid.h
 
-        src/gameMap/clientMap/clientMap.cpp
-        src/gameMap/clientMap/clientMap.h
-
-        src/gameMap/basicMap/basicMap.cpp
-        src/gameMap/basicMap/basicMap.h
-
-        src/gameMap/mapGenerator/mapGenerator.cpp
-        src/gameMap/mapGenerator/mapGenerator.h
-
-        src/geometry/geometry.cpp
-        src/geometry/geometry.h
+        src/gameMapGrid/gameButton/gameButton.cpp
+        src/gameMapGrid/gameButton/gameButton.h
 )
 
 set(
@@ -138,7 +151,8 @@ if (${QT_VERSION_MAJOR} GREATER_EQUAL 5)
     add_executable(
             Generals.OI
             ${PROJECT_SOURCES}
-            ${PROJECT_RESOURCES})
+            ${PROJECT_RESOURCES}
+    )
 endif ()
 
 add_executable(

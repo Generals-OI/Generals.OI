@@ -4,7 +4,7 @@
 #include "serverSettingsWindow.h"
 #include "windowFrame.h"
 
-const QString strAppVersion = "1.0.0 Beta";
+const QString strAppVersion = "1.0.0";
 
 QString strFontRegular, strFontMedium, strFontBold;
 
@@ -46,6 +46,7 @@ int main(int argc, char *argv[]) {
 
     if (clp.isSet("s")) {
         qDebug() << "[main.cpp] Server mode enabled";
+        QApplication::setQuitOnLastWindowClosed(false);
 
         auto serverSettingsWindow = new ServerSettingsWindow;
         auto serverSettingsWindowFrame = new WindowFrame(serverSettingsWindow);

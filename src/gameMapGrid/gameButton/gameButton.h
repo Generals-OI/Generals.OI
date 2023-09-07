@@ -12,7 +12,7 @@ class GameButton : public QPushButton {
 Q_OBJECT
 
 public:
-    GameButton(int, int, QWidget *, QWidget *);
+    GameButton(int x, int y, QWidget *parent, QWidget *target);
 
 signals:
 

@@ -171,6 +171,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="cbSilentWar">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Silent War</string>
          </property>
@@ -349,7 +352,7 @@
        <item>
         <widget class="QRadioButton" name="lbTeamingDisabled">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="text">
           <string>Disabled</string>
@@ -384,6 +387,9 @@
        </property>
        <item>
         <widget class="QPushButton" name="btnLoadDefault">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>5</horstretch>
@@ -422,6 +428,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="btnSaveAsDefault">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>5</horstretch>
@@ -492,8 +501,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="bgViewType"/>
-  <buttongroup name="bgTeaming"/>
   <buttongroup name="bgGameSpeed"/>
+  <buttongroup name="bgTeaming"/>
+  <buttongroup name="bgViewType"/>
  </buttongroups>
 </ui>

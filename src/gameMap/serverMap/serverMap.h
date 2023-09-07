@@ -8,6 +8,8 @@ class ServerMap : public ClientMap {
 private:
     std::vector<int> roundLose;
 
+    std::vector<int> loseInfo;
+
     std::vector<std::vector<bool>> flagDiff;
 public:
     explicit ServerMap(ClientMap &&);
@@ -28,8 +30,8 @@ public:
     // Calculates value in stat
     void calcStat();
 
-    // Adds game round, returns id of newly-lost players
-    std::vector<int> addRound();
+    // Adds game round, returns id of newly-lost players and their reason of losing
+    std::vector<std::pair<int,int>> addRound();
 
     // Make player with specified ID surrender
     void surrender(int);
