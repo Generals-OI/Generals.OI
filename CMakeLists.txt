@@ -12,6 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(
+        res
+        res/aud
+        res/font
+        res/img
+        res/qss
         src
         src/geometry
         src/point
@@ -23,7 +28,6 @@ include_directories(
         src/gameWindow/surrenderWindow
         src/gameWindow/endWindow
         src/gameWindow
-        src/gameWindow/gameButton
         src/gameInformation
         src/server
         src/server/recorder
@@ -34,11 +38,8 @@ include_directories(
         src/windowFrame
         src/processJson
         src/replayWindow
-        res
-        res/aud
-        res/font
-        res/img
-        res/qss
+        src/gameMapGrid/gameButton
+        src/gameMapGrid
 )
 
 find_package(
@@ -69,6 +70,24 @@ set(
 
         src/main.cpp
 
+        src/point/point.cpp
+        src/point/point.h
+
+        src/gameMap/serverMap/serverMap.cpp
+        src/gameMap/serverMap/serverMap.h
+
+        src/gameMap/clientMap/clientMap.cpp
+        src/gameMap/clientMap/clientMap.h
+
+        src/gameMap/basicMap/basicMap.cpp
+        src/gameMap/basicMap/basicMap.h
+
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
+        src/geometry/geometry.cpp
+        src/geometry/geometry.h
+
         src/gameWindow/focus.cpp
         src/gameWindow/gameWindow.cpp
         src/gameWindow/boardLabel.cpp
@@ -83,9 +102,6 @@ set(
         src/gameWindow/endWindow/endWindow.cpp
         src/gameWindow/endWindow/endWindow.h
         src/gameWindow/endWindow/endWindow.ui
-
-        src/gameWindow/gameButton/gameButton.cpp
-        src/gameWindow/gameButton/gameButton.h
 
         src/startWindow/startWindow.cpp
         src/startWindow/startWindow.h
@@ -119,23 +135,11 @@ set(
         src/replayWindow/replayWindow.h
         src/replayWindow/controlPanel.ui
 
-        src/point/point.cpp
-        src/point/point.h
+        src/gameMapGrid/gameMapGrid.cpp
+        src/gameMapGrid/gameMapGrid.h
 
-        src/gameMap/serverMap/serverMap.cpp
-        src/gameMap/serverMap/serverMap.h
-
-        src/gameMap/clientMap/clientMap.cpp
-        src/gameMap/clientMap/clientMap.h
-
-        src/gameMap/basicMap/basicMap.cpp
-        src/gameMap/basicMap/basicMap.h
-
-        src/gameMap/mapGenerator/mapGenerator.cpp
-        src/gameMap/mapGenerator/mapGenerator.h
-
-        src/geometry/geometry.cpp
-        src/geometry/geometry.h
+        src/gameMapGrid/gameButton/gameButton.cpp
+        src/gameMapGrid/gameButton/gameButton.h
 )
 
 set(

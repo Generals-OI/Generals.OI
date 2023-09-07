@@ -35,7 +35,7 @@
 #include <cmath>
 
 #include "point.h"
-#include "gameButton.h"
+#include "gameMapGrid.h"
 #include "clientMap.h"
 #include "gameInformation.h"
 #include "endWindow.h"
@@ -45,6 +45,7 @@
 #include <QDebug>
 
 struct Focus;
+
 struct MoveInfo;
 
 class Highlighter;
@@ -144,7 +145,6 @@ public:
 
     qreal dpi;
     QRect wndGeometry;
-    QLabel *lbMapBgd{};
     int screenWidth{}, screenHeight{};
     int width{}, height{};
     int unitSize{}, minUnitSize{};
@@ -161,17 +161,15 @@ public:
 
     Focus *focus{};
     QLabel *lbFocus{}, *lbShadow[4]{};
-    std::vector<std::vector<GameButton *>> btnFocus;
-
+    
     ClientMap cltMap{}, _cltMap{};
 
-    QWidget *wgtMap{}, *wgtButton{}, *wgtBoard{};
-    QGridLayout *mapLayout{}, *buttonLayout{}, *boardLayout{};
+    GameMapGrid *gameMapGrid{};
+    QWidget *wgtBoard{};
+    QGridLayout *boardLayout{};
 
-    std::vector<std::vector<QLabel *>> lbArrow[4];
     std::vector<std::vector<int>> cntArrow[4];
 
-    std::vector<std::vector<QLabel *>> lbObstacle, lbColor, lbMain;
     std::vector<std::vector<bool>> visMain;
 
     std::deque<MoveInfo> dqMsg;
