@@ -40,6 +40,7 @@ include_directories(
         src/replayWindow
         src/gameMapGrid/gameButton
         src/gameMapGrid
+        src/gameMapEditor
 )
 
 find_package(
@@ -140,6 +141,11 @@ set(
 
         src/gameMapGrid/gameButton/gameButton.cpp
         src/gameMapGrid/gameButton/gameButton.h
+
+        src/gameMapEditor/gameMapEditor.cpp
+        src/gameMapEditor/gameMapEditor.h
+        src/gameMapEditor/gameMapEditor.ui
+        src/gameMapEditor/sizeEditor.ui
 )
 
 set(
