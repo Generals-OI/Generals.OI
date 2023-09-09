@@ -159,7 +159,6 @@ public:
     bool flagHalf{};
 
     Focus *focus{};
-    QLabel *lbFocus{}, *lbShadow[4]{};
     
     ClientMap cltMap{}, _cltMap{};
 

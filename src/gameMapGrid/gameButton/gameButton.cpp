@@ -17,9 +17,9 @@ void GameButton::mousePressEvent(QMouseEvent *event) {
         mPressed = true;
     if (wParent && wTarget) {
 #if (QT_VERSION_MAJOR < 6)
-        pStart = event->globalPos() - wParent->pos();
+        pStart = event->globalPos() - wTarget->pos();
 #else
-        pStart = event->globalPosition().toPoint() - wParent->pos();
+        pStart = event->globalPosition().toPoint() - wTarget->pos();
 #endif
     }
     return QPushButton::mousePressEvent(event);
@@ -37,7 +37,6 @@ void GameButton::mouseMoveEvent(QMouseEvent *event) {
 #else
         QPoint pCur = event->globalPosition().toPoint();
 #endif
-        wParent->move(pCur - pStart);
         wTarget->move(pCur - pStart);
     }
 }

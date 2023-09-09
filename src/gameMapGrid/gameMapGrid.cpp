@@ -3,9 +3,8 @@
 GameMapGrid::GameMapGrid(int width, int height, QWidget *parent)
         : width(width), height(height), QWidget(parent) {
     mapLayout = new QGridLayout(this);
-    wgtButton = new QWidget(this);
-    buttonLayout = new QGridLayout(wgtButton);
-    lbMapBgd = new QLabel(this);
+    wButton = new QWidget(this);
+    buttonLayout = new QGridLayout(wButton);
 
     btnFocus = QVector<QVector<GameButton *>>(height + 1, QVector<GameButton *>(width + 1));
     lbObstacle = lbMain = lbColor = QVector<QVector<QLabel *>>(height + 1, QVector<QLabel *>(width + 1));
@@ -19,6 +18,7 @@ GameMapGrid::GameMapGrid(int width, int height, QWidget *parent)
     buttonLayout->setSpacing(0);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
 
+    lbMapBgd = new QLabel(this);
     lbMapBgd->setObjectName("Background");
     lbMapBgd->setSizePolicy(spMap);
     lbMapBgd->show();
@@ -29,7 +29,7 @@ GameMapGrid::GameMapGrid(int width, int height, QWidget *parent)
             QLabel *lbO = lbObstacle[i][j] = new QLabel(this);
             QLabel *lbC = lbColor[i][j] = new QLabel(this);
             QLabel *lbM = lbMain[i][j] = new QLabel(this);
-            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wgtButton, this);
+            GameButton *btnF = btnFocus[i][j] = new GameButton(i, j, wButton, this);
 
             lbO->setSizePolicy(spMap);
             lbC->setSizePolicy(spMap);
@@ -51,5 +51,14 @@ GameMapGrid::GameMapGrid(int width, int height, QWidget *parent)
             buttonLayout->addWidget(btnF, i, j, 1, 1);
         }
 
-    wgtButton->raise();
+    wFocus = new QWidget(this);
+    for (auto &i: lbShadow) {
+        i = new QLabel(wFocus);
+        i->setObjectName("Shadow");
+    }
+    lbFocus = new QLabel(wFocus);
+    lbFocus->setObjectName("Focus");
+
+    mapLayout->addWidget(wButton, 1, 1, height, width);
+    wButton->raise();
 }
