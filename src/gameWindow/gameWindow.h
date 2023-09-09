@@ -133,7 +133,6 @@ public:
     int cntPlayer{};
     std::vector<PlayerInfo> playersInfo = std::vector<PlayerInfo>(maxPlayerNum + 5);
 
-    int rnkUnitWidth{};
     int rnkWidth = 10, itvWidth = 2;
 
     QString nickName;

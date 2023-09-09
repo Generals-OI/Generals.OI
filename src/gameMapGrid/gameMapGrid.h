@@ -8,6 +8,9 @@
 
 #include "gameButton.h"
 
+const QString strCell[] = {"Land", "General", "City", "Mountain", "Swamp"};
+const QString strArrow[] = {"Up", "Down", "Left", "Right"};
+
 class GameMapGrid : public QWidget {
 Q_OBJECT
 
