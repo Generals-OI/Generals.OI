@@ -64,7 +64,6 @@ void GameWindow::init() {
     // TODO: Another solution may be better
     int totWidth = width + rnkWidth + itvWidth;
     unitSize = std::min(int(screenWidth / totWidth), int(screenHeight / height));
-    rnkUnitWidth = unitSize * 2;
     chatFontSize = unitSize / 3;
     minUnitSize = int(unitSize * 0.75);
 
@@ -87,8 +86,8 @@ void GameWindow::init() {
     chatFont.setStyleStrategy(QFont::PreferAntialias);
 
     visMain = std::vector<std::vector<bool>>(height + 1, std::vector<bool>(width + 1));
-    for (int i = 0; i < 4; i++) 
-        cntArrow[i] = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
+    for (auto &cntArr: cntArrow)
+        cntArr = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
     endWindow = new EndWindow(this);
@@ -100,42 +99,14 @@ void GameWindow::init() {
 
     gameMapGrid = new GameMapGrid(width, height, this);
     gameMapGrid->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
-    gameMapGrid->wgtButton->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
-
-    // TODO: Change Spacing if necessary
-    gameMapGrid->mapLayout->setSpacing(2);
-    gameMapGrid->mapLayout->setContentsMargins(0, 0, 0, 0);
-    gameMapGrid->buttonLayout->setSpacing(0);
-    gameMapGrid->buttonLayout->setContentsMargins(0, 0, 0, 0);
-
-    gameMapGrid->lbMapBgd->setObjectName("Background");
-    gameMapGrid->lbMapBgd->setSizePolicy(spMap);
-    gameMapGrid->lbMapBgd->show();
-    gameMapGrid->mapLayout->addWidget(gameMapGrid->lbMapBgd, 1, 1, height, width);
-
-    const QString strCell[] = {"Land", "General", "City", "Mountain", "Swamp"};
-    const QString strArrow[] = {"Up", "Down", "Left", "Right"};
 
     for (int i = 1; i <= height; i++) {
         for (int j = 1; j <= width; j++) {
             Cell *cell = &cltMap.map[i][j];
-            QLabel *lbO = gameMapGrid->lbObstacle[i][j] = new QLabel(gameMapGrid);
-            QLabel *lbC = gameMapGrid->lbColor[i][j] = new QLabel(gameMapGrid);
-            QLabel *lbM = gameMapGrid->lbMain[i][j] = new QLabel(gameMapGrid);
-            GameButton *btnF = gameMapGrid->btnFocus[i][j] = new GameButton(i, j, gameMapGrid->wgtButton, gameMapGrid);
-
-            lbO->setSizePolicy(spMap);
-            lbC->setSizePolicy(spMap);
-            lbM->setSizePolicy(spMap);
-            btnF->setSizePolicy(spMap);
-            lbM->setAlignment(Qt::AlignCenter);
-
-            for (int k = 0; k < 4; k++) {
-                QLabel *lbA = gameMapGrid->lbArrow[k][i][j] = new QLabel(gameMapGrid);
-                lbA->setSizePolicy(spMap);
-                lbA->setStyleSheet(QString("border-image: url(:/img/Arrow-%1.png);").arg(strArrow[k]));
-                lbA->hide();
-            }
+            QLabel *lbO = gameMapGrid->lbObstacle[i][j];
+            QLabel *lbC = gameMapGrid->lbColor[i][j];
+            QLabel *lbM = gameMapGrid->lbMain[i][j];
+            GameButton *btnF = gameMapGrid->btnFocus[i][j];
 
             if (cell->type == CellType::mountain || cell->type == CellType::city)
                 lbO->setObjectName("Obstacle");
@@ -151,12 +122,6 @@ void GameWindow::init() {
             lbM->setFont(mapFont[0]);
 
             lbC->show(), lbO->show(), lbM->show(), btnF->show();
-
-            gameMapGrid->mapLayout->addWidget(lbO, i, j, 1, 1);
-            gameMapGrid->mapLayout->addWidget(lbC, i, j, 1, 1);
-            gameMapGrid->mapLayout->addWidget(lbM, i, j, 1, 1);
-            for (auto &k: gameMapGrid->lbArrow) gameMapGrid->mapLayout->addWidget(k[i][j], i, j, 1, 1);
-            gameMapGrid->buttonLayout->addWidget(btnF, i, j, 1, 1);
         }
     }
 
@@ -196,28 +161,16 @@ void GameWindow::init() {
     leChat->show();
     leChat->setEnabled(false);
 
-    for (auto &i: lbShadow) {
-        i = new QLabel(this);
-        i->setObjectName("Shadow");
-        if (idPlayer != -1) i->show();
-        else i->hide();
-    }
-
     focus = new Focus;
     focus->init(width, height);
 
     updateWindow(true);
 
-    lbFocus = new QLabel(this);
-    lbFocus->setObjectName("Focus");
     if (idPlayer != -1) {
-        updateFocus(true, -1, 1, 1);
-        lbFocus->show();
-        lbFocus->setFocus();
+        focusGeneral();
+        gameMapGrid->wFocus->show();
     } else
-        lbFocus->hide();
-
-    gameMapGrid->wgtButton->raise();
+        gameMapGrid->wFocus->hide();
 }
 
 void GameWindow::keyPressEvent(QKeyEvent *event) {
@@ -260,7 +213,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
                     leChat->setFocus();
                 } else {
                     leChat->setEnabled(false);
-                    lbFocus->setFocus();
+                    gameMapGrid->wFocus->setFocus();
                 }
             }
             break;
@@ -311,12 +264,11 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
 
 void GameWindow::setGameFieldGeometry(QRect geometry) const {
     gameMapGrid->setGeometry(geometry);
-    gameMapGrid->wgtButton->setGeometry(geometry);
 }
 
 QRect GameWindow::mapPosition(const int x, const int y) {
     mapLeft = gameMapGrid->x(), mapTop = gameMapGrid->y();
-    return {mapLeft + (y - 1) * unitSize, mapTop + (x - 1) * unitSize, unitSize, unitSize};
+    return {(y - 1) * unitSize, (x - 1) * unitSize, unitSize, unitSize};
 }
 
 void GameWindow::cancelMove(bool flagFront) {
@@ -337,12 +289,6 @@ void GameWindow::clearMove() {
 }
 
 void GameWindow::updateFocus(const bool clicked, const int id, const int x, const int y) {
-    int delta = unitSize / 15;
-    const int dir[4][2] = {{-1, 0},
-                           {0,  -1},
-                           {1,  0},
-                           {0,  1}};
-
     if (clicked) {
         flagHalf ^= focus->x == x && focus->y == y;
         focus->set(x, y);
@@ -357,20 +303,24 @@ void GameWindow::updateFocus(const bool clicked, const int id, const int x, cons
 
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
-        auto isLegal = pos.move(dir[i][0], dir[i][1]);
+        auto isLegal = pos.move(direction4[i][0], direction4[i][1]);
         if (idPlayer != -1 && isLegal &&
             (!(isPositionVisible(pos.x, pos.y) || !clicked && !(gameMode & GameMode::mistyVeil)) ||
              cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
-            auto mPos = mapPosition(pos.x, pos.y);
-            lbShadow[i]->setGeometry(mPos.x(), mPos.y(), mPos.width(), mPos.height());
-            lbShadow[i]->show();
+            gameMapGrid->lbShadow[i]->setGeometry((1 + direction4[i][0]) * unitSize, (1 + direction4[i][1]) * unitSize,
+                                                  unitSize, unitSize);
+            gameMapGrid->lbShadow[i]->show();
         } else
-            lbShadow[i]->hide();
+            gameMapGrid->lbShadow[i]->hide();
     }
 
-    auto pos = mapPosition(focus->x, focus->y);
-    lbFocus->setGeometry(pos.x() - delta, pos.y() - delta, pos.width() + delta * 2, pos.height() + delta * 2);
-    lbFocus->setFocus();
+    int delta = unitSize / 15;
+    gameMapGrid->lbFocus->setGeometry(unitSize - delta, unitSize - delta, unitSize + delta * 2, unitSize + delta * 2);
+    gameMapGrid->lbFocus->show();
+
+    auto pos = mapPosition(focus->x - 1, focus->y - 1);
+    gameMapGrid->wFocus->setGeometry(pos.x(), pos.y(), unitSize * 3, unitSize * 3);
+    gameMapGrid->wFocus->setFocus();
 }
 
 bool GameWindow::isPositionVisible(int x, int y) {
@@ -495,7 +445,6 @@ void GameWindow::processMessage(const QByteArray &msg) {
         _cltMap = cltMap;
         gotInitMsg = true;
         init();
-        focusGeneral();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
             teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
@@ -585,6 +534,7 @@ void GameWindow::onSpectate() {
 }
 
 void GameWindow::focusGeneral() {
+    if (idPlayer == -1) return;
     // TODO: Lower time complexity
     int x = 0, y = 0;
     for (int i = 1; i <= cltMap.width && !x; i++)
@@ -594,6 +544,5 @@ void GameWindow::focusGeneral() {
                 y = j;
                 break;
             }
-    if (idPlayer != -1)
-        updateFocus(true, 0, x, y);
+    updateFocus(true, 0, x, y);
 }
