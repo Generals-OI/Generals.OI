@@ -172,7 +172,7 @@
        <item>
         <widget class="QCheckBox" name="cbSilentWar">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>Silent War</string>
@@ -502,7 +502,7 @@
  <connections/>
  <buttongroups>
   <buttongroup name="bgGameSpeed"/>
-  <buttongroup name="bgTeaming"/>
   <buttongroup name="bgViewType"/>
+  <buttongroup name="bgTeaming"/>
  </buttongroups>
 </ui>

@@ -400,12 +400,20 @@ void GameWindow::updateWindow(bool forced) {
     // TODO: Respond to Game Modifiers (silentWar)
     for (const auto &stat: cltMap.stat) {
         const auto &teamStat = stat.first;
-        lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
-                                        QString::number(teamStat.army), QString::number(teamStat.land));
+        if (gameMode & GameMode::silentWar)
+            lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
+                                            "***", "***");
+        else
+            lbBoard[++curRow].updateContent(QString("Team %1").arg(teamStat.id),
+                                            QString::number(teamStat.army), QString::number(teamStat.land));
         lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
         for (const auto &playerStat: stat.second) {
-            lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
-                                            QString::number(playerStat.army), QString::number(playerStat.land));
+            if (gameMode & GameMode::silentWar)
+                lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
+                                                "***", "***");
+            else
+                lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
+                                                QString::number(playerStat.army), QString::number(playerStat.land));
             lbBoard[curRow].lbName->setStyleSheet(QString("background-color: %1").arg(strColor[playerStat.id]));
         }
     }
