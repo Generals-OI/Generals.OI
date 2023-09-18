@@ -104,7 +104,7 @@ void ClientMap::print() {
 bool ClientMap::gameOver() {
     int cnt = 0;
     for (const auto &p: stat)
-        if (p.first.roundLose == INT_MAX)
+        if (p.first.roundLose == maxRound)
             cnt++;
     return cnt == 1;
 }

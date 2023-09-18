@@ -10,6 +10,7 @@
 #include <climits>
 
 const int maxPlayerNum = 16;
+const int maxRound = 1000000;
 
 struct Statistics {
     int army{}, land{}, id{}, roundLose{INT_MAX};

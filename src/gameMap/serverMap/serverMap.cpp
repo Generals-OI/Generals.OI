@@ -127,7 +127,7 @@ void ServerMap::surrender(int id) {
 }
 
 ServerMap::ServerMap(ClientMap &&cltMap)
-        : ClientMap(std::move(cltMap)), roundLose(cntPlayer, INT_MAX), loseInfo(cntPlayer) {
+        : ClientMap(std::move(cltMap)), roundLose(cntPlayer, maxRound), loseInfo(cntPlayer) {
     flagDiff = std::vector<std::vector<bool>>(width + 1, std::vector<bool>(length + 1));
 }
 
@@ -157,4 +157,14 @@ QVector<qint32> ServerMap::exportDiff() {
             }
     flagDiff = std::vector<std::vector<bool>>(width + 1, std::vector<bool>(length + 1));
     return result;
+}
+
+void ServerMap::loadByteArray(QByteArray &ba) {
+    ClientMap cltMap{};
+    cltMap.importCM(byteArrayToVector(ba));
+    *this = ServerMap(std::move(cltMap));
+}
+
+QByteArray ServerMap::toByteArray() {
+    return vectorToByteArray(toVectorSM());
 }

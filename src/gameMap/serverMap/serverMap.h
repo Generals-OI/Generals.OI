@@ -24,6 +24,10 @@ public:
 
     QVector<qint32> exportDiff();
 
+    void loadByteArray(QByteArray &);
+
+    QByteArray toByteArray();
+
     // Moves army after checking validity
     bool move(int, Point, int, int, bool, int);
 
@@ -31,7 +35,7 @@ public:
     void calcStat();
 
     // Adds game round, returns id of newly-lost players and their reason of losing
-    std::vector<std::pair<int,int>> addRound();
+    std::vector<std::pair<int, int>> addRound();
 
     // Make player with specified ID surrender
     void surrender(int);
