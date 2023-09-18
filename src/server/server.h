@@ -4,6 +4,8 @@
 #include "serverMap.h"
 #include "gameInformation.h"
 #include "mapGenerator.h"
+#include "processJson.h"
+#include "recorder.h"
 
 #include <QWebSocket>
 #include <QWebSocketServer>
@@ -12,8 +14,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QNetworkInterface>
-
-#include "processJson.h"
+#include <QFile>
 
 class Server : public QWidget, public ProcessJson {
 Q_OBJECT
@@ -60,6 +61,9 @@ private:
     QMap<int, QWebSocket *> clientsIndex;
     QList<QString> nicknames;
     QVector<int> teamMbrCnt;
+
+    QByteArray gameMapData;
+    Recorder recorder;
 };
 
 #endif // SERVER_H

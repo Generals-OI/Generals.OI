@@ -63,7 +63,7 @@ find_package(
         Multimedia
 )
 
-message("Current Qt version: " ${QT_VERSION_MAJOR})
+message("Current Qt version: " ${QT_VERSION})
 message("Current build type: " ${CMAKE_BUILD_TYPE})
 
 set(

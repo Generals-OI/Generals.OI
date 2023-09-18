@@ -16,12 +16,10 @@ struct PlayerInfo {
 };
 
 enum GameMode {
-    /// Client
     nearsighted = 1,
     mistyVeil = 2,
     crystalClear = 4,
-    silentWar = 128,
-    /// Server
+    silentWar = 1024,
     leapfrog = 2048,
     cityState = 4096,
     allowTeaming = 65536

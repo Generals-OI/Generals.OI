@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         serverSettingsWindow->setTarget(serverSettingsWindowFrame);
         serverSettingsWindowFrame->show();
     } else {
-        qDebug() << "[main.cpp] Defaulting to no server mode";
+        qDebug() << "[main.cpp] Defaulting to client mode";
 
         auto startWindow = new StartWindow;
         auto startWindowFrame = new WindowFrame(startWindow);
