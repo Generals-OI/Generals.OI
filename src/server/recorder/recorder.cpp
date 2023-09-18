@@ -1,7 +1,10 @@
 #include "recorder.h"
 #include <QDebug>
 
-void Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
+bool Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
+    if (!isAddName) {
+        return false;
+    }
     bool b[19] = {};
     if (id == -1) { // 回合分隔符
         std::fill(b, b + 19, true);
@@ -56,6 +59,7 @@ void Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
             c = '\0';
         }
     }
+    return true;
 }
 
 QByteArray Recorder::exportRecords() {
@@ -70,12 +74,12 @@ QByteArray Recorder::exportRecords() {
 bool Recorder::importRecord(QByteArray &record) {
     data.clear();
     data = record;
-    p = -1;
     return true;
 }
 
 bool Recorder::getNextRecord(int &id, int &x, int &y, int &dx, int &dy, bool &flag) {
     bool b[19] = {}, isEnd = false;
+
     for (int i = 0; i < 19; i++) {
         if (pos == 0) {
             if (++p >= data.size()) {
@@ -140,5 +144,34 @@ bool Recorder::getNextRecord(int &id, int &x, int &y, int &dx, int &dy, bool &fl
         flag = b[18];
     }
     return isEnd;
+}
+
+void Recorder::addName(QVector<QString> name) {
+    n = (int) name.size();
+    data.append(char(n * 5 + 1));
+    for (int i = 0; i < n; i++) {
+        data.append(name[i].toLocal8Bit());
+        data.append('\0');
+    }
+    isAddName = true;
+}
+
+void Recorder::getName(QVector<QString> &name) {
+    name.clear();
+    n = (data.at(0) - 1) / 5;
+    p = 1;
+    name.push_back("");
+    for (int i = 1; i <= n; p++) {
+        if (data.at(p) == '\0') {
+            if (i < n) {
+                name.push_back("");
+            }
+            i++;
+        } else {
+            name[name.size() - 1] += data.at(p);
+        }
+    }
+    p--;
+    isAddName = false;
 }
 

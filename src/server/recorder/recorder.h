@@ -3,11 +3,18 @@
 
 #include <QObject>
 #include <algorithm>
+#include <QVector>
 
 class Recorder {
 public:
+    /// add name
+    void addName(QVector<QString> name);
+
+    /// get name
+    void getName(QVector<QString> &name);
+
     ///添加一行数据
-    void addRecord(int id, int x, int y, int dx, int dy, bool flag);
+    bool addRecord(int id, int x, int y, int dx, int dy, bool flag);
 
     ///加密
     QByteArray exportRecords();
@@ -22,6 +29,8 @@ private:
     QByteArray data{};
     int pos{}, p = {};
     char c{};
+    int n{};
+    bool isAddName{};
 };
 
 
