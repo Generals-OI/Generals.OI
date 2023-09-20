@@ -34,7 +34,6 @@
 #include <queue>
 #include <cmath>
 
-#include "point.h"
 #include "gameMapGrid.h"
 #include "clientMap.h"
 #include "gameInformation.h"
@@ -45,8 +44,6 @@
 #include <QDebug>
 
 struct Focus;
-
-struct MoveInfo;
 
 class Highlighter;
 
@@ -105,6 +102,8 @@ private:
     void updateWindow(bool forced = false);
 
     void focusGeneral();
+
+    void sendMove();
 
     void clearMove();
 
@@ -234,17 +233,6 @@ private:
     };
 
     QVector<HighlightingRule> rules;
-};
-
-struct MoveInfo {
-    int startX, startY, direction;
-    bool flag50p;
-
-    MoveInfo();
-
-    MoveInfo(Point start, int direction, bool flag50p);
-
-    MoveInfo(int startX, int startY, int direction, bool flag50p);
 };
 
 #endif // GAME_WINDOW_H

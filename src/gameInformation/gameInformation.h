@@ -3,6 +3,28 @@
 
 #include <QObject>
 
+#include "point.h"
+
+const QString strCell[] = {"Land", "General", "City", "Mountain", "Swamp"};
+
+const QString strArrow[] = {"Up", "Down", "Left", "Right"};
+
+const int direction4[4][2] = {{-1, 0},
+                              {0,  -1},
+                              {1,  0},
+                              {0,  1}};
+
+struct MoveInfo {
+    int startX, startY, direction;
+    bool flag50p;
+
+    MoveInfo();
+
+    MoveInfo(Point start, int direction, bool flag50p);
+
+    MoveInfo(int startX, int startY, int direction, bool flag50p);
+};
+
 struct PlayerInfo {
     QString nickName;
     int idPlayer{}, idTeam{};

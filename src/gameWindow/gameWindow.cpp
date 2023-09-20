@@ -271,6 +271,18 @@ QRect GameWindow::mapPosition(const int x, const int y) {
     return {(y - 1) * unitSize, (x - 1) * unitSize, unitSize, unitSize};
 }
 
+void GameWindow::sendMove() {
+    auto moveData = dqMsg.front();
+    QJsonArray jsonData;
+    jsonData.append(idPlayer);
+    jsonData.append(moveData.startX);
+    jsonData.append(moveData.startY);
+    jsonData.append(dtDirection[moveData.direction].x);
+    jsonData.append(dtDirection[moveData.direction].y);
+    jsonData.append(moveData.flag50p);
+    webSocket->sendBinaryMessage(generateMessage("Move", jsonData));
+}
+
 void GameWindow::cancelMove(bool flagFront) {
     if (!dqMsg.empty()) {
         MoveInfo data = flagFront ? dqMsg.front() : dqMsg.back();
@@ -298,6 +310,10 @@ void GameWindow::updateFocus(const bool clicked, const int id, const int x, cons
             gameMapGrid->lbArrow[id][_focus.x][_focus.y]->show();
             cntArrow[id][_focus.x][_focus.y]++;
             dqMsg.emplace_back(_focus, id, flagHalf);
+            if (!moved) {
+                moved = true;
+                sendMove();
+            }
         }
     }
 
@@ -397,7 +413,6 @@ void GameWindow::updateWindow(bool forced) {
     int curRow = 0;
     lbRound->setText(QString("Round: ").append(QString::number(cltMap.round)));
 
-    // TODO: Respond to Game Modifiers (silentWar)
     for (const auto &stat: cltMap.stat) {
         const auto &teamStat = stat.first;
         if (gameMode & GameMode::silentWar)
@@ -486,19 +501,8 @@ void GameWindow::processMessage(const QByteArray &msg) {
             if (moved)
                 cancelMove(true);
             bool move = !dqMsg.empty();
-
-            if (move && !gameEnded) {
-                auto moveData = dqMsg.front();
-                QJsonArray jsonData;
-                jsonData.push_back(idPlayer);
-                jsonData.push_back(moveData.startX);
-                jsonData.push_back(moveData.startY);
-                jsonData.push_back(dtDirection[moveData.direction].x);
-                jsonData.push_back(dtDirection[moveData.direction].y);
-                jsonData.push_back(moveData.flag50p);
-                webSocket->sendBinaryMessage(generateMessage("Move", jsonData));
-            }
-
+            if (move && !gameEnded)
+                sendMove();
             moved = move;
         }
     }
