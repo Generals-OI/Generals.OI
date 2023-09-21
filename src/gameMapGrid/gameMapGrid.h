@@ -6,14 +6,8 @@
 #include <QGridLayout>
 #include <QLabel>
 
+#include "gameInformation.h"
 #include "gameButton.h"
-
-const QString strCell[] = {"Land", "General", "City", "Mountain", "Swamp"};
-const QString strArrow[] = {"Up", "Down", "Left", "Right"};
-const int direction4[4][2] = {{-1, 0},
-                              {0,  -1},
-                              {1,  0},
-                              {0,  1}};
 
 class GameMapGrid : public QWidget {
 Q_OBJECT
