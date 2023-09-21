@@ -243,7 +243,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
         if (event->modifiers() == Qt::ShiftModifier) {
             auto pos = *focus;
             if (pos.move(dtDirection[idDirection].x, dtDirection[idDirection].y))
-                updateFocus(true, -1, pos.x, pos.y);
+                updateFocus(true, 0, pos.x, pos.y);
         } else
             updateFocus(false, idDirection);
         flagHalf = false;
@@ -253,8 +253,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
         calcMapFontSize();
         setGameFieldGeometry(QRect(mapLeft, mapTop, unitSize * width, unitSize * height));
         if (idPlayer != -1) {
-            updateFocus(true, -1, focus->x, focus->y);
-            flagHalf = !flagHalf;
+            updateFocus(true, 0, focus->x, focus->y);
         }
         qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
     }
@@ -291,7 +290,7 @@ void GameWindow::cancelMove(bool flagFront) {
         if ((--cntArrow[data.direction][data.startX][data.startY]) == 0)
             gameMapGrid->lbArrow[data.direction][data.startX][data.startY]->hide();
         if (!flagFront && idPlayer != -1)
-            updateFocus(true, -1, data.startX, data.startY);
+            updateFocus(true, 0, data.startX, data.startY);
     }
 }
 
@@ -302,7 +301,8 @@ void GameWindow::clearMove() {
 
 void GameWindow::updateFocus(const bool clicked, const int id, const int x, const int y) {
     if (clicked) {
-        flagHalf ^= focus->x == x && focus->y == y;
+        if (id == -1) flagHalf ^= focus->x == x && focus->y == y;
+        else flagHalf = false;
         focus->set(x, y);
     } else {
         auto _focus = *focus;

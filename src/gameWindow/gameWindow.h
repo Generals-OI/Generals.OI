@@ -95,7 +95,7 @@ private:
 
     void sendChatMessage();
 
-    void updateFocus(bool clicked, int id, int x = 0, int y = 0);
+    void updateFocus(bool clicked, int id = 0, int x = 0, int y = 0);
 
     QRect mapPosition(int x, int y);
 
