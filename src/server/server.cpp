@@ -69,7 +69,7 @@ void Server::onNewConnection() {
 
             clients.remove(socket);
             for (int i = 0; i < nicknames.size(); i++)
-                if (nicknames.at(i) == currentClientInfo.nickName) {
+                if (nicknames.at(i) == currentClientInfo.nickname) {
                     nicknames.removeAt(i);
                     break;
                 }
@@ -153,6 +153,7 @@ void Server::onNewConnection() {
                     for (auto &player: clients)
                         player.idTeam = teamInfo[player.idPlayer - 1] = newTeamId[player.idTeam];
 
+                    QVector<QPair<QString, int>> playersNicknames(cntPlayer);
                     QJsonArray playersInfoData;
                     playersInfoData.push_back(cntPlayer);
 
@@ -163,10 +164,11 @@ void Server::onNewConnection() {
 
                         if (!itInfo.isSpec) {
                             QJsonArray playerInfoData;
-                            playerInfoData.push_back(itInfo.nickName);
+                            playerInfoData.push_back(itInfo.nickname);
                             playerInfoData.push_back(itInfo.idPlayer);
                             playerInfoData.push_back(itInfo.idTeam);
                             playersInfoData.push_back(playerInfoData);
+                            playersNicknames[itInfo.idPlayer - 1] = {itInfo.nickname, itInfo.idTeam};
                         }
                     }
 
@@ -176,6 +178,9 @@ void Server::onNewConnection() {
                     qDebug() << "[server.cpp] Start generating.";
                     serMap = new ServerMap(RandomMapGenerator::randomMap(cntPlayer, totTeam, teamInfo, gameMode));
                     qDebug() << "[server.cpp] Game map generated.";
+
+                    gameMapData = serMap->toByteArray();
+                    recorder.init(playersNicknames, gameMode);
 
                     emit sendMessage(generateMessage(
                             "InitGame",
@@ -202,6 +207,7 @@ void Server::onNewConnection() {
             bool flag50p = msgData.at(5).toBool();
 
             serMap->move(idPlayer, Point(startX, startY), deltaX, deltaY, flag50p, gameMode);
+            recorder.addRecord(idPlayer, startX, startY, deltaX, deltaY, flag50p);
         } else if (msgType == "Surrender") {
             int idPlayer = msgData.at(0).toInt();
             serMap->surrender(idPlayer);
@@ -214,6 +220,7 @@ void Server::onNewConnection() {
 
 void Server::broadcastMessage() {
     auto losers = serMap->addRound();
+    recorder.addRecord(-1, 0, 0, 0, 0, false);
     for (auto i: losers)
         if (i.second == i.first)
                 emit sendMessage(generateMessage(
@@ -249,7 +256,7 @@ void Server::updateStatus() {
         data.append(QString("Waiting (%1/%2) ...").arg(QString::number(cntReadied), QString::number(cntPlayer)));
 
         for (const auto &client: clients)
-            teamsInfo[client.idTeam - 1].append(client.nickName);
+            teamsInfo[client.idTeam - 1].append(client.nickname);
         for (const auto &teamInfo: teamsInfo)
             data.append(teamInfo);
 
