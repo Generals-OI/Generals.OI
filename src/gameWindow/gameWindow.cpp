@@ -323,7 +323,7 @@ void GameWindow::updateFocus(const bool clicked, const int id, const int x, cons
         if (idPlayer != -1 && isLegal &&
             (!(isPositionVisible(pos.x, pos.y) || !clicked && !(gameMode & GameMode::mistyVeil)) ||
              cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
-            gameMapGrid->lbShadow[i]->setGeometry((1 + direction4[i][0]) * unitSize, (1 + direction4[i][1]) * unitSize,
+            gameMapGrid->lbShadow[i]->setGeometry((1 + direction4[i][1]) * unitSize, (1 + direction4[i][0]) * unitSize,
                                                   unitSize, unitSize);
             gameMapGrid->lbShadow[i]->show();
         } else
