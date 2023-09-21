@@ -8,7 +8,7 @@ Highlighter::Highlighter(QTextDocument *parent, int &cntPlayer, std::vector<Play
     addRule("Generals.OI", QColor(strColor[0]), boldFont);
     addRule("Server", QColor(strColor[0]), boldFont);
     for (int i = 1; i <= cntPlayer; i++)
-        addRule(playersInfo[i].nickName, QColor(strColor[i]), font);
+        addRule(playersInfo[i].nickname, QColor(strColor[i]), font);
 }
 
 void Highlighter::addRule(const QString &str, QColor color, const QFont &font) {

@@ -58,7 +58,7 @@ void Server::onNewConnection() {
         auto itCurrent = clients.find(socket);
         if (itCurrent != clients.end()) {
             auto &currentClientInfo = itCurrent.value();
-            if (!currentClientInfo.isSpect) {
+            if (!currentClientInfo.isSpec) {
                 auto &lastClientInfo = clients[clientsIndex[cntPlayer]];
                 lastClientInfo.idPlayer = currentClientInfo.idPlayer;
                 cntPlayer--;
@@ -118,7 +118,7 @@ void Server::onNewConnection() {
                 return;
             }
         } else if (msgType == "ChooseTeam") {
-            if (clients[socket].isSpect) return;
+            if (clients[socket].isSpec) return;
             auto idTeam = msgData.at(0).toInt();
             teamMbrCnt[clients[socket].idTeam]--;
             if (idTeam < maxPlayerNum)
@@ -131,7 +131,7 @@ void Server::onNewConnection() {
             clients[socket].isReadied = true;
 
             if (flagGameStarted) {
-                if (clients[socket].isSpect) {
+                if (clients[socket].isSpec) {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
                     socket->sendBinaryMessage(baPlayersInfo);
                     socket->sendBinaryMessage(generateMessage(
@@ -161,12 +161,11 @@ void Server::onNewConnection() {
                         auto itInfo = it.value();
                         itSocket->sendBinaryMessage(generateMessage("PlayerInfo", {itInfo.idPlayer, itInfo.idTeam}));
 
-                        if (!itInfo.isSpect) {
+                        if (!itInfo.isSpec) {
                             QJsonArray playerInfoData;
                             playerInfoData.push_back(itInfo.nickName);
                             playerInfoData.push_back(itInfo.idPlayer);
                             playerInfoData.push_back(itInfo.idTeam);
-
                             playersInfoData.push_back(playerInfoData);
                         }
                     }
@@ -217,12 +216,12 @@ void Server::broadcastMessage() {
     auto losers = serMap->addRound();
     for (auto i: losers)
         if (i.second == i.first)
-            emit sendMessage(generateMessage(
-                "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
+                emit sendMessage(generateMessage(
+                    "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
         else
-            emit sendMessage(generateMessage(
-                "Chat", {"Server", QString("@%1 captured @%2 .").arg(nicknames.at(i.second + 1),
-                                                                                   nicknames.at(i.first + 1))}));
+                emit sendMessage(generateMessage(
+                    "Chat", {"Server", QString("@%1 captured @%2.").arg(nicknames.at(i.second + 1),
+                                                                        nicknames.at(i.first + 1))}));
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 

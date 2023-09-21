@@ -424,10 +424,10 @@ void GameWindow::updateWindow(bool forced) {
         lbBoard[curRow].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
         for (const auto &playerStat: stat.second) {
             if (gameMode & GameMode::silentWar)
-                lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
+                lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickname,
                                                 "***", "***");
             else
-                lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickName,
+                lbBoard[++curRow].updateContent(playersInfo[playerStat.id].nickname,
                                                 QString::number(playerStat.army), QString::number(playerStat.land));
             lbBoard[curRow].lbName->setStyleSheet(QString("background-color: %1").arg(strColor[playerStat.id]));
         }

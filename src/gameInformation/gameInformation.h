@@ -26,9 +26,9 @@ struct MoveInfo {
 };
 
 struct PlayerInfo {
-    QString nickName;
+    QString nickname;
     int idPlayer{}, idTeam{};
-    bool isSpect{}, isReadied{};
+    bool isSpec{}, isReadied{};
 
     PlayerInfo() = default;
 
@@ -44,7 +44,8 @@ enum GameMode {
     silentWar = 1024,
     leapfrog = 2048,
     cityState = 4096,
-    allowTeaming = 65536
+    allowTeaming = 65536,
+    replaying = 1073741824
 };
 
 #endif // GAME_INFO_H

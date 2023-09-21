@@ -2,8 +2,8 @@
 
 #include <utility>
 
-PlayerInfo::PlayerInfo(QString nickName, int idPlayer, int idTeam)
-        : nickName(std::move(nickName)), idPlayer(idPlayer), idTeam(idTeam), isSpect(false), isReadied(false) {}
+PlayerInfo::PlayerInfo(QString nickname, int idPlayer, int idTeam)
+        : nickname(std::move(nickname)), idPlayer(idPlayer), idTeam(idTeam), isSpec(false), isReadied(false) {}
 
-PlayerInfo::PlayerInfo(QString nickName, int idPlayer, int idTeam, bool isSpect, bool isReadied)
-        : nickName(std::move(nickName)), idPlayer(idPlayer), idTeam(idTeam), isSpect(isSpect), isReadied(isReadied) {}
+PlayerInfo::PlayerInfo(QString nickname, int idPlayer, int idTeam, bool isSpect, bool isReadied)
+        : nickname(std::move(nickname)), idPlayer(idPlayer), idTeam(idTeam), isSpec(isSpect), isReadied(isReadied) {}
