@@ -3,8 +3,9 @@
 
 #include "gameWindow.h"
 #include "recorder.h"
+#include "serverMap.h"
 
-#include <QComboBox>
+#include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ControlPanel; }
@@ -21,7 +22,7 @@ public:
 protected:
     void updateSettings();
 
-    void updateStatus();
+    void changeStatus();
 
     void sendMap();
 
@@ -33,9 +34,13 @@ private:
     QWidget *wCtrlPanel;
     Ui::ControlPanel *uiCtrlPanel;
 
+    const int chunkSize = 500;
+    ServerMap serverMap;
+    QVector<ServerMap> serverMaps;
     Recorder recorder;
 
     double speed = 1.0;
+    int gameMode = GameMode::replaying;
     bool paused{};
 };
 
