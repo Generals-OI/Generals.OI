@@ -192,6 +192,24 @@ add_executable(
 
         src/server/recorder/recorder.cpp
         src/server/recorder/recorder.h
+
+        src/point/point.cpp
+        src/point/point.h
+
+        src/gameMap/basicMap/basicMap.cpp
+        src/gameMap/basicMap/basicMap.h
+
+        src/gameMap/serverMap/serverMap.cpp
+        src/gameMap/serverMap/serverMap.h
+
+        src/gameMap/clientMap/clientMap.cpp
+        src/gameMap/clientMap/clientMap.h
+
+        src/gameMap/mapGenerator/mapGenerator.cpp
+        src/gameMap/mapGenerator/mapGenerator.h
+
+        src/geometry/geometry.cpp
+        src/geometry/geometry.h
 )
 
 target_link_libraries(
