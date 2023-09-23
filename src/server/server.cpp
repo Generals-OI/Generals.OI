@@ -236,6 +236,14 @@ void Server::broadcastMessage() {
         disconnect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
         // emit something
         // transfer replay files
+        QFile replayFile("D:/replay.rp");
+        if (replayFile.open(QIODevice::WriteOnly)) {
+            qDebug() << "[server.cpp] Saving replay files.";
+            replayFile.write(gameMapData);
+            replayFile.write(recorder.exportRecords());
+            replayFile.close();
+            qDebug() << "[server.cpp] Replay files saved.";
+        }
         qApp->quit();
     }
     flagGameOvered = serMap->gameOver();

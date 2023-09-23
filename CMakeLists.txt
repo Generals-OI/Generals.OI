@@ -142,10 +142,10 @@ set(
         src/gameMapGrid/gameButton/gameButton.cpp
         src/gameMapGrid/gameButton/gameButton.h
 
-        src/gameMapEditor/gameMapEditor.cpp
-        src/gameMapEditor/gameMapEditor.h
-        src/gameMapEditor/gameMapEditor.ui
-        src/gameMapEditor/sizeEditor.ui
+#        src/gameMapEditor/gameMapEditor.cpp
+#        src/gameMapEditor/gameMapEditor.h
+#        src/gameMapEditor/gameMapEditor.ui
+#        src/gameMapEditor/sizeEditor.ui
 )
 
 set(

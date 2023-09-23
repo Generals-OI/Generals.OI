@@ -4,7 +4,6 @@
 #include <QWidget>
 
 #include "gameMapGrid.h"
-#include "sizeEditor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GameMapEditor; }

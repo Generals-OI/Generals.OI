@@ -2,6 +2,7 @@
 
 #include "startWindow.h"
 #include "serverSettingsWindow.h"
+#include "replayWindow.h"
 #include "windowFrame.h"
 
 const QString strAppVersion = "1.0.0";
@@ -24,6 +25,8 @@ int main(int argc, char *argv[]) {
 
     QCommandLineOption cloServerMode("s", "Server mode");
     clp.addOption(cloServerMode);
+    QCommandLineOption cloReplayMode("r", "Replay mode");
+    clp.addOption(cloReplayMode);
 
     clp.process(app);
 
@@ -53,6 +56,9 @@ int main(int argc, char *argv[]) {
         serverSettingsWindowFrame->setTitle("Generals.OI - Server Settings");
         serverSettingsWindow->setTarget(serverSettingsWindowFrame);
         serverSettingsWindowFrame->show();
+    } else if (clp.isSet("r")) {
+        auto replayWindow = new ReplayWindow;
+        replayWindow->show();
     } else {
         qDebug() << "[main.cpp] Defaulting to client mode";
 
