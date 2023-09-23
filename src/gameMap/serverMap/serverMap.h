@@ -1,6 +1,8 @@
 #ifndef SERVER_MAP_H
 #define SERVER_MAP_H
 
+#include <utility>
+
 #include "clientMap.h"
 #include "gameInformation.h"
 
@@ -17,6 +19,10 @@ public:
     ServerMap() = default;
 
     ServerMap(ServerMap &&) = default;
+
+    ServerMap(const ServerMap &) = default;
+
+    ServerMap &operator=(const ServerMap &) = default;
 
     ServerMap &operator=(ServerMap &&) = default;
 

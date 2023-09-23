@@ -31,6 +31,8 @@ public:
 
     ClientMap() = default;
 
+    ClientMap(const ClientMap &) = default;
+
     ClientMap(ClientMap &&) = default;
 
     ClientMap &operator=(const ClientMap &) = default;
