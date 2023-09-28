@@ -1,10 +1,9 @@
 #include "recorder.h"
-#include <QDebug>
 
 bool Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
-    bool b[19] = {};
+    bool b[messageSize] = {};
     if (id == -1) { // 回合分隔符
-        std::fill(b, b + 19, true);
+        std::fill(b, b + messageSize, true);
     } else {
         // 读入x坐标
         for (int i = 5, _x = x - 1; i >= 0; i--) {
@@ -43,10 +42,9 @@ bool Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
         } else if (dy == 1) {
             b[16] = b[17] = true;
         }
-        b[18] = flag;
+        b[18] = flag;// 读入是否50%
     }
-    // 读入是否50%
-    for (int i = 0; i < 19; i++) {
+    for (int i = 0; i < messageSize; i++) {
         if (b[i]) {
             c = c + (1 << (7 - pos));
         }
@@ -100,7 +98,7 @@ bool Recorder::importRecord(QByteArray &record) {
 
     bool b[19] = {};
     while (true) {
-        for (int i = 0; i < 19; i++) {
+        for (int i = 0; i < messageSize; i++) {
             if (pos == 0) {
                 if (it == data.end())
                     goto end;
@@ -113,15 +111,14 @@ bool Recorder::importRecord(QByteArray &record) {
             }
         }
 
-        bool isSep = true; // 回合分隔符标志
+        bool isMove = false;
         for (int i = 0; i < 19; i++) {
             if (!b[i]) {
-                isSep = false;
+                isMove = true;
                 break;
             }
-            //qDebug()<<i<<b[i];
         }
-        if (isSep) {
+        if (!isMove) {
             moves.append(roundMoves);
             roundMoves.clear();
         } else {
@@ -177,4 +174,33 @@ void Recorder::init(QVector<QPair<QString, int>> playerInfo, int mode) {
     for (int i = 0; i < n; i++) {
         data.append(char(playerInfo[i].second)).append(playerInfo[i].first.toLocal8Bit()).append('\0');
     }
+}
+
+void Recorder::surrender(int id) {
+    bool b[messageSize] = {};
+    for (int i = 0; i < 12; i++) {
+        b[i] = true;
+    }
+    for (int i = 15, _id = id - 1; i >= 12; i--) {
+        if (_id & 1) {
+            b[i] = true;
+        } else {
+            b[i] = false;
+        }
+        _id = _id >> 1;
+    }
+    for (int i = 0; i < messageSize; i++) {
+        if (b[i]) {
+            c = c + (1 << (7 - pos));
+        }
+        if (++pos >= 8) {
+            pos = 0;
+            data.append(c);
+            c = '\0';
+        }
+    }
+}
+
+bool Recorder::isSurrender(RecordInfo move) {
+    return move.startX >= 64;
 }

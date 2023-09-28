@@ -8,16 +8,23 @@
 #include "gameInformation.h"
 
 class Recorder {
+    struct RecordInfo;
+
 public:
     void init(QVector<QPair<QString, int>> playerInfo, int mode);
 
     bool addRecord(int id, int x, int y, int dx, int dy, bool flag);
 
+    void surrender(int id);
+
     QByteArray exportRecords();
 
     bool importRecord(QByteArray &record);
 
+    static bool isSurrender(RecordInfo move);
+
 private:
+    static const int messageSize=19;
     QByteArray data{};
     int pos{};
     char c{};
@@ -25,7 +32,6 @@ private:
 
 public:
     QVector<QPair<QString, int>> players;
-    struct RecordInfo;
     QVector<QVector<RecordInfo>> moves;
     int gameMode{};
 };
