@@ -31,6 +31,11 @@ EndWindow::~EndWindow() {
     delete ui;
 }
 
+void EndWindow::updateButtonText(const QString &strWatch, const QString &strExit) {
+    if (!strWatch.isEmpty()) ui->pbWatch->setText(strWatch);
+    if (!strExit.isEmpty()) ui->pbExit->setText(strExit);
+}
+
 void EndWindow::updateText(const QString &strTitle, const QString &strContent) {
     ui->lbTitle->setText(strTitle);
     ui->lbContent->setText(strContent);

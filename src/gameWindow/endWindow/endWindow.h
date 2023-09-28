@@ -19,6 +19,8 @@ public:
 
     void updateText(const QString &strTitle, const QString &strContent = QString());
 
+    void updateButtonText(const QString &strWatch, const QString &strExit = QString());
+
     void gameEnded();
 
 signals:

@@ -90,10 +90,14 @@ void GameWindow::init() {
         cntArr = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
-    endWindow = new EndWindow(this);
     surrenderWindow = new SurrenderWindow(this);
     connect(surrenderWindow, &SurrenderWindow::surrendered, this, &GameWindow::onSurrender);
+    endWindow = new EndWindow(this);
     connect(endWindow, &EndWindow::watch, this, &GameWindow::onSpectate);
+    if (isRep) {
+        endWindow->updateText("Confirm", "Do you really want to exit?");
+        endWindow->updateButtonText("Cancel");
+    }
 
     QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
@@ -233,6 +237,9 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             if (!surrendered && !isSpec) {
                 surrenderWindow->show();
                 surrenderWindow->raise();
+            } else {
+                endWindow->show();
+                endWindow->raise();
             }
             break;
     }
