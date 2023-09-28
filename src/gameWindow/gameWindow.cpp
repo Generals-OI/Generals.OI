@@ -125,7 +125,7 @@ void GameWindow::init() {
         }
     }
 
-    int sumRow = cltMap.cntPlayer + cltMap.cntTeam;
+    sumRow = cltMap.cntPlayer + cltMap.cntTeam;
     wgtBoard = new QWidget(this);
     wgtBoard->setGeometry(rnkLeft, rnkTop, unitSize * rnkWidth, unitSize * (sumRow + 2));
     boardLayout = new QGridLayout(wgtBoard);
@@ -166,7 +166,7 @@ void GameWindow::init() {
 
     updateWindow(true);
 
-    if (idPlayer != -1) {
+    if (!isSpec) {
         focusGeneral();
         gameMapGrid->wFocus->show();
     } else
@@ -207,14 +207,12 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             focusGeneral();
             break;
         case Qt::Key_Return:
-            if (idPlayer != -1) {
-                if (!leChat->isEnabled() && !gameEnded) {
-                    leChat->setEnabled(true);
-                    leChat->setFocus();
-                } else {
-                    leChat->setEnabled(false);
-                    gameMapGrid->wFocus->setFocus();
-                }
+            if (!leChat->isEnabled() && !gameEnded) {
+                leChat->setEnabled(true);
+                leChat->setFocus();
+            } else {
+                leChat->setEnabled(false);
+                gameMapGrid->wFocus->setFocus();
             }
             break;
         case Qt::Key_0:
@@ -232,14 +230,14 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             resized = true;
             break;
         case Qt::Key_Escape:
-            if (!surrendered && idPlayer != -1) {
+            if (!surrendered && !isSpec) {
                 surrenderWindow->show();
                 surrenderWindow->raise();
             }
             break;
     }
 
-    if (idDirection != -1 && idPlayer != -1 && !surrendered) {
+    if (idDirection != -1 && !isSpec && !surrendered) {
         if (event->modifiers() == Qt::ShiftModifier) {
             auto pos = *focus;
             if (pos.move(dtDirection[idDirection].x, dtDirection[idDirection].y))
@@ -252,7 +250,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     if (resized) {
         calcMapFontSize();
         setGameFieldGeometry(QRect(mapLeft, mapTop, unitSize * width, unitSize * height));
-        if (idPlayer != -1) {
+        if (!isSpec) {
             updateFocus(true, 0, focus->x, focus->y);
         }
         qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
@@ -289,7 +287,7 @@ void GameWindow::cancelMove(bool flagFront) {
 
         if ((--cntArrow[data.direction][data.startX][data.startY]) == 0)
             gameMapGrid->lbArrow[data.direction][data.startX][data.startY]->hide();
-        if (!flagFront && idPlayer != -1)
+        if (!flagFront && !isSpec)
             updateFocus(true, 0, data.startX, data.startY);
     }
 }
@@ -320,7 +318,7 @@ void GameWindow::updateFocus(const bool clicked, const int id, const int x, cons
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
         auto isLegal = pos.move(direction4[i][0], direction4[i][1]);
-        if (idPlayer != -1 && isLegal &&
+        if (!isSpec && isLegal &&
             (!(isPositionVisible(pos.x, pos.y) || !clicked && !(gameMode & GameMode::mistyVeil)) ||
              cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             gameMapGrid->lbShadow[i]->setGeometry((1 + direction4[i][1]) * unitSize, (1 + direction4[i][0]) * unitSize,
@@ -341,7 +339,7 @@ void GameWindow::updateFocus(const bool clicked, const int id, const int x, cons
 
 bool GameWindow::isPositionVisible(int x, int y) {
     // TODO: spectate globally when team lost
-    if (idPlayer == -1 || (gameMode & GameMode::crystalClear) || gameEnded)
+    if (isSpec || (gameMode & GameMode::crystalClear) || gameEnded)
         return true;
     if (gameMode & GameMode::mistyVeil)
         return idTeam == cltMap.idTeam[cltMap.map[x][y].belonging - 1];
@@ -459,11 +457,9 @@ void GameWindow::processMessage(const QByteArray &msg) {
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
         gameMode = gameInfo[gameInfo.size() - 1];
-#if (QT_VERSION_MAJOR < 6)
+        isRep = (gameMode & GameMode::replaying) != 0;
+        isSpec = idPlayer == -1 || isRep;
         cltMap.importCM(gameInfo.mid(0, gameInfo.size() - 1));
-#else
-        cltMap.importCM(gameInfo.first(gameInfo.size() - 1));
-#endif
         qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
         gotInitMsg = true;
@@ -480,12 +476,12 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 show();
             }
 
-            if (cltMap.gameOver()) {
+            if (cltMap.gameOver() && !isRep) {
                 gameEnded = true;
                 updateWindow(true);
                 endWindow->gameEnded();
 
-                if (idPlayer != -1) {
+                if (!isSpec) {
                     if (cltMap.stat[0].first.id == idTeam)
                         endWindow->updateText("You Won!",
                                               "This is your crowning glory.\nYou showed your formidable capacity.");
@@ -509,8 +505,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
 }
 
 void GameWindow::onGameButtonFocused(const int &x, const int &y) {
-    if (idPlayer != -1)
-        updateFocus(true, -1, x, y);
+    if (!isSpec) updateFocus(true, -1, x, y);
     leChat->setEnabled(false);
 }
 
@@ -541,12 +536,13 @@ void GameWindow::onSurrender() {
 }
 
 void GameWindow::onSpectate() {
+    // TODO: Finish the function
     if (surrendered)
         spectated = true;
 }
 
 void GameWindow::focusGeneral() {
-    if (idPlayer == -1) return;
+    if (isSpec) return;
     // TODO: Lower time complexity
     int x = 0, y = 0;
     for (int i = 1; i <= cltMap.width && !x; i++)

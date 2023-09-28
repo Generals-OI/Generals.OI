@@ -156,6 +156,7 @@ public:
     int idTeam{}, idPlayer{};
     int gameMode{};
     bool flagHalf{};
+    bool isSpec{}, isRep{};
 
     Focus *focus{};
     
@@ -171,6 +172,7 @@ public:
 
     std::deque<MoveInfo> dqMsg;
 
+    int sumRow{};
     struct BoardLabel;
     QVector<BoardLabel> lbBoard;
     QLabel *lbRound{};

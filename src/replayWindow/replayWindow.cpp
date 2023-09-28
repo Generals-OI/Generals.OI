@@ -85,7 +85,6 @@ void ReplayWindow::updateSettings() {
     int round = uiCtrlPanel->sbRound->value() - 1;
     if (round != serverMap.round) {
         if (!paused) changeStatus();
-        // TODO: Damn the goddamn short again
         serverMap = serverMaps.at(round / chunkSize);
         for (int i = round / chunkSize * chunkSize; i < round; i++) {
             for (auto move: recorder.moves[serverMap.round])
