@@ -380,8 +380,12 @@ void GameWindow::updateWindow(bool forced) {
             auto flagNum = cell->number != _cell->number, flagVis = vis != visMain[i][j],
                     flagType = cell->type != _cell->type, flagBelonging = cell->belonging != _cell->belonging;
 
-            if (flagType)
-                lbM->setStyleSheet("border-image: url(:/img/City.png);");
+            if (flagType) {
+                if (cell->type == CellType::city)
+                    lbM->setStyleSheet("border-image: url(:/img/City.png);");
+                else if (cell->type == CellType::general)
+                    lbM->setStyleSheet("border-image: url(:/img/General.png);");
+            }
 
             if (flagNum || flagVis || forced) {
                 auto fType = calcFontType(cell->number);
