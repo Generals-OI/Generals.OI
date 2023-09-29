@@ -1,5 +1,7 @@
 #include "server.h"
 
+extern const int maxPlayerNum;
+
 Server::Server(int gameMode, double gameSpeed) :
         gameMode(gameMode), gameSpeed(gameSpeed) {
     server = new QWebSocketServer("Generals.OI Server", QWebSocketServer::NonSecureMode, this);

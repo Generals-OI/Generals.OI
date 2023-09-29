@@ -6,6 +6,8 @@
 
 #include <QDebug>
 
+extern const int maxPlayerNum;
+
 const int RandomMapGenerator::direction8[8][2] = {{1,  1},
                                                   {1,  0},
                                                   {1,  -1},
@@ -54,9 +56,9 @@ void RandomMapGenerator::init(int cntPlayer, int cntTeam, const std::vector<int>
         lBound = int(3.7738 * cntTeam - 10.2976);
         rBound = int(3.6309 * cntTeam + 1.7381);
     }
-    servMap = ServerMap(ClientMap(randInt(lBound, rBound) + cntPlayer - cntTeam,
-                                  randInt(lBound, rBound) + cntPlayer - cntTeam, cntPlayer, cntTeam,
-                                  idTeam));
+    servMap = ServerMap(randInt(lBound, rBound) + cntPlayer - cntTeam,
+                        randInt(lBound, rBound) + cntPlayer - cntTeam, cntPlayer, cntTeam,
+                        idTeam);
 
     // Initialize some static arrays
 
@@ -598,7 +600,6 @@ ServerMap RandomMapGenerator::randomMap(int cntPlayer, int cntTeam, const std::v
     setObstacle(cntPlayer, cntTeam, gameMode);
     setCity(cntPlayer, cntTeam, gameMode);
 
-    servMap.calcStat();
     return std::move(servMap);
 }
 

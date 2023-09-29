@@ -1,5 +1,12 @@
 #include "serverMap.h"
 
+extern const int maxPlayerNum = 16;
+extern const int maxRound = 1000000;
+
+ServerMap::ServerMap(int width, int length, int cntPlayer, int cntTeam, const std::vector<int> &idTeam)
+        : BasicMap(width, length), cntPlayer(cntPlayer), cntTeam(cntTeam), idTeam(idTeam),
+          roundLose(cntPlayer, maxRound), loseInfo(cntPlayer), flagDiff(width + 1, std::vector<bool>(length + 1)) {}
+
 bool
 ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, const int deltaY, const bool flagHalf,
                 const int gameMode) {
@@ -79,10 +86,6 @@ ServerMap::move(const int idPlayer, const Point pntStart, const int deltaX, cons
     return true;
 }
 
-void ServerMap::calcStat() {
-    ClientMap::calcStat(roundLose);
-}
-
 std::vector<std::pair<int, int>> ServerMap::addRound() {
     if (round % 2 == 0)
         for (int i = 1; i <= width; i++)
@@ -109,8 +112,6 @@ std::vector<std::pair<int, int>> ServerMap::addRound() {
                     flagDiff[i][j] = true;
                 }
 
-    ClientMap::calcStat(roundLose);
-
     std::vector<std::pair<int, int>> result;
     for (int i = 0; i < cntPlayer; i++)
         if (roundLose[i] == round)
@@ -124,11 +125,6 @@ std::vector<std::pair<int, int>> ServerMap::addRound() {
 void ServerMap::surrender(int id) {
     roundLose[id - 1] = round;
     loseInfo[id - 1] = id;
-}
-
-ServerMap::ServerMap(ClientMap &&cltMap)
-        : ClientMap(std::move(cltMap)), roundLose(cntPlayer, maxRound), loseInfo(cntPlayer) {
-    flagDiff = std::vector<std::vector<bool>>(width + 1, std::vector<bool>(length + 1));
 }
 
 QVector<qint32> ServerMap::toVectorSM() {
@@ -159,12 +155,34 @@ QVector<qint32> ServerMap::exportDiff() {
     return result;
 }
 
+void ServerMap::importSM(const QVector<qint32> &vec) {
+    BasicMap::importBM(vec.mid(0, vec[0] * vec[1] + 2));
+    auto it = vec.begin() + vec[0] * vec[1] + 2;
+    cntPlayer = *it++;
+    cntTeam = *it++;
+    idTeam.resize(cntPlayer);
+    for (int &i : idTeam)
+        i = *it++;
+    roundLose.resize(cntPlayer);
+    for (int &i : roundLose)
+        i = *it++;
+}
+
 void ServerMap::loadByteArray(QByteArray &ba) {
-    ClientMap cltMap{};
-    cltMap.importCM(byteArrayToVector(ba));
-    *this = ServerMap(std::move(cltMap));
+    importSM(byteArrayToVector(ba));
 }
 
 QByteArray ServerMap::toByteArray() {
     return vectorToByteArray(toVectorSM());
+}
+
+bool ServerMap::gameOver() const {
+    bool *alive = new bool[cntTeam]{};
+    int cnt = 0;
+    for (int i = 0; i < cntPlayer; i++)
+        if (!alive[idTeam[i] - 1] && roundLose[i] == maxRound) {
+            cnt++;
+            alive[idTeam[i] - 1] = true;
+        }
+    return cnt == cntTeam - 1;
 }

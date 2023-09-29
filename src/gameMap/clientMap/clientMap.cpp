@@ -1,19 +1,32 @@
 #include "clientMap.h"
 #include <QDebug>
 
-ClientMap::ClientMap(int width, int length, int cntPlayer, int cntTeam, const std::vector<int> &idTeam)
-        : BasicMap(width, length), cntPlayer(cntPlayer), cntTeam(cntTeam), idTeam(idTeam) {}
+extern const int maxRound;
+
+ClientMap::ClientMap(int width, int length, int cntPlayer, int cntTeam, const std::vector<int> &idTeam, int idSelf)
+        : BasicMap(width, length), cntPlayer(cntPlayer), cntTeam(cntTeam), idTeam(idTeam), idSelf(idSelf) {
+    for (int i = 1; i <= cntPlayer; i++)
+        if (idTeam[idSelf - 1] == idTeam[i - 1])
+            idTeammates.push_back(i);
+}
 
 void ClientMap::calcStat(const std::vector<int> &roundLose) {
     using std::vector;
     using std::pair;
     typedef pair<Statistics, vector<Statistics>> Data;
 
+    if (roundLose[idSelf - 1] != maxRound)
+        alive = false;
+
     vector<Statistics> statPlayer(cntPlayer);
 
+    teamAlive = false;
     for (int i = 0; i < cntPlayer; i++) {
         statPlayer[i].id = i + 1;
         statPlayer[i].roundLose = roundLose[i];
+
+        if (roundLose[i] == maxRound && idTeam[i] == idTeam[idSelf])
+            teamAlive = true;
     }
 
     for (int i = 1; i <= width; i++)
@@ -63,14 +76,24 @@ void ClientMap::importCM(const QVector<qint32> &vecMap) {
 void ClientMap::loadDiff(const QVector<qint32> &diff) {
     auto it = diff.begin();
     std::vector<int> roundLose;
-    for (int i = 1; i <= cntPlayer; i++)
+    for (int i = 1; i <= cntPlayer; i++) {
         roundLose.push_back(*it++);
+
+    }
     while (it != diff.end()) {
         map[*it][*(it + 1)] = Cell(*(it + 2), *(it + 3), CellType(*(it + 4)));
         it += 5;
     }
     calcStat(roundLose);
     round++;
+}
+
+bool ClientMap::isAlive() const {
+    return alive;
+}
+
+bool ClientMap::isTeamAlive() const {
+    return teamAlive;
 }
 
 void ClientMap::print() {

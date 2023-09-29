@@ -49,6 +49,8 @@ class Highlighter;
 
 class GameWindow;
 
+extern const int maxPlayerNum;
+
 const QString strColor[] = {
         "#DCDCDC",
         "#0288D1", "#E57373", "#9575CD", "#FF9800",
@@ -159,7 +161,7 @@ public:
     bool isSpec{}, isRep{};
 
     Focus *focus{};
-    
+
     ClientMap cltMap{}, _cltMap{};
 
     GameMapGrid *gameMapGrid{};

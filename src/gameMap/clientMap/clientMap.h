@@ -1,16 +1,12 @@
 #ifndef CLIENT_MAP_H
 #define CLIENT_MAP_H
 
-#include "point.h"
 #include "basicMap.h"
 
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
 #include <climits>
-
-const int maxPlayerNum = 16;
-const int maxRound = 1000000;
 
 struct Statistics {
     int army{}, land{}, id{}, roundLose{INT_MAX};
@@ -19,15 +15,18 @@ struct Statistics {
 };
 
 class ClientMap : public BasicMap {
-protected:
+private:
+    bool alive{true}, teamAlive{true};
+
     void calcStat(const std::vector<int> &);
 
 public:
-    int cntPlayer{}, cntTeam{}, round{};
+    int cntPlayer{}, cntTeam{}, round{}, idSelf{};
+    std::vector<int> idTeammates;
     std::vector<int> idTeam;
     std::vector<std::pair<Statistics, std::vector<Statistics>>> stat;
 
-    ClientMap(int, int, int, int, const std::vector<int> &);
+    ClientMap(int, int, int, int, const std::vector<int> &, int);
 
     ClientMap() = default;
 
@@ -42,6 +41,10 @@ public:
     void loadDiff(const QVector<qint32> &);
 
     bool gameOver();
+
+    bool isAlive() const;
+
+    bool isTeamAlive() const;
 
     void print();
 };
