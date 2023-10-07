@@ -14,6 +14,13 @@
    <font>
     <family>Quicksand Medium</family>
     <pointsize>14</pointsize>
+    <weight>50</weight>
+    <italic>false</italic>
+    <bold>false</bold>
+    <underline>false</underline>
+    <strikeout>false</strikeout>
+    <stylestrategy>PreferDefault</stylestrategy>
+    <kerning>true</kerning>
    </font>
   </property>
   <property name="windowTitle">
@@ -23,32 +30,6 @@
    <double>1.000000000000000</double>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="2" column="1">
-    <spacer name="vs2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>346</width>
-       <height>41</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="1">
-    <spacer name="vs1">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>346</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="1" column="1">
     <layout class="QGridLayout" name="layout" rowstretch="5,5,5,5" columnstretch="5,5">
      <property name="leftMargin">
@@ -68,6 +49,19 @@
      </property>
      <item row="0" column="0">
       <widget class="QLabel" name="lbView">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="text">
         <string>View</string>
        </property>
@@ -77,10 +71,37 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="cbView"/>
+      <widget class="QComboBox" name="cbView">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="lbSpeed">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="text">
         <string>Speed</string>
        </property>
@@ -91,6 +112,19 @@
      </item>
      <item row="1" column="1">
       <widget class="QDoubleSpinBox" name="sbSpeed">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -113,6 +147,19 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="lbRound">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="text">
         <string>Round</string>
        </property>
@@ -126,6 +173,19 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -133,6 +193,19 @@
      </item>
      <item row="3" column="0">
       <widget class="QPushButton" name="pbSubmit">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="text">
         <string>Submit</string>
        </property>
@@ -140,6 +213,19 @@
      </item>
      <item row="3" column="1">
       <widget class="QPushButton" name="pbStatus">
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>false</underline>
+         <strikeout>false</strikeout>
+         <stylestrategy>PreferAntialias</stylestrategy>
+         <kerning>true</kerning>
+        </font>
+       </property>
        <property name="text">
         <string>Start</string>
        </property>
@@ -156,6 +242,32 @@
       <size>
        <width>40</width>
        <height>37</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="1">
+    <spacer name="vs1">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>346</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="1">
+    <spacer name="vs2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>346</width>
+       <height>41</height>
       </size>
      </property>
     </spacer>

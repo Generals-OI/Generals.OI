@@ -9,28 +9,35 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     timer = new QTimer(this);
     gameWindow = new GameWindow(socket, this);
     wCtrlPanel = new QWidget(gameWindow);
-    uiCtrlPanel->setupUi(wCtrlPanel);
 
+    QFile qssFile(":/qss/WindowWidgets.qss");
+    if (qssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        wCtrlPanel->setStyleSheet(qssFile.readAll());
+        qssFile.close();
+    } else
+        qDebug() << "[replayWindow.cpp] Unable to load QSS file.";
+
+    uiCtrlPanel->setupUi(wCtrlPanel);
     connect(uiCtrlPanel->pbSubmit, &QPushButton::clicked, this, &ReplayWindow::updateSettings);
     connect(uiCtrlPanel->pbStatus, &QPushButton::clicked, this, &ReplayWindow::changeStatus);
 
-    QString replayFile;
+    QString strReplayFile;
     // TODO: Choose a proper directory for replay files
-    replayFile = QFileDialog::getOpenFileName(
+    strReplayFile = QFileDialog::getOpenFileName(
             this, "Choose replay file",
             /*QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()*/
             ".",
             "All files (*.*)"
     );
-    if (replayFile.isEmpty()) QApplication::quit();
-    QFile file(replayFile);
+    if (strReplayFile.isEmpty()) QApplication::quit();
+    QFile replayFile(strReplayFile);
     QByteArray byteArray;
-    if (file.open(QIODevice::ReadOnly)) {
-        byteArray = file.readAll();
-        file.close();
+    if (replayFile.open(QIODevice::ReadOnly)) {
+        byteArray = replayFile.readAll();
+        replayFile.close();
     } else {
         qDebug() << "[replayWindow.cpp] Cannot load replay file";
-        QApplication::quit();
+        qApp->quit();
     }
 
     // Preload & Backup serverMap

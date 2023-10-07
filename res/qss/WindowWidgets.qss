@@ -75,6 +75,19 @@ TeamButton {
     font-size: 14px;
 }
 
+QSpinBox, QDoubleSpinBox, QSpinBox:hover, QDoubleSpinBox:hover, QComboBox, QComboBox QAbstractItemView {
+    color: #b5b6e3;
+    background: rgba(0, 0, 0, 20%);
+    selection-color: #b5b6e3;
+    selection-background-color: rgba(255, 255, 255, 20%);
+    border: 0 solid #3574f0;
+    border-bottom-width: 1px;
+}
+
+QSpinBox:disabled {
+    color: rgba(129, 212, 250, 50%);
+}
+
 QMessageBox {
     background-color: rgb(36, 36, 36);
 }
