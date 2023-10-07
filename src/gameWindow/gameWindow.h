@@ -88,6 +88,8 @@ public:
 
     void setNickname(const QString &newNickname);
 
+    void setIdentity(int identity);
+
 private:
     void init();
 

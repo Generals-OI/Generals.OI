@@ -99,8 +99,6 @@ void GameWindow::init() {
         endWindow->updateButtonText("Cancel");
     }
 
-    QSizePolicy spMap(QSizePolicy::Preferred, QSizePolicy::Expanding);
-
     gameMapGrid = new GameMapGrid(width, height, this);
     gameMapGrid->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
@@ -170,7 +168,7 @@ void GameWindow::init() {
 
     updateWindow(true);
 
-    if (!isSpec) {
+    if (!isSpec && !isRep) {
         focusGeneral();
         gameMapGrid->wFocus->show();
     } else
@@ -234,7 +232,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             resized = true;
             break;
         case Qt::Key_Escape:
-            if (!surrendered && !isSpec) {
+            if (!surrendered && !isSpec && !isRep) {
                 surrenderWindow->show();
                 surrenderWindow->raise();
             } else {
@@ -244,7 +242,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
             break;
     }
 
-    if (idDirection != -1 && !isSpec && !surrendered) {
+    if (idDirection != -1 && !isSpec && !isRep && !surrendered) {
         if (event->modifiers() == Qt::ShiftModifier) {
             auto pos = *focus;
             if (pos.move(dtDirection[idDirection].x, dtDirection[idDirection].y))
@@ -257,7 +255,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     if (resized) {
         calcMapFontSize();
         setGameFieldGeometry(QRect(mapLeft, mapTop, unitSize * width, unitSize * height));
-        if (!isSpec) {
+        if (!isSpec && !isRep) {
             updateFocus(true, 0, focus->x, focus->y);
         }
         qDebug() << "[gameWindow.cpp] Current unit size:" << unitSize;
@@ -276,6 +274,7 @@ QRect GameWindow::mapPosition(const int x, const int y) {
 }
 
 void GameWindow::sendMove() {
+    if (isSpec || surrendered || isRep) return;
     auto moveData = dqMsg.front();
     QJsonArray jsonData;
     jsonData.append(idPlayer);
@@ -294,7 +293,7 @@ void GameWindow::cancelMove(bool flagFront) {
 
         if ((--cntArrow[data.direction][data.startX][data.startY]) == 0)
             gameMapGrid->lbArrow[data.direction][data.startX][data.startY]->hide();
-        if (!flagFront && !isSpec)
+        if (!flagFront && !isSpec && !isRep)
             updateFocus(true, 0, data.startX, data.startY);
     }
 }
@@ -325,7 +324,7 @@ void GameWindow::updateFocus(const bool clicked, const int id, const int x, cons
     for (int i = 0; i < 4; i++) {
         auto pos = *focus;
         auto isLegal = pos.move(direction4[i][0], direction4[i][1]);
-        if (!isSpec && isLegal &&
+        if (!isSpec && !isRep && isLegal &&
             (!(isPositionVisible(pos.x, pos.y) || !clicked && !(gameMode & GameMode::mistyVeil)) ||
              cltMap.map[pos.x][pos.y].type != CellType::mountain)) {
             gameMapGrid->lbShadow[i]->setGeometry((1 + direction4[i][1]) * unitSize, (1 + direction4[i][0]) * unitSize,
@@ -447,7 +446,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
     auto json = loadJson(msg);
     auto msgType = json.first.toString();
     auto msgData = json.second.toArray();
-    qDebug() << "[gameWindow.cpp] Received:" << msgType;
+//    qDebug() << "[gameWindow.cpp] Received:" << msgType;
 
     if (msgType == "PlayerInfo") {
         idPlayer = msgData.at(0).toInt();
@@ -465,12 +464,13 @@ void GameWindow::processMessage(const QByteArray &msg) {
             playersInfo[player] = PlayerInfo(nick, player, team);
         }
         gotPlayersInfoMsg = true;
-    } else if (msgType == "InitGame") {
-        auto gameInfo = toVectorInt(msgData.toVariantList());
-        gameMode = gameInfo[gameInfo.size() - 1];
+    } else if (msgType == "GameMode") {
+        gameMode = msgData.at(0).toInt();
         isRep = (gameMode & GameMode::replaying) != 0;
         isSpec = idPlayer == -1 || isRep;
-        cltMap.importCM(gameInfo.mid(0, gameInfo.size() - 1));
+    } else if (msgType == "InitGame") {
+        auto gameInfo = toVectorInt(msgData.toVariantList());
+        cltMap.importCM(gameInfo);
         qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
         gotInitMsg = true;
@@ -492,7 +492,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
                 updateWindow(true);
                 endWindow->gameEnded();
 
-                if (!isSpec) {
+                if (!isSpec && !isRep) {
                     if (cltMap.stat[0].first.id == idTeam)
                         endWindow->updateText("You Won!",
                                               "This is your crowning glory.\nYou showed your formidable capacity.");
@@ -516,7 +516,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
 }
 
 void GameWindow::onGameButtonFocused(const int &x, const int &y) {
-    if (!isSpec) updateFocus(true, -1, x, y);
+    if (!isSpec && !isRep) updateFocus(true, -1, x, y);
     leChat->setEnabled(false);
 }
 
@@ -553,7 +553,7 @@ void GameWindow::onSpectate() {
 }
 
 void GameWindow::focusGeneral() {
-    if (isSpec) return;
+    if (isSpec || isRep) return;
     // TODO: Lower time complexity
     int x = 0, y = 0;
     for (int i = 1; i <= cltMap.width && !x; i++)
@@ -564,4 +564,23 @@ void GameWindow::focusGeneral() {
                 break;
             }
     updateFocus(true, 0, x, y);
+}
+
+void GameWindow::setIdentity(const int identity) {
+    if (isRep) {
+        if (identity == 0) {
+            idPlayer = idTeam = -1;
+            isSpec = true;
+        } else {
+            for (const auto &player: playersInfo)
+                if (player.idPlayer == identity) {
+                    idPlayer = player.idPlayer;
+                    idTeam = player.idTeam;
+                    break;
+                }
+            isSpec = false;
+        }
+        qDebug() << "[gameWindow.cpp] New identity:" << idPlayer << idTeam;
+        updateWindow(true);
+    }
 }
