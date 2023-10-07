@@ -188,12 +188,12 @@ void ServerMap::copyWithDiff(const ServerMap &serMap) {
 }
 
 bool ServerMap::gameOver() const {
-    bool *alive = new bool[cntTeam]{};
+    bool alive[maxPlayerNum]{};
     int cnt = 0;
     for (int i = 0; i < cntPlayer; i++)
         if (!alive[idTeam[i] - 1] && roundLose[i] == maxRound) {
             cnt++;
             alive[idTeam[i] - 1] = true;
         }
-    return cnt == cntTeam - 1;
+    return cnt == 1;
 }
