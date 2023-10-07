@@ -10,6 +10,12 @@
     <height>280</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Quicksand Medium</family>
+    <pointsize>14</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Control Panel</string>
   </property>
@@ -95,7 +101,7 @@
         <double>0.500000000000000</double>
        </property>
        <property name="maximum">
-        <double>15.000000000000000</double>
+        <double>30.000000000000000</double>
        </property>
        <property name="singleStep">
         <double>0.500000000000000</double>
