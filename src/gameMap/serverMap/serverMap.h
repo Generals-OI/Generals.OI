@@ -36,6 +36,9 @@ public:
     // Note that this function removes the part of the QByteArray that it uses
     void loadByteArray(QByteArray &);
 
+    // Copies from another ServerMap of the same game and marks flagDiff in the process
+    void copyWithDiff(const ServerMap &);
+
     QByteArray toByteArray();
 
     // Moves army after checking validity

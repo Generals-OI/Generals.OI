@@ -133,8 +133,6 @@ QVector<qint32> ServerMap::toVectorSM() {
     result.push_back(cntTeam);
     for (auto i: idTeam)
         result.push_back(i);
-    for (auto i: roundLose)
-        result.push_back(i);
     return result;
 }
 
@@ -156,16 +154,16 @@ QVector<qint32> ServerMap::exportDiff() {
 }
 
 void ServerMap::importSM(const QVector<qint32> &vec) {
-    BasicMap::importBM(vec.mid(0, vec[0] * vec[1] + 2));
-    auto it = vec.begin() + vec[0] * vec[1] + 2;
+    BasicMap::importBM(vec.mid(0, vec[0] * vec[1] * 3 + 2));
+    auto it = vec.begin() + vec[0] * vec[1] * 3 + 2;
     cntPlayer = *it++;
     cntTeam = *it++;
     idTeam.resize(cntPlayer);
     for (int &i : idTeam)
         i = *it++;
-    roundLose.resize(cntPlayer);
-    for (int &i : roundLose)
-        i = *it++;
+    roundLose.resize(cntPlayer, maxRound);
+    loseInfo.resize(cntPlayer, 0);
+    flagDiff = std::vector<std::vector<bool>>(width + 1, std::vector<bool>(length + 1, false));
 }
 
 void ServerMap::loadByteArray(QByteArray &ba) {
@@ -174,6 +172,19 @@ void ServerMap::loadByteArray(QByteArray &ba) {
 
 QByteArray ServerMap::toByteArray() {
     return vectorToByteArray(toVectorSM());
+}
+
+void ServerMap::copyWithDiff(const ServerMap &serMap) {
+    for (int i = 1; i <= width; i++)
+        for (int j = 1; j <= length; j++) {
+            if (map[i][j] != serMap.map[i][j]) {
+                map[i][j] = serMap.map[i][j];
+                flagDiff[i][j] = true;
+            }
+        }
+    roundLose = serMap.roundLose;
+    loseInfo = serMap.loseInfo;
+    round = serMap.round;
 }
 
 bool ServerMap::gameOver() const {

@@ -17,7 +17,11 @@ struct Cell {
     int belonging;
     CellType type;
 
-    explicit Cell(int = 0, int = 0, CellType = land);
+    explicit Cell(int number = 0, int belonging = 0, CellType type = land);
+
+    bool operator!=(Cell c) const {
+        return number!=c.number || belonging!=c.belonging || type!=c.type;
+    }
 };
 
 class BasicMap {
