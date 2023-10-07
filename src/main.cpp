@@ -57,10 +57,11 @@ int main(int argc, char *argv[]) {
         serverSettingsWindow->setTarget(serverSettingsWindowFrame);
         serverSettingsWindowFrame->show();
     } else if (clp.isSet("r")) {
+        qDebug() << "[main.cpp] Replay mode";
         auto replayWindow = new ReplayWindow;
         replayWindow->show();
     } else {
-        qDebug() << "[main.cpp] Defaulting to client mode";
+        qDebug() << "[main.cpp] Client mode";
 
         auto startWindow = new StartWindow;
         auto startWindowFrame = new WindowFrame(startWindow);
