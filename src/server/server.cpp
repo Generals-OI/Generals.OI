@@ -184,9 +184,10 @@ void Server::onNewConnection() {
                     gameMapData = serMap->toByteArray();
                     recorder.init(playersNicknames, gameMode);
 
+                    emit sendMessage(generateMessage("GameMode", {gameMode}));
                     emit sendMessage(generateMessage(
                             "InitGame",
-                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) + gameMode));
+                            QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM()))));
 
                     gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
@@ -224,13 +225,14 @@ void Server::broadcastMessage() {
     auto losers = serMap->addRound();
     recorder.addRecord(-1, 0, 0, 0, 0, false);
     for (auto i: losers)
-        if (i.second == i.first)
-                emit sendMessage(generateMessage(
+        if (i.second == i.first) {
+            emit sendMessage(generateMessage(
                     "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
-        else
-                emit sendMessage(generateMessage(
-                    "Chat", {"Server", QString("@%1 captured @%2.").arg(nicknames.at(i.second + 1),
-                                                                        nicknames.at(i.first + 1))}));
+            recorder.surrender(i.first);
+        } else {
+            emit sendMessage(generateMessage("Chat", {"Server", QString("@%1 captured @%2.")
+                    .arg(nicknames.at(i.second + 1), nicknames.at(i.first + 1))}));
+        }
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
     qDebug() << "[server.cpp] Message sent.";
 
@@ -238,7 +240,10 @@ void Server::broadcastMessage() {
         disconnect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
         // emit something
         // transfer replay files
-        QFile replayFile("D:/replay.rp");
+        QString fileName = QString("replay_%1_%2")
+                .arg(QDateTime::currentDateTime().toString("yyMMddhhmmsszzz"))
+                .arg(RandomMapGenerator::lastSeed());
+        QFile replayFile(fileName);
         if (replayFile.open(QIODevice::WriteOnly)) {
             qDebug() << "[server.cpp] Saving replay files.";
             replayFile.write(gameMapData);

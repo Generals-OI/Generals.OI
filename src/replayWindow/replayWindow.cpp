@@ -15,12 +15,14 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     connect(uiCtrlPanel->pbStatus, &QPushButton::clicked, this, &ReplayWindow::changeStatus);
 
     QString replayFile;
-    while (replayFile.isEmpty())
-        replayFile = QFileDialog::getOpenFileName(
-                this, "Choose replay file",
-                QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first(),
-                "All files (*.*)"
-        );
+    // TODO: Choose a proper directory for replay files
+    replayFile = QFileDialog::getOpenFileName(
+            this, "Choose replay file",
+            /*QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()*/
+            ".",
+            "All files (*.*)"
+    );
+    if (replayFile.isEmpty()) QApplication::quit();
     QFile file(replayFile);
     QByteArray byteArray;
     if (file.open(QIODevice::ReadOnly)) {
@@ -38,9 +40,13 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
 
     for (int i = 0; i < recorder.moves.size(); i++) {
         if (i % chunkSize == 0) serverMaps.append(serverMap);
-        for (auto move: recorder.moves[serverMap.round])
-            serverMap.move(move.idPlayer, Point(move.startX, move.startY),
-                           direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
+        for (auto move: recorder.moves[serverMap.round]) {
+            if (Recorder::isSurrender(move))
+                serverMap.surrender(move.idPlayer);
+            else
+                serverMap.move(move.idPlayer, Point(move.startX, move.startY),
+                               direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
+        }
         serverMap.addRound();
     }
 
@@ -60,8 +66,9 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     emit socket->binaryMessageReceived(generateMessage("PlayerInfo", {-1, -1}));
     emit socket->binaryMessageReceived(generateMessage("PlayersInfo", playersInfoData));
 
+    emit socket->binaryMessageReceived(generateMessage("GameMode", {gameMode}));
     emit socket->binaryMessageReceived(generateMessage(
-            "InitGame", QJsonArray::fromVariantList(toVariantList(serverMap.toVectorSM())) + gameMode));
+            "InitGame", QJsonArray::fromVariantList(toVariantList(serverMap.toVectorSM()))));
 
     gameWindow->leChat->hide();
     gameWindow->teChats->hide();
@@ -70,7 +77,11 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     wCtrlPanel->setGeometry(gameWindow->teChats->geometry());
     wCtrlPanel->raise();
     uiCtrlPanel->sbRound->setRange(1, recorder.moves.size() - 1);
+
     // TODO: Add view options to `cbView`
+    uiCtrlPanel->cbView->addItem("[Global]");
+    for (auto &player: recorder.players)
+        uiCtrlPanel->cbView->addItem(player.first);
 
     connect(timer, &QTimer::timeout, this, &ReplayWindow::sendMap);
     timer->start(250);
@@ -79,20 +90,26 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
 }
 
 void ReplayWindow::updateSettings() {
-    // TODO: update identity in GameWindow
-    // gameWindow->changeIdentity(uiCtrlPanel->cbView->currentIndex());
+    // update identity in GameWindow
+    int newIdentity = uiCtrlPanel->cbView->currentIndex();
+    if (identity != newIdentity) {
+        gameWindow->setIdentity(identity = newIdentity);
+        qDebug() << "[replayWindow.cpp] New identity:" << identity;
+    }
 
     int round = uiCtrlPanel->sbRound->value() - 1;
     if (round != serverMap.round) {
         if (!paused) changeStatus();
-        serverMap = serverMaps.at(round / chunkSize);
+        auto &tempMap = serverMaps.at(round / chunkSize);
+//        serverMap.copyWithDiff(tempMap);
+        serverMap = tempMap;
         for (int i = round / chunkSize * chunkSize; i < round; i++) {
             for (auto move: recorder.moves[serverMap.round])
                 serverMap.move(move.idPlayer, Point(move.startX, move.startY),
                                direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
             serverMap.addRound();
         }
-        
+
         // TODO: Let @gfy1729 transfer `round` in his code (optional)
         gameWindow->cltMap.round = round;
         sendMap();
@@ -120,10 +137,13 @@ void ReplayWindow::sendMap() {
         return;
 
     for (auto move: recorder.moves[serverMap.round]) {
-        qDebug() << "[replayWindow.cpp] sendMap():" << move.idPlayer << move.startX << move.startY
+//        qDebug() << "[replayWindow.cpp] sendMap():" << move.idPlayer << move.startX << move.startY \
                  << direction4[move.direction][0] << direction4[move.direction][1] << move.flag50p << gameMode;
-        serverMap.move(move.idPlayer, Point(move.startX, move.startY),
-                       direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
+        if (Recorder::isSurrender(move))
+            serverMap.surrender(move.idPlayer);
+        else
+            serverMap.move(move.idPlayer, Point(move.startX, move.startY),
+                           direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
     }
 
     serverMap.addRound();

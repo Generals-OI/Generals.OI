@@ -40,6 +40,7 @@ private:
     Recorder recorder;
 
     double speed = 1.0;
+    int identity{};
     int gameMode = GameMode::replaying;
     bool paused{};
 };
