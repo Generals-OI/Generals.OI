@@ -419,7 +419,8 @@ void GameWindow::updateWindow(bool forced) {
     }
 
     int curRow = 0;
-    lbRound->setText(QString("Round: ").append(QString::number(cltMap.round)));
+    lbRound->setText(QString("Round: ").append(QString::number(cltMap.round))
+                             .append(isRep ? "/" + QString::number(cntRound) : ""));
 
     for (const auto &stat: cltMap.stat) {
         const auto &teamStat = stat.first;
@@ -468,6 +469,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
         gameMode = msgData.at(0).toInt();
         isRep = (gameMode & GameMode::replaying) != 0;
         isSpec = idPlayer == -1 || isRep;
+        if (isRep) cntRound = msgData.at(1).toInt();
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
         cltMap.importCM(gameInfo);

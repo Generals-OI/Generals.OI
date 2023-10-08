@@ -158,7 +158,7 @@ public:
     int mapLeft{}, mapTop{};
     int rnkLeft{}, rnkTop{};
     int idTeam{}, idPlayer{};
-    int gameMode{};
+    int gameMode{}, cntRound{};
     bool flagHalf{};
     bool isSpec{}, isRep{};
 

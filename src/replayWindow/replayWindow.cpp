@@ -73,7 +73,7 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     emit socket->binaryMessageReceived(generateMessage("PlayerInfo", {-1, -1}));
     emit socket->binaryMessageReceived(generateMessage("PlayersInfo", playersInfoData));
 
-    emit socket->binaryMessageReceived(generateMessage("GameMode", {gameMode}));
+    emit socket->binaryMessageReceived(generateMessage("GameMode", {gameMode, recorder.moves.size() - 1}));
     emit socket->binaryMessageReceived(generateMessage(
             "InitGame", QJsonArray::fromVariantList(toVariantList(serverMap.toVectorSM()))));
 
