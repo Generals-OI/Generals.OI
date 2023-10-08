@@ -90,10 +90,25 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     for (auto &player: recorder.players)
         uiCtrlPanel->cbView->addItem(player.first);
 
-    connect(timer, &QTimer::timeout, this, &ReplayWindow::sendMap);
+    connect(timer, &QTimer::timeout, this, &ReplayWindow::nextRound);
     timer->start(250);
     uiCtrlPanel->pbStatus->setText("Pause");
     uiCtrlPanel->sbRound->setEnabled(false);
+}
+
+void ReplayWindow::jump(int round) {
+    serverMap.copyWithDiff(serverMaps.at(round / chunkSize));
+
+    for (int i = round / chunkSize * chunkSize; i < round; i++) {
+        for (auto move: recorder.moves[serverMap.round])
+            serverMap.move(move.idPlayer, Point(move.startX, move.startY),
+                           direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
+        serverMap.addRound();
+    }
+
+    // TODO: Let @gfy1729 transfer `round` in his code (optional)
+    gameWindow->cltMap.round = round;
+    nextRound();
 }
 
 void ReplayWindow::updateSettings() {
@@ -105,46 +120,37 @@ void ReplayWindow::updateSettings() {
     }
 
     int round = uiCtrlPanel->sbRound->value() - 1;
-    if (round != serverMap.round) {
-        if (!paused) changeStatus();
-        auto &tempMap = serverMaps.at(round / chunkSize);
-//        serverMap.copyWithDiff(tempMap);
-        serverMap = tempMap;
-        for (int i = round / chunkSize * chunkSize; i < round; i++) {
-            for (auto move: recorder.moves[serverMap.round])
-                serverMap.move(move.idPlayer, Point(move.startX, move.startY),
-                               direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
-            serverMap.addRound();
-        }
-
-        // TODO: Let @gfy1729 transfer `round` in his code (optional)
-        gameWindow->cltMap.round = round;
-        sendMap();
-    }
+    if (round != serverMap.round) jump(round);
 
     speed = uiCtrlPanel->sbSpeed->value();
     timer->setInterval(int(500 / speed));
 }
 
-void ReplayWindow::changeStatus() {
-    paused = !paused;
-    if (paused) {
-        timer->stop();
-        uiCtrlPanel->pbStatus->setText("Continue");
-        uiCtrlPanel->sbRound->setEnabled(true);
-    } else {
-        timer->start(int(500 / speed));
-        uiCtrlPanel->pbStatus->setText("Pause");
-        uiCtrlPanel->sbRound->setEnabled(false);
-    }
+void ReplayWindow::pause() {
+    timer->stop();
+    uiCtrlPanel->pbStatus->setText("Continue");
+    uiCtrlPanel->sbRound->setEnabled(true);
+    setFocus();
 }
 
-void ReplayWindow::sendMap() {
+void ReplayWindow::start() {
+    timer->start(int(500 / speed));
+    uiCtrlPanel->pbStatus->setText("Pause");
+    uiCtrlPanel->sbRound->setEnabled(false);
+}
+
+void ReplayWindow::changeStatus() {
+    paused = !paused;
+    if (paused) pause();
+    else start();
+}
+
+void ReplayWindow::nextRound() {
     if (serverMap.round + 1 >= recorder.moves.size())
         return;
 
     for (auto move: recorder.moves[serverMap.round]) {
-//        qDebug() << "[replayWindow.cpp] sendMap():" << move.idPlayer << move.startX << move.startY \
+//        qDebug() << "[replayWindow.cpp] nextRound():" << move.idPlayer << move.startX << move.startY \
                  << direction4[move.direction][0] << direction4[move.direction][1] << move.flag50p << gameMode;
         if (Recorder::isSurrender(move))
             serverMap.surrender(move.idPlayer);
@@ -161,4 +167,22 @@ void ReplayWindow::sendMap() {
 
 ReplayWindow::~ReplayWindow() {
     delete uiCtrlPanel;
+}
+
+void ReplayWindow::keyPressEvent(QKeyEvent *event) {
+    switch (event->key()) {
+        case Qt::Key_Left:
+            pause();
+            jump(serverMap.round - 2);
+            break;
+        case Qt::Key_Right:
+            nextRound();
+            break;
+        case Qt::Key_Space:
+            changeStatus();
+            break;
+        default:
+            gameWindow->processKeyEvent(event);
+            break;
+    }
 }

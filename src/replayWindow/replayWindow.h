@@ -22,9 +22,17 @@ public:
 protected:
     void updateSettings();
 
+    void pause();
+
+    void start();
+
+    void jump(int round);
+
     void changeStatus();
 
-    void sendMap();
+    void nextRound();
+
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     QWebSocket *socket;

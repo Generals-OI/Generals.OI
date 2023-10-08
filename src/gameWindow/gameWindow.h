@@ -90,6 +90,8 @@ public:
 
     void setIdentity(int identity);
 
+    void processKeyEvent(QKeyEvent *event);
+
 private:
     void init();
 

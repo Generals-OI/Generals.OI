@@ -175,7 +175,7 @@ void GameWindow::init() {
         gameMapGrid->wFocus->hide();
 }
 
-void GameWindow::keyPressEvent(QKeyEvent *event) {
+void GameWindow::processKeyEvent(QKeyEvent *event) {
     int idDirection = -1;
     bool resized = false;
 
@@ -262,6 +262,10 @@ void GameWindow::keyPressEvent(QKeyEvent *event) {
     }
 
     updateWindow(resized);
+}
+
+void GameWindow::keyPressEvent(QKeyEvent *event) {
+    processKeyEvent(event);
 }
 
 void GameWindow::setGameFieldGeometry(QRect geometry) const {
