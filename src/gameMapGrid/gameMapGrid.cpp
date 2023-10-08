@@ -34,8 +34,9 @@ GameMapGrid::GameMapGrid(int width, int height, QWidget *parent)
             lbO->setSizePolicy(spMap);
             lbC->setSizePolicy(spMap);
             lbM->setSizePolicy(spMap);
-            btnF->setSizePolicy(spMap);
             lbM->setAlignment(Qt::AlignCenter);
+            btnF->setSizePolicy(spMap);
+            btnF->setFocusPolicy(Qt::NoFocus);
 
             for (int k = 0; k < 4; k++) {
                 QLabel *lbA = lbArrow[k][i][j] = new QLabel(this);
