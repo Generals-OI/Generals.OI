@@ -16,8 +16,8 @@ WindowFrame::WindowFrame(QWidget *widget, QWidget *parent)
 
     verticalLayout = new QVBoxLayout(mainWidget);
 
-    titleBar = new TitleBar(mainWidget, 60);
-    titleBar->setFixedHeight(60);
+    titleBar = new TitleBar(mainWidget, 40);
+    titleBar->setFixedHeight(40);
     titleBar->setTarget(this);
 
     verticalLayout->addWidget(titleBar);

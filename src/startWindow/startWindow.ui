@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>753</height>
+    <width>600</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>700</width>
+    <width>500</width>
     <height>0</height>
    </size>
   </property>
   <property name="font">
    <font>
     <family>Quicksand Regular</family>
-    <pointsize>20</pointsize>
+    <pointsize>18</pointsize>
     <stylestrategy>PreferAntialias</stylestrategy>
    </font>
   </property>
@@ -116,7 +116,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>50</width>
          <height>20</height>
         </size>
        </property>
@@ -136,21 +136,21 @@
        <item>
         <widget class="QLabel" name="lbNickName">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>10</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>
-           <pointsize>20</pointsize>
+           <pointsize>18</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
@@ -172,14 +172,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>300</width>
            <height>0</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Medium</family>
-           <pointsize>20</pointsize>
+           <pointsize>18</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
@@ -206,21 +206,21 @@
        <item>
         <widget class="QLabel" name="lbServerAddress">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>10</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Bold</family>
-           <pointsize>20</pointsize>
+           <pointsize>18</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
@@ -242,14 +242,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>300</width>
            <height>0</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Medium</family>
-           <pointsize>20</pointsize>
+           <pointsize>18</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
@@ -276,7 +276,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>50</width>
          <height>20</height>
         </size>
        </property>
@@ -307,7 +307,7 @@
        <property name="font">
         <font>
          <family>Quicksand Bold</family>
-         <pointsize>20</pointsize>
+         <pointsize>18</pointsize>
          <stylestrategy>PreferAntialias</stylestrategy>
         </font>
        </property>
@@ -350,7 +350,7 @@
        <property name="font">
         <font>
          <family>Quicksand Regular</family>
-         <pointsize>16</pointsize>
+         <pointsize>14</pointsize>
          <stylestrategy>PreferAntialias</stylestrategy>
         </font>
        </property>
@@ -364,35 +364,42 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="hlButton">
-       <property name="spacing">
-        <number>20</number>
-       </property>
-       <item>
-        <spacer name="hsButton1">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbConnect">
+      <layout class="QGridLayout" name="glButtons">
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pbCreateServer">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>30</horstretch>
-           <verstretch>20</verstretch>
+           <horstretch>5</horstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Regular</family>
-           <pointsize>20</pointsize>
+           <pointsize>14</pointsize>
+           <stylestrategy>PreferAntialias</stylestrategy>
+          </font>
+         </property>
+         <property name="whatsThis">
+          <string>Create game server</string>
+         </property>
+         <property name="text">
+          <string>Create Server</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pbConnect">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>5</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Quicksand Regular</family>
+           <pointsize>14</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
@@ -404,34 +411,47 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="0" column="2">
         <spacer name="hsButton2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
+           <width>80</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item>
+       <item row="0" column="0">
+        <spacer name="hsButton1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="3">
         <widget class="QPushButton" name="pbReady">
          <property name="enabled">
           <bool>false</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>30</horstretch>
-           <verstretch>20</verstretch>
+           <horstretch>5</horstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Regular</family>
-           <pointsize>20</pointsize>
+           <pointsize>14</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
@@ -443,54 +463,38 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="0" column="4">
         <spacer name="hsButton3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>40</width>
+           <width>80</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="pbCreateServer">
+       <item row="1" column="3">
+        <widget class="QPushButton" name="pbWatchReplay">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>30</horstretch>
-           <verstretch>20</verstretch>
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>5</horstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="font">
           <font>
            <family>Quicksand Regular</family>
-           <pointsize>20</pointsize>
+           <pointsize>14</pointsize>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
          </property>
-         <property name="whatsThis">
-          <string>Create game server</string>
-         </property>
          <property name="text">
-          <string>Create</string>
+          <string>Watch Replay</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <spacer name="hsButton4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </item>

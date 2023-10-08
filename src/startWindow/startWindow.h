@@ -26,6 +26,8 @@ public:
     void setTarget(QWidget *);
 
 private:
+    static void onWatchReplay();
+
     static void onCreateServer();
 
     void onConnected();

@@ -7,12 +7,13 @@ TitleBar::TitleBar(QWidget *parent, int itemSize)
     if (itemSize == 0)
         itemSize = this->height();
     int itemSpace = itemSize / 4;
-    itemSize /= 2;
+    int margin = itemSize / 6;
+    itemSize -= margin * 2;
     QFont font(strFontBold, int(itemSize * 0.6));
 
     hLayout = new QHBoxLayout(this);
     hLayout->setSpacing(itemSpace);
-    hLayout->setContentsMargins(itemSpace, itemSpace, itemSpace, itemSpace);
+    hLayout->setContentsMargins(margin, margin, margin, margin);
 
     lbIcon = new QLabel(this);
     lbIcon->setFixedSize(itemSize, itemSize);

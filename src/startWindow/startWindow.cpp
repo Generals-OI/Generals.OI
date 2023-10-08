@@ -41,6 +41,7 @@ StartWindow::StartWindow(QWidget *parent)
     connect(ui->pbConnect, &QPushButton::clicked, this, &StartWindow::onConnectClicked);
     connect(ui->pbReady, &QPushButton::clicked, this, &StartWindow::onReadyClicked);
     connect(ui->pbCreateServer, &QPushButton::clicked, this, &StartWindow::onCreateServer);
+    connect(ui->pbWatchReplay, &QPushButton::clicked, this, &StartWindow::onWatchReplay);
 
     connect(socket, &QWebSocket::connected, this, &StartWindow::onConnected);
     connect(socket, &QWebSocket::disconnected, this, &StartWindow::onDisconnected);
@@ -55,7 +56,13 @@ StartWindow::~StartWindow() {
 void StartWindow::onCreateServer() {
     // Note that this function only works in cmake mode `Release`
     auto res = QProcess::startDetached(qApp->arguments()[0], QStringList("-s"));
-    qDebug() << "[startWindow.cpp] Create Process Status:" << res;
+    qDebug() << "[startWindow.cpp] Create Server Process Status:" << res;
+}
+
+void StartWindow::onWatchReplay() {
+    // Note that this function only works in cmake mode `Release`
+    auto res = QProcess::startDetached(qApp->arguments()[0], QStringList("-r"));
+    qDebug() << "[startWindow.cpp] Create Replay Process Status:" << res;
 }
 
 void StartWindow::onConnected() {
@@ -193,7 +200,7 @@ void StartWindow::onTeamButtonChosen(int idButton) {
 }
 
 void StartWindow::mediateWindow(bool useDefault) {
-    QSize defaultSize(800, 750);
+    QSize defaultSize(600, 750);
     if (useDefault) {
         wTarget->setMinimumSize(defaultSize);
         wTarget->resize(defaultSize);
