@@ -12,18 +12,6 @@ Server::Server(int gameMode, double gameSpeed) :
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
         nicknames.append("Generals.OI");
         nicknames.append("Server");
-
-        // TODO: Replace QMessageBox with our customized MessageBox
-        QMessageBox msgBox;
-        QString text("Info:\nServer created. Possible addresses:");
-        QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
-        for (const auto &addr: addresses)
-            if (addr.protocol() == QAbstractSocket::IPv4Protocol && !addr.toString().startsWith("127.0"))
-                text.append('\n').append(addr.toString());
-        msgBox.setWindowTitle("Generals.OI Server");
-        msgBox.setText(text);
-        msgBox.addButton(QMessageBox::StandardButton::Ok);
-        msgBox.exec();
     } else {
         qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
         QMessageBox msgBox;
@@ -96,8 +84,7 @@ void Server::onNewConnection() {
             if (!flagGameStarted) {
                 auto playerNickname = msgData.at(0).toString();
                 if (!checkNickname(playerNickname)) {
-                    socket->sendBinaryMessage(generateMessage(
-                            "Status", {"Conflicting nickname."}));
+                    socket->sendBinaryMessage(generateMessage("Status", {"Conflicting nickname."}));
                     socket->close();
                     return;
                 }
@@ -136,6 +123,7 @@ void Server::onNewConnection() {
                 if (clients[socket].isSpec) {
                     socket->sendBinaryMessage(generateMessage("PlayerInfo", {-1, -1}));
                     socket->sendBinaryMessage(baPlayersInfo);
+                    socket->sendBinaryMessage(generateMessage("GameMode", {gameMode}));
                     socket->sendBinaryMessage(generateMessage(
                             "InitGame", QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) + gameMode));
                 }

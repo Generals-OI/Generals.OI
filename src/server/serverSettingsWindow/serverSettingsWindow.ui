@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>836</width>
-    <height>402</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -32,467 +32,510 @@
   <property name="windowTitle">
    <string>ServerSettingsWindow</string>
   </property>
-  <layout class="QVBoxLayout" name="vlGameMode_2" stretch="10">
-   <property name="spacing">
-    <number>10</number>
-   </property>
-   <property name="leftMargin">
-    <number>10</number>
-   </property>
-   <property name="topMargin">
-    <number>10</number>
-   </property>
-   <property name="rightMargin">
-    <number>10</number>
-   </property>
-   <property name="bottomMargin">
-    <number>10</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="vlWidgets">
+    <layout class="QHBoxLayout" name="hlAddress">
      <property name="spacing">
-      <number>10</number>
-     </property>
-     <property name="leftMargin">
       <number>20</number>
      </property>
-     <property name="topMargin">
-      <number>10</number>
+     <item>
+      <widget class="QLabel" name="lbAddress">
+       <property name="text">
+        <string>IP Address</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbAddressContent">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="rightMargin">
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlViewType">
+     <property name="spacing">
       <number>20</number>
      </property>
-     <property name="bottomMargin">
-      <number>0</number>
+     <item>
+      <widget class="QLabel" name="lbViewType">
+       <property name="text">
+        <string>View Type</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hsViewType">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbNearsighted">
+       <property name="text">
+        <string>Nearsighted</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgViewType</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbMistyVeil">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Misty Veil</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgViewType</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbCrystalClear">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Crystal Clear</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgViewType</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="vsGameMode">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlModifiers">
+     <property name="spacing">
+      <number>20</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="hlViewType">
-       <property name="spacing">
-        <number>20</number>
+      <widget class="QLabel" name="lbModifiers">
+       <property name="text">
+        <string>Modifiers</string>
        </property>
-       <item>
-        <widget class="QLabel" name="lbViewType">
-         <property name="text">
-          <string>View Type</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsViewType">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbNearsighted">
-         <property name="text">
-          <string>Nearsighted</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgViewType</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbMistyVeil">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Misty Veil</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgViewType</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbCrystalClear">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Crystal Clear</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgViewType</string>
-         </attribute>
-        </widget>
-       </item>
-      </layout>
+      </widget>
      </item>
      <item>
-      <spacer name="vsGameMode">
+      <spacer name="hsModifiers">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="hlModifiers">
-       <property name="spacing">
-        <number>20</number>
+      <widget class="QCheckBox" name="cbSilentWar">
+       <property name="enabled">
+        <bool>true</bool>
        </property>
-       <item>
-        <widget class="QLabel" name="lbModifiers">
-         <property name="text">
-          <string>Modifiers</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsModifiers">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="cbSilentWar">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>Silent War</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="cbLeapfrog">
-         <property name="text">
-          <string>Leapfrog</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="cbCityState">
-         <property name="text">
-          <string>City-State</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+       <property name="text">
+        <string>Silent War</string>
+       </property>
+      </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer1">
+      <widget class="QCheckBox" name="cbLeapfrog">
+       <property name="text">
+        <string>Leapfrog</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbCityState">
+       <property name="text">
+        <string>City-State</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer1">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlGameSpeed">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="lbGameSpeed">
+       <property name="text">
+        <string>Game Speed</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hsGameSpeed">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="hlGameSpeed">
-       <property name="spacing">
-        <number>20</number>
+      <widget class="QRadioButton" name="rbGameSpeed10">
+       <property name="text">
+        <string>1x</string>
        </property>
-       <item>
-        <widget class="QLabel" name="lbGameSpeed">
-         <property name="text">
-          <string>Game Speed</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsGameSpeed">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbGameSpeed10">
-         <property name="text">
-          <string>1x</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgGameSpeed</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbGameSpeed15">
-         <property name="text">
-          <string>1.5x</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgGameSpeed</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbGameSpeed20">
-         <property name="text">
-          <string>2x</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgGameSpeed</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbGameSpeed30">
-         <property name="text">
-          <string>3x</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgGameSpeed</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbGameSpeed50">
-         <property name="text">
-          <string>5x</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgGameSpeed</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="rbGameSpeed100">
-         <property name="text">
-          <string>10x</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgGameSpeed</string>
-         </attribute>
-        </widget>
-       </item>
-      </layout>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgGameSpeed</string>
+       </attribute>
+      </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer2">
+      <widget class="QRadioButton" name="rbGameSpeed15">
+       <property name="text">
+        <string>1.5x</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgGameSpeed</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbGameSpeed20">
+       <property name="text">
+        <string>2x</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgGameSpeed</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbGameSpeed30">
+       <property name="text">
+        <string>3x</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgGameSpeed</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbGameSpeed50">
+       <property name="text">
+        <string>5x</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgGameSpeed</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbGameSpeed100">
+       <property name="text">
+        <string>10x</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgGameSpeed</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlTeaming">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="lbTeaming">
+       <property name="text">
+        <string>Teaming</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hsTeaming">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
+         <width>40</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="hlTeaming">
-       <property name="spacing">
-        <number>20</number>
+      <widget class="QRadioButton" name="lbTeamingEnabled">
+       <property name="text">
+        <string>Enabled</string>
        </property>
-       <item>
-        <widget class="QLabel" name="lbTeaming">
-         <property name="text">
-          <string>Teaming</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsTeaming">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="lbTeamingEnabled">
-         <property name="text">
-          <string>Enabled</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgTeaming</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="lbTeamingDisabled">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Disabled</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">bgTeaming</string>
-         </attribute>
-        </widget>
-       </item>
-      </layout>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgTeaming</string>
+       </attribute>
+      </widget>
      </item>
      <item>
-      <spacer name="vsButtons">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+      <widget class="QRadioButton" name="lbTeamingDisabled">
+       <property name="enabled">
+        <bool>false</bool>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
+       <property name="text">
+        <string>Disabled</string>
        </property>
-       <property name="sizeHint" stdset="0">
+       <attribute name="buttonGroup">
+        <string notr="true">bgTeaming</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="lbMessage">
+     <property name="font">
+      <font>
+       <family>Quicksand Medium</family>
+       <pointsize>14</pointsize>
+       <stylestrategy>PreferAntialias</stylestrategy>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="vsButtons">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>30</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hlButton">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="btnLoadDefault">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>5</horstretch>
+         <verstretch>5</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
         <size>
-         <width>20</width>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
          <height>40</height>
         </size>
        </property>
+       <property name="text">
+        <string>Load Default</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hsButton1">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
       </spacer>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="hlButton">
-       <property name="spacing">
-        <number>20</number>
+      <widget class="QPushButton" name="btnSaveAsDefault">
+       <property name="enabled">
+        <bool>false</bool>
        </property>
-       <item>
-        <widget class="QPushButton" name="btnLoadDefault">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>5</horstretch>
-           <verstretch>5</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>35</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Load Default</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsButton1">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnSaveAsDefault">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>5</horstretch>
-           <verstretch>5</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>35</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Save As Default</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="hsButton2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnCreateServer">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>5</horstretch>
-           <verstretch>5</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>35</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Create Server</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>5</horstretch>
+         <verstretch>5</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Save As Default</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hsButton2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnCreateServer">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>5</horstretch>
+         <verstretch>5</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>35</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Create Server</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

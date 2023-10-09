@@ -7,6 +7,15 @@ ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
         : QWidget(parent), ui(new Ui::ServerSettingsWindow) {
     ui->setupUi(this);
 
+    QString strAddr;
+    QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+    for (const auto &addr: addresses)
+        if (addr.protocol() == QAbstractSocket::IPv4Protocol && !addr.toString().startsWith("127.0")) {
+            if (!strAddr.isEmpty()) strAddr.append("; ");
+            strAddr.append(addr.toString());
+        }
+    ui->lbAddressContent->setText(strAddr);
+
     connect(ServerSettingsWindow::ui->btnCreateServer, &QPushButton::clicked,
             this, &ServerSettingsWindow::onCreateButtonClicked);
 }
