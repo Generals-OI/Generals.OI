@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ServerSettingsWindow</class>
- <widget class="QWidget" name="ServerSettingsWindow">
+ <class>ServerWindow</class>
+ <widget class="QWidget" name="ServerWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>836</width>
-    <height>468</height>
+    <width>800</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,7 +30,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>ServerSettingsWindow</string>
+   <string>ServerWindow</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -396,7 +396,7 @@
     <widget class="QLabel" name="lbMessage">
      <property name="font">
       <font>
-       <family>Quicksand Medium</family>
+       <family>Quicksand Regular</family>
        <pointsize>14</pointsize>
        <stylestrategy>PreferAntialias</stylestrategy>
       </font>
@@ -426,17 +426,27 @@
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="hlButton">
-     <property name="spacing">
-      <number>20</number>
-     </property>
+    <layout class="QHBoxLayout" name="hlButtons">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QPushButton" name="btnLoadDefault">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>5</horstretch>
          <verstretch>5</verstretch>
         </sizepolicy>
@@ -452,6 +462,13 @@
          <width>16777215</width>
          <height>40</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <stylestrategy>PreferAntialias</stylestrategy>
+        </font>
        </property>
        <property name="text">
         <string>Load Default</string>
@@ -465,7 +482,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>100</width>
          <height>20</height>
         </size>
        </property>
@@ -477,7 +494,7 @@
         <bool>false</bool>
        </property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>5</horstretch>
          <verstretch>5</verstretch>
         </sizepolicy>
@@ -493,6 +510,13 @@
          <width>16777215</width>
          <height>40</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <stylestrategy>PreferAntialias</stylestrategy>
+        </font>
        </property>
        <property name="text">
         <string>Save As Default</string>
@@ -506,7 +530,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>100</width>
          <height>20</height>
         </size>
        </property>
@@ -515,7 +539,7 @@
      <item>
       <widget class="QPushButton" name="btnCreateServer">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>5</horstretch>
          <verstretch>5</verstretch>
         </sizepolicy>
@@ -532,10 +556,30 @@
          <height>40</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Quicksand Medium</family>
+         <pointsize>14</pointsize>
+         <stylestrategy>PreferAntialias</stylestrategy>
+        </font>
+       </property>
        <property name="text">
         <string>Create Server</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>100</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -544,8 +588,8 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="bgTeaming"/>
   <buttongroup name="bgGameSpeed"/>
   <buttongroup name="bgViewType"/>
-  <buttongroup name="bgTeaming"/>
  </buttongroups>
 </ui>

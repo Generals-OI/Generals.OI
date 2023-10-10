@@ -1,11 +1,11 @@
 #include <QCommandLineParser>
 
 #include "startWindow.h"
-#include "serverSettingsWindow.h"
+#include "server.h"
 #include "replayWindow.h"
 #include "windowFrame.h"
 
-const QString strAppVersion = "1.0.0";
+const QString strAppVersion = "1.1.0";
 
 QString strFontRegular, strFontMedium, strFontBold;
 
@@ -48,14 +48,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (clp.isSet("s")) {
-        qDebug() << "[main.cpp] Server mode enabled";
-        QApplication::setQuitOnLastWindowClosed(false);
-
-        auto serverSettingsWindow = new ServerSettingsWindow;
-        auto serverSettingsWindowFrame = new WindowFrame(serverSettingsWindow);
-        serverSettingsWindowFrame->setTitle("Generals.OI - Server Settings");
-        serverSettingsWindow->setTarget(serverSettingsWindowFrame);
-        serverSettingsWindowFrame->show();
+        qDebug() << "[main.cpp] Server mode";
+        new Server();
     } else if (clp.isSet("r")) {
         qDebug() << "[main.cpp] Replay mode";
         auto replayWindow = new ReplayWindow;

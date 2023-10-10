@@ -34,7 +34,7 @@ include_directories(
         src/startWindow
         src/startWindow/teamButton
         src/windowFrame/titleBar
-        src/server/serverSettingsWindow
+        src/server/serverWindow
         src/windowFrame
         src/processJson
         src/replayWindow
@@ -117,9 +117,9 @@ set(
         src/server/recorder/recorder.cpp
         src/server/recorder/recorder.h
 
-        src/server/serverSettingsWindow/serverSettingsWindow.cpp
-        src/server/serverSettingsWindow/serverSettingsWindow.h
-        src/server/serverSettingsWindow/serverSettingsWindow.ui
+        src/server/serverWindow/serverWindow.cpp
+        src/server/serverWindow/serverWindow.h
+        src/server/serverWindow/serverWindow.ui
 
         src/windowFrame/windowFrame.cpp
         src/windowFrame/windowFrame.h

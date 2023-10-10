@@ -1,11 +1,12 @@
-#include "serverSettingsWindow.h"
-#include "ui_serverSettingsWindow.h"
+#include "serverWindow.h"
+#include "ui_serverWindow.h"
 
 extern QString strFontRegular;
 
-ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
-        : QWidget(parent), ui(new Ui::ServerSettingsWindow) {
+ServerWindow::ServerWindow(QWidget *parent)
+        : QWidget(parent), ui(new Ui::ServerWindow) {
     ui->setupUi(this);
+    pbCreateServer = ui->btnCreateServer;
 
     QString strAddr;
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
@@ -16,16 +17,19 @@ ServerSettingsWindow::ServerSettingsWindow(QWidget *parent)
         }
     ui->lbAddressContent->setText(strAddr);
 
-    connect(ServerSettingsWindow::ui->btnCreateServer, &QPushButton::clicked,
-            this, &ServerSettingsWindow::onCreateButtonClicked);
+    connect(pbCreateServer, &QPushButton::clicked, this, &ServerWindow::onCreateButtonClicked);
 }
 
-void ServerSettingsWindow::setTarget(QWidget *target) {
+void ServerWindow::setTarget(QWidget *target) {
     wTarget = target;
 }
 
-void ServerSettingsWindow::onCreateButtonClicked() {
-    wTarget->hide();
+void ServerWindow::showMessage(const QString &msg) {
+    ui->lbMessage->setText(msg);
+}
+
+void ServerWindow::onCreateButtonClicked() {
+    // wTarget->hide();
 
     const int viewTypeOptions[] = {0, 0, GameMode::nearsighted, GameMode::mistyVeil, GameMode::crystalClear};
     const double speedOptions[] = {0, 0, 1, 1.5, 2, 3, 5, 10};
@@ -38,5 +42,6 @@ void ServerSettingsWindow::onCreateButtonClicked() {
     double gameSpeed = speedOptions[-ui->bgGameSpeed->checkedId()];
     int teamingEnabled = teamOptions[-ui->bgTeaming->checkedId()];
 
-    new Server(viewType | modifiers | teamingEnabled, gameSpeed);
+    emit createServer(viewType | modifiers | teamingEnabled, gameSpeed);
+    pbCreateServer->setEnabled(false);
 }
