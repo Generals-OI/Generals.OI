@@ -2,10 +2,11 @@
 #define SERVER_H
 
 #include "serverMap.h"
-#include "gameInformation.h"
 #include "mapGenerator.h"
 #include "processJson.h"
 #include "recorder.h"
+#include "serverWindow.h"
+#include "windowFrame.h"
 
 #include <QWebSocket>
 #include <QWebSocketServer>
@@ -20,7 +21,7 @@ class Server : public QWidget, public ProcessJson {
 Q_OBJECT
 
 public:
-    explicit Server(int gameMode, double gameSpeed);
+    explicit Server();
 
     ~Server() override;
 
@@ -33,6 +34,8 @@ public slots:
     void broadcastMessage();
 
 private:
+    void onCreateServer(int mode, double speed);
+
     void onNewConnection();
 
     void clearClient();
@@ -44,6 +47,9 @@ private:
     int getEmptyTeam();
 
 private:
+    ServerWindow *serverWindow;
+    WindowFrame *serverWindowFrame;
+
     QWebSocketServer *server;
     QHostAddress address;
     ServerMap *serMap{};
@@ -51,6 +57,7 @@ private:
 
     int gameMode{};
     double gameSpeed{};
+    bool flagServerReadied{}, flagPlayed{};
 
     QByteArray baPlayersInfo;
 

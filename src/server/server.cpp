@@ -2,24 +2,31 @@
 
 extern const int maxPlayerNum;
 
-Server::Server(int gameMode, double gameSpeed) :
-        gameMode(gameMode), gameSpeed(gameSpeed) {
+Server::Server() {
     server = new QWebSocketServer("Generals.OI Server", QWebSocketServer::NonSecureMode, this);
     address = QHostAddress::Any;
 
+    QApplication::setQuitOnLastWindowClosed(false);
+
+    serverWindow = new ServerWindow;
+    serverWindowFrame = new WindowFrame(serverWindow);
+    serverWindowFrame->setTitle("Generals.OI - Server");
+    serverWindow->setTarget(serverWindowFrame);
+    serverWindowFrame->show();
+
+    gameTimer = new QTimer(this);
+
     if (server->listen(address, 32767)) {
         teamMbrCnt = QVector<int>(maxPlayerNum + 1);
-        connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
         nicknames.append("Generals.OI");
         nicknames.append("Server");
+        connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
+        connect(serverWindow, &ServerWindow::createServer, this, &Server::onCreateServer);
+        serverWindow->showMessage("Listened to port.");
     } else {
-        qDebug() << "[server.cpp] Error: Cannot listen port 32767!";
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Generals.OI Server");
-        msgBox.setText("Error:\nUnable to listen to the port.\nCheck if another server is running.");
-        msgBox.addButton(QMessageBox::StandardButton::Ok);
-        msgBox.exec();
-        qApp->quit();
+        serverWindow->showMessage("Error: Cannot listen to port!");
+        serverWindow->pbCreateServer->setEnabled(false);
+        qDebug() << "[server.cpp] Error: Cannot listen to port 32767!";
     }
 }
 
@@ -28,6 +35,18 @@ Server::~Server() {
     server->close();
     delete server;
     delete serMap;
+}
+
+void Server::onCreateServer(int mode, double speed) {
+    if (flagPlayed) {
+        emit sendMessage(generateMessage("Rematch", QJsonArray()));
+        updateStatus();
+    }
+    
+    gameMode = mode;
+    gameSpeed = speed;
+    flagServerReadied = flagPlayed = true;
+    serverWindow->showMessage("Server created.");
 }
 
 void Server::clearClient() {
@@ -43,6 +62,12 @@ void Server::clearClient() {
 void Server::onNewConnection() {
     QWebSocket *socket = server->nextPendingConnection();
     if (!socket) return;
+
+    if (!flagServerReadied) {
+        socket->sendBinaryMessage(generateMessage("Status", {"Server isn't ready."}));
+        socket->sendBinaryMessage(generateMessage("Disconnect", QJsonArray()));
+        return;
+    }
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
         auto itCurrent = clients.find(socket);
@@ -85,7 +110,7 @@ void Server::onNewConnection() {
                 auto playerNickname = msgData.at(0).toString();
                 if (!checkNickname(playerNickname)) {
                     socket->sendBinaryMessage(generateMessage("Status", {"Conflicting nickname."}));
-                    socket->close();
+                    socket->sendBinaryMessage(generateMessage("Disconnect", QJsonArray()));
                     return;
                 }
                 if (cntPlayer < maxPlayerNum) {
@@ -125,7 +150,7 @@ void Server::onNewConnection() {
                     socket->sendBinaryMessage(baPlayersInfo);
                     socket->sendBinaryMessage(generateMessage("GameMode", {gameMode}));
                     socket->sendBinaryMessage(generateMessage(
-                            "InitGame", QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM())) + gameMode));
+                            "InitGame", QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM()))));
                 }
             } else {
                 if ((++cntReadied) == cntPlayer && cntPlayer >= 2) {
@@ -177,7 +202,6 @@ void Server::onNewConnection() {
                             "InitGame",
                             QJsonArray::fromVariantList(toVariantList(serMap->toVectorSM()))));
 
-                    gameTimer = new QTimer(this);
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
                     gameTimer->start(int(500 / gameSpeed));
 
@@ -212,6 +236,7 @@ void Server::onNewConnection() {
 void Server::broadcastMessage() {
     auto losers = serMap->addRound();
     recorder.addRecord(-1, 0, 0, 0, 0, false);
+
     for (auto i: losers)
         if (i.second == i.first) {
             emit sendMessage(generateMessage(
@@ -221,7 +246,9 @@ void Server::broadcastMessage() {
             emit sendMessage(generateMessage("Chat", {"Server", QString("@%1 captured @%2.")
                     .arg(nicknames.at(i.second + 1), nicknames.at(i.first + 1))}));
         }
+
     emit sendMessage(generateMessage("UpdateMap", QJsonArray::fromVariantList(toVariantList(serMap->exportDiff()))));
+    serverWindow->showMessage(QString("Gaming ... (Round: %1)").arg(serMap->round));
     qDebug() << "[server.cpp] Message sent.";
 
     if (flagGameOvered) {
@@ -239,8 +266,23 @@ void Server::broadcastMessage() {
             replayFile.close();
             qDebug() << "[server.cpp] Replay files saved.";
         }
-        qApp->quit();
+
+        flagGameOvered = flagGameStarted = flagServerReadied = false;
+        for (auto &client: clients)
+            client.isReadied = false;
+        cntReadied = 0;
+        // Delete serMap
+        // clear recorder
+
+        serverWindow->pbCreateServer->setText("Rematch");
+        serverWindow->pbCreateServer->setEnabled(true);
+
+        serverWindowFrame->raise();
+        serverWindowFrame->activateWindow();
+        return;
+        // qApp->quit();
     }
+
     flagGameOvered = serMap->gameOver();
 }
 
@@ -256,7 +298,9 @@ void Server::updateStatus() {
     if (!flagGameStarted) {
         QJsonArray data;
         QVector<QJsonArray> teamsInfo(maxPlayerNum);
-        data.append(QString("Waiting (%1/%2) ...").arg(QString::number(cntReadied), QString::number(cntPlayer)));
+        QString msg = QString("Waiting for players (%1/%2).").arg(QString::number(cntReadied),
+                                                                  QString::number(cntPlayer));
+        data.append(msg);
 
         for (const auto &client: clients)
             teamsInfo[client.idTeam - 1].append(client.nickname);
@@ -264,6 +308,7 @@ void Server::updateStatus() {
             data.append(teamInfo);
 
         emit sendMessage(generateMessage("Status", data));
+        serverWindow->showMessage(msg);
     }
 }
 

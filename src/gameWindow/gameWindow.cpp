@@ -90,16 +90,20 @@ void GameWindow::init() {
         cntArr = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
     fontType = std::vector<std::vector<int>>(height + 1, std::vector<int>(width + 1));
 
-    surrenderWindow = new SurrenderWindow(this);
-    connect(surrenderWindow, &SurrenderWindow::surrendered, this, &GameWindow::onSurrender);
-    endWindow = new EndWindow(this);
-    connect(endWindow, &EndWindow::watch, this, &GameWindow::onSpectate);
+    if (!surrenderWindow) {
+        surrenderWindow = new SurrenderWindow(this);
+        connect(surrenderWindow, &SurrenderWindow::surrendered, this, &GameWindow::onSurrender);
+    }
+    if (!endWindow) {
+        endWindow = new EndWindow(this);
+        connect(endWindow, &EndWindow::watch, this, &GameWindow::onSpectate);
+    }
     if (isRep) {
         endWindow->updateText("Confirm", "Do you really want to exit?");
         endWindow->updateButtonText("Cancel");
     }
 
-    gameMapGrid = new GameMapGrid(width, height, this);
+    if (!gameMapGrid) gameMapGrid = new GameMapGrid(width, height, this);
     gameMapGrid->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
     for (int i = 1; i <= height; i++) {
@@ -128,27 +132,33 @@ void GameWindow::init() {
     }
 
     sumRow = cltMap.cntPlayer + cltMap.cntTeam;
-    wgtBoard = new QWidget(this);
+    if (!wgtBoard) wgtBoard = new QWidget(this);
     wgtBoard->setGeometry(rnkLeft, rnkTop, unitSize * rnkWidth, unitSize * (sumRow + 2));
-    boardLayout = new QGridLayout(wgtBoard);
-    boardLayout->setSpacing(2);
+    if (!boardLayout) {
+        boardLayout = new QGridLayout(wgtBoard);
+        boardLayout->setSpacing(2);
+    }
     lbBoard = QVector<BoardLabel>(sumRow + 1);
 
-    lbRound = new QLabel(wgtBoard);
-    lbRound->setObjectName("Rank");
-    lbRound->setAlignment(Qt::AlignCenter);
-    lbRound->setFont(boardFont);
-    lbRound->show();
-    boardLayout->addWidget(lbRound, 0, 0, 1, 3);
+    if (!lbRound) {
+        lbRound = new QLabel(wgtBoard);
+        lbRound->setObjectName("Rank");
+        lbRound->setAlignment(Qt::AlignCenter);
+        lbRound->setFont(boardFont);
+        lbRound->show();
+        boardLayout->addWidget(lbRound, 0, 0, 1, 3);
+    }
 
     for (int i = 0; i <= sumRow; i++)
         lbBoard[i].init(wgtBoard, boardFont, boardLayout, i + 1);
     lbBoard[0].updateContent("Name", "Army", "Land");
     lbBoard[0].lbName->setStyleSheet("background-color: rgba(255, 255, 255, 96);");
 
-    teChats = new QTextEdit(this);
-    leChat = new QLineEdit(this);
-    new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
+    if (!teChats && !leChat) {
+        teChats = new QTextEdit(this);
+        leChat = new QLineEdit(this);
+        new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
+    }
 
     auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
@@ -163,7 +173,7 @@ void GameWindow::init() {
     leChat->show();
     leChat->setEnabled(false);
 
-    focus = new Focus;
+    if (!focus) focus = new Focus;
     focus->init(width, height);
 
     updateWindow(true);
@@ -453,7 +463,11 @@ void GameWindow::processMessage(const QByteArray &msg) {
     auto msgData = json.second.toArray();
 //    qDebug() << "[gameWindow.cpp] Received:" << msgType;
 
-    if (msgType == "PlayerInfo") {
+    if (msgType == "Rematch") {
+        gotPlayerInfoMsg = gotInitMsg = gotPlayersInfoMsg = flagHalf = isSpec = isRep = moved = false;
+        teChats->clear();
+        emit rematch();
+    } else if (msgType == "PlayerInfo") {
         idPlayer = msgData.at(0).toInt();
         idTeam = msgData.at(1).toInt();
         gotPlayerInfoMsg = true;

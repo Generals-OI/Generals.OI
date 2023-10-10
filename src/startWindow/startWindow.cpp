@@ -67,9 +67,10 @@ void StartWindow::onWatchReplay() {
 
 void StartWindow::onConnected() {
     auto nickname = ui->leNickName->text();
-    if (gameWindow == nullptr) {
+    if (!gameWindow) {
         qDebug() << "[startWindow.cpp] Creating game window.";
         gameWindow = new GameWindow(socket);
+        connect(gameWindow, &GameWindow::rematch, this, &StartWindow::onRematch);
         qDebug() << "[startWindow.cpp] Game window created.";
     }
     socket->sendBinaryMessage(generateMessage("Connected", {nickname}));
@@ -110,7 +111,7 @@ void StartWindow::onConnectClicked() {
     auto nicknameLen = nickname.toLocal8Bit().length();
     qDebug() << "[startWindow.cpp] Current nickname length:" << nicknameLen;
     if (!(3 <= nicknameLen && nicknameLen <= 15)) {
-        ui->lbMessage->setText("[Disconnected]\n Error: Illegal nickname length");
+        ui->lbMessage->setText("[Disconnected]\nIllegal nickname length.");
         return;
     }
     static QRegularExpression regSpace("\\s");
@@ -181,6 +182,8 @@ void StartWindow::onMessageReceived(const QByteArray &msg) {
         }
         pbTeams[maxPlayerNum]->show();
         mediateWindow();
+    } else if (msgType == "Disconnect") {
+        socket->close();
     } else if (!gotInitMsg && msgType == "InitGame") {
         gotInitMsg = true;
     } else if (gotInitMsg && !wndHidden && msgType == "UpdateMap") {
@@ -211,4 +214,13 @@ void StartWindow::mediateWindow(bool useDefault) {
         wTarget->resize(minimumSize);
     }
     wTarget->move(qApp->primaryScreen()->geometry().center() - wTarget->rect().center());
+}
+
+void StartWindow::onRematch() {
+    connect(socket, &QWebSocket::binaryMessageReceived, this, &StartWindow::onMessageReceived);
+    gameWindow->hide();
+    wTarget->show();
+    wTarget->raise();
+    wTarget->activateWindow();
+    ui->pbReady->setEnabled(true);
 }

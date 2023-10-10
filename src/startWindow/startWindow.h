@@ -42,6 +42,8 @@ private:
 
     void onTeamButtonChosen(int idButton);
 
+    void onRematch();
+
     void mediateWindow(bool useDefault = false);
 
     enum WebSocketStatus {

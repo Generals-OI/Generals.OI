@@ -92,6 +92,9 @@ public:
 
     void processKeyEvent(QKeyEvent *event);
 
+signals:
+    void rematch();
+
 private:
     void init();
 
