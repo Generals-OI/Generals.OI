@@ -223,4 +223,5 @@ void StartWindow::onRematch() {
     wTarget->raise();
     wTarget->activateWindow();
     ui->pbReady->setEnabled(true);
+    gotInitMsg = wndHidden = false;
 }

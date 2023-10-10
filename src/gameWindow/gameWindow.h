@@ -188,6 +188,7 @@ public:
 
     QTextEdit *teChats{};
     QLineEdit *leChat{};
+    Highlighter *highlighter{};
 
     SurrenderWindow *surrenderWindow{};
     EndWindow *endWindow{};

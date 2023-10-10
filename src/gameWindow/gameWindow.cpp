@@ -103,7 +103,8 @@ void GameWindow::init() {
         endWindow->updateButtonText("Cancel");
     }
 
-    if (!gameMapGrid) gameMapGrid = new GameMapGrid(width, height, this);
+    if (gameMapGrid) delete gameMapGrid;
+    gameMapGrid = new GameMapGrid(width, height, this);
     gameMapGrid->setGeometry(mapLeft, mapTop, unitSize * width, unitSize * height);
 
     for (int i = 1; i <= height; i++) {
@@ -138,6 +139,12 @@ void GameWindow::init() {
         boardLayout = new QGridLayout(wgtBoard);
         boardLayout->setSpacing(2);
     }
+
+    for (auto &board: lbBoard) {
+        delete board.lbName;
+        delete board.lbArmy;
+        delete board.lbLand;
+    }
     lbBoard = QVector<BoardLabel>(sumRow + 1);
 
     if (!lbRound) {
@@ -157,8 +164,9 @@ void GameWindow::init() {
     if (!teChats && !leChat) {
         teChats = new QTextEdit(this);
         leChat = new QLineEdit(this);
-        new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
-    }
+    } else
+        delete highlighter;
+    highlighter = new Highlighter(teChats->document(), cntPlayer, playersInfo, chatFont);
 
     auto teLeft = mapLeft + (width + 2) * unitSize, teTop = wgtBoard->geometry().bottom() + unitSize;
     teChats->setGeometry(teLeft, teTop, screenWidth - teLeft, screenHeight - teTop - unitSize);
@@ -464,8 +472,13 @@ void GameWindow::processMessage(const QByteArray &msg) {
 //    qDebug() << "[gameWindow.cpp] Received:" << msgType;
 
     if (msgType == "Rematch") {
-        gotPlayerInfoMsg = gotInitMsg = gotPlayersInfoMsg = flagHalf = isSpec = isRep = moved = false;
+        gotPlayerInfoMsg = gotInitMsg = gotPlayersInfoMsg = false;
+        flagHalf = moved = false;
+        isSpec = isRep = false;
+        gameWindowShown = gameEnded = surrendered = spectated = false;
         teChats->clear();
+        endWindow->hide();
+        surrenderWindow->hide();
         emit rematch();
     } else if (msgType == "PlayerInfo") {
         idPlayer = msgData.at(0).toInt();
@@ -491,8 +504,8 @@ void GameWindow::processMessage(const QByteArray &msg) {
     } else if (msgType == "InitGame") {
         auto gameInfo = toVectorInt(msgData.toVariantList());
         cltMap.importCM(gameInfo);
-        qDebug() << "[gameWindow.cpp] ClientMap loaded";
         _cltMap = cltMap;
+        qDebug() << "[gameWindow.cpp] ClientMap loaded";
         gotInitMsg = true;
         init();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {

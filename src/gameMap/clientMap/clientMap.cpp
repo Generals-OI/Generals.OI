@@ -61,8 +61,13 @@ void ClientMap::importCM(const QVector<qint32> &vecMap) {
     auto it = vecMap.begin() + p;
     cntPlayer = *it++;
     cntTeam = *it++;
+    idTeam.clear();
     for (int i = 1; i <= cntPlayer; i++)
         idTeam.push_back(*it++);
+
+    alive = teamAlive = true;
+    round = 0;
+
     calcStat(std::vector<int>(cntPlayer, maxRound));
 }
 
