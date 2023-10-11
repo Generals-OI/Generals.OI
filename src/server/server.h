@@ -65,7 +65,7 @@ private:
     bool flagGameStarted{}, flagGameOvered{};
 
     QMap<QWebSocket *, PlayerInfo> clients;
-    QMap<int, QWebSocket *> clientsIndex;
+    QVector<QWebSocket *> clientsIndex;
     QList<QString> nicknames;
     QVector<int> teamMbrCnt;
 

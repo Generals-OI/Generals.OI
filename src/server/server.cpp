@@ -16,8 +16,10 @@ Server::Server() {
 
     gameTimer = new QTimer(this);
 
+    teamMbrCnt = QVector<int>(maxPlayerNum + 1);
+    clientsIndex = QVector<QWebSocket *>(maxPlayerNum + 1);
+
     if (server->listen(address, 32767)) {
-        teamMbrCnt = QVector<int>(maxPlayerNum + 1);
         nicknames.append("Generals.OI");
         nicknames.append("Server");
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
@@ -42,7 +44,7 @@ void Server::onCreateServer(int mode, double speed) {
         emit sendMessage(generateMessage("Rematch", QJsonArray()));
         updateStatus();
     }
-    
+
     gameMode = mode;
     gameSpeed = speed;
     flagServerReadied = flagPlayed = true;
@@ -82,12 +84,12 @@ void Server::onNewConnection() {
                 teamMbrCnt[currentClientInfo.idTeam]--;
             }
 
-            clients.remove(socket);
             for (int i = 0; i < nicknames.size(); i++)
                 if (nicknames.at(i) == currentClientInfo.nickname) {
                     nicknames.removeAt(i);
                     break;
                 }
+            clients.erase(itCurrent);
         }
         socket->disconnect();
         socket->deleteLater();
@@ -253,7 +255,7 @@ void Server::broadcastMessage() {
 
     if (flagGameOvered) {
         disconnect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
-        // emit something
+        
         // transfer replay files
         QString fileName = QString("replay_%1_%2")
                 .arg(QDateTime::currentDateTime().toString("yyMMddhhmmsszzz"))
