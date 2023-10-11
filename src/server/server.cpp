@@ -254,6 +254,10 @@ void Server::broadcastMessage() {
     qDebug() << "[server.cpp] Message sent.";
 
     if (flagGameOvered) {
+        // TODO: gfy1729 - add "winner"
+        // emit sendMessage(generateMessage("Chat", {"Server", QString("@%1 won!").arg(serMap->winner)}));
+        emit sendMessage(generateMessage("Chat", {"Server", "Please wait for the host to click \"Rematch\"."}));
+
         disconnect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
         
         // transfer replay files
