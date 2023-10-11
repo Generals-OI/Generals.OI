@@ -69,7 +69,7 @@ private:
     QList<QString> nicknames;
     QVector<int> teamMbrCnt;
 
-    QByteArray gameMapData;
+    QByteArray gameData;
     Recorder recorder;
 };
 

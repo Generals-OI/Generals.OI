@@ -480,6 +480,14 @@ void GameWindow::processMessage(const QByteArray &msg) {
         endWindow->hide();
         surrenderWindow->hide();
         emit rematch();
+    } else if (msgType == "Replay") {
+        QString fileName = msgData.at(0).toString() + QString("_%1").arg(idTeam);
+        QByteArray gameData = QByteArray::fromBase64(msgData.at(1).toString().toLocal8Bit());
+        QFile replayFile(fileName);
+        if (replayFile.open(QIODevice::WriteOnly)) {
+            replayFile.write(gameData);
+            replayFile.close();
+        }
     } else if (msgType == "PlayerInfo") {
         idPlayer = msgData.at(0).toInt();
         idTeam = msgData.at(1).toInt();

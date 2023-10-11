@@ -196,7 +196,7 @@ void Server::onNewConnection() {
                     serMap = new ServerMap(RandomMapGenerator::randomMap(cntPlayer, totTeam, teamInfo, gameMode));
                     qDebug() << "[server.cpp] Game map generated.";
 
-                    gameMapData = serMap->toByteArray();
+                    gameData = serMap->toByteArray();
                     recorder.init(playersNicknames, gameMode);
 
                     emit sendMessage(generateMessage("GameMode", {gameMode}));
@@ -264,11 +264,15 @@ void Server::broadcastMessage() {
         QString fileName = QString("replay_%1_%2")
                 .arg(QDateTime::currentDateTime().toString("yyMMddhhmmsszzz"))
                 .arg(RandomMapGenerator::lastSeed());
-        QFile replayFile(fileName);
+        gameData.append(recorder.exportRecords());
+
+        QString strGameData = QString::fromLocal8Bit(gameData.toBase64());
+        emit sendMessage(generateMessage("Replay", {fileName, strGameData}));
+
+        QFile replayFile(fileName + "_s");
         if (replayFile.open(QIODevice::WriteOnly)) {
             qDebug() << "[server.cpp] Saving replay files.";
-            replayFile.write(gameMapData);
-            replayFile.write(recorder.exportRecords());
+            replayFile.write(gameData);
             replayFile.close();
             qDebug() << "[server.cpp] Replay files saved.";
         }
