@@ -72,6 +72,7 @@ void Server::onNewConnection() {
     }
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
+        disconnectMutex.lock();
         auto itCurrent = clients.find(socket);
         if (itCurrent != clients.end()) {
             auto &currentClientInfo = itCurrent.value();
@@ -94,6 +95,7 @@ void Server::onNewConnection() {
         socket->disconnect();
         socket->deleteLater();
         updateStatus();
+        disconnectMutex.unlock();
     });
 
     connect(this, &Server::sendMessage, socket, &QWebSocket::sendBinaryMessage);

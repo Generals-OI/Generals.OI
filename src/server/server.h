@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include <QNetworkInterface>
 #include <QFile>
+#include <QMutex>
 
 class Server : public QWidget, public ProcessJson {
 Q_OBJECT
@@ -68,6 +69,8 @@ private:
     QVector<QWebSocket *> clientsIndex;
     QList<QString> nicknames;
     QVector<int> teamMbrCnt;
+
+    QMutex disconnectMutex;
 
     QByteArray gameData;
     Recorder recorder;
