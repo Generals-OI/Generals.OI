@@ -23,16 +23,20 @@ public:
 
     static bool isSurrender(RecordInfo move);
 
+    void addMessage(int round, QString message);
+
 private:
-    static const int messageSize=19;
+    static const int messageSize = 19;
     QByteArray data{};
     int pos{};
     char c{};
     int n{};
+    QByteArray chat{};
 
 public:
     QVector<QPair<QString, int>> players;
     QVector<QVector<RecordInfo>> moves;
+    QVector<QVector<QString>> chats;
     int gameMode{};
 };
 

@@ -58,12 +58,13 @@ bool Recorder::addRecord(int id, int x, int y, int dx, int dy, bool flag) {
 }
 
 QByteArray Recorder::exportRecords() {
+    addRecord(1, 1, 64, -1, 0, false);
     if (pos > 0) { // 若有剩余，补全一位
         data.append(c);
         pos = 0;
         c = '\0';
     }
-    return data;
+    return data + chat;
 }
 
 bool Recorder::importRecord(QByteArray &record) {
@@ -111,8 +112,24 @@ bool Recorder::importRecord(QByteArray &record) {
             }
         }
 
+        bool isEnd = true;
+        for (int i = 0; i < 6; i++) {
+            if (b[i]) {
+                isEnd = false;
+            }
+        }
+        for (int i = 6; i < 12; i++) {
+            if (!b[i]) {
+                isEnd = false;
+
+            }
+        }
+        if (isEnd) {
+            goto end;
+        }
+
         bool isMove = false;
-        for (int i = 0; i < 19; i++) {
+        for (int i = 0; i < messageSize; i++) {
             if (!b[i]) {
                 isMove = true;
                 break;
@@ -161,6 +178,34 @@ bool Recorder::importRecord(QByteArray &record) {
     end:
     if (!roundMoves.empty())
         moves.append(roundMoves);
+
+    //it++;
+    int round, lastRound = 0;
+    QByteArray _chat;
+    QVector<QString> _chats{};
+    while (it != data.end()) {
+        round = 0;
+        for (int i = 0; i < 4; i++) {
+            round = round * 100 + *it;
+            it++;
+        }
+        round++;
+        _chat.clear();
+        while (*it != '\0') {
+            _chat.append(*it);
+            it++;
+        }
+        while (lastRound < round) {
+            chats.append(_chats);
+            _chats.clear();
+            lastRound++;
+        }
+        _chats.append(QString::fromLocal8Bit(_chat));
+        it++;
+    }
+    if (!_chats.empty()) {
+        chats.append(_chats);
+    }
     return true;
 }
 
@@ -178,7 +223,7 @@ void Recorder::init(QVector<QPair<QString, int>> playerInfo, int mode) {
 
 void Recorder::surrender(int id) {
     bool b[messageSize] = {};
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 6; i++) {
         b[i] = true;
     }
     for (int i = 15, _id = id - 1; i >= 12; i--) {
@@ -203,4 +248,18 @@ void Recorder::surrender(int id) {
 
 bool Recorder::isSurrender(RecordInfo move) {
     return move.startX >= 64;
+}
+
+void Recorder::addMessage(int round, QString message) {
+    int _round[3]{};
+    round--;
+    for (int i = 0; i < 4; i++) {
+        _round[i] = round % 100;
+        round /= 100;
+    }
+    for(int i=0;i<message.size();i++){
+        message[i]=message[i];
+    }
+    chat.append(char(_round[3])).append(char(_round[2])).append(char(_round[1])).append(char(_round[0])).append(
+            message.toLocal8Bit()).append('\0');
 }
