@@ -518,7 +518,7 @@ void GameWindow::processMessage(const QByteArray &msg) {
         init();
     } else if (gotPlayerInfoMsg && gotInitMsg && gotPlayersInfoMsg) {
         if (msgType == "Chat") {
-            teChats->append(QString("%1: %2").arg(msgData.at(0).toString(), msgData.at(1).toString()));
+            teChats->append(msgData.at(0).toString());
         } else if (msgType == "UpdateMap") {
             cltMap.loadDiff(toVectorInt(msgData.toVariantList()));
             updateWindow();
@@ -571,7 +571,7 @@ void GameWindow::calcMapFontSize() {
 void GameWindow::sendChatMessage() {
     auto msg = leChat->text();
     if (!msg.isEmpty())
-        webSocket->sendBinaryMessage(generateMessage("Chat", {nickName, msg}));
+        webSocket->sendBinaryMessage(generateMessage("Chat", {QString("%1: %2").arg(nickName, msg)}));
     leChat->clear();
 }
 

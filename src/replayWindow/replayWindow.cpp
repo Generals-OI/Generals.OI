@@ -77,8 +77,8 @@ ReplayWindow::ReplayWindow(QWidget *parent) : QWidget(parent), uiCtrlPanel(new U
     emit socket->binaryMessageReceived(generateMessage(
             "InitGame", QJsonArray::fromVariantList(toVariantList(serverMap.toVectorSM()))));
 
-    gameWindow->leChat->hide();
-    gameWindow->teChats->hide();
+    // gameWindow->leChat->hide();
+    // gameWindow->teChats->hide();
 
     // TODO: Place control panel correctly
     wCtrlPanel->setGeometry(gameWindow->teChats->geometry());
@@ -157,6 +157,11 @@ void ReplayWindow::nextRound() {
         else
             serverMap.move(move.idPlayer, Point(move.startX, move.startY),
                            direction4[move.direction][0], direction4[move.direction][1], move.flag50p, gameMode);
+    }
+
+    for (const auto &chat: recorder.chats[serverMap.round]) {
+        qDebug() << "[replayWindow.cpp] Got chat message:" << chat;
+        socket->binaryMessageReceived(generateMessage("Chat", {chat}));
     }
 
     serverMap.addRound();

@@ -207,14 +207,15 @@ void Server::onNewConnection() {
                     connect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
                     gameTimer->start(int(500 / gameSpeed));
 
-                    emit sendMessage(generateMessage("Chat", {"Generals.OI", QString(
-                            "If you faced problems, please include the game ID \"%1\" in your feedback. "
+                    emit sendMessage(generateMessage("Chat", {QString(
+                            "Generals.OI: If you faced problems, please include the game ID \"%1\" in your feedback. "
                             "Thanks a lot! Have a good time!").arg(QString::number(RandomMapGenerator::lastSeed()))}
                     ));
                 }
             }
         } else if (msgType == "Chat") {
             emit sendMessage(msg);
+            recorder.addMessage(serMap->round, msgData.at(0).toString());
         } else if (msgType == "Move") {
             int idPlayer = msgData.at(0).toInt();
             int startX = msgData.at(1).toInt();
@@ -242,10 +243,10 @@ void Server::broadcastMessage() {
     for (auto i: losers)
         if (i.second == i.first) {
             emit sendMessage(generateMessage(
-                    "Chat", {"Server", QString("@%1 surrendered.").arg(nicknames.at(i.first + 1))}));
+                    "Chat", {QString("Server: @%1 surrendered.").arg(nicknames.at(i.first + 1))}));
             recorder.surrender(i.first);
         } else {
-            emit sendMessage(generateMessage("Chat", {"Server", QString("@%1 captured @%2.")
+            emit sendMessage(generateMessage("Chat", {QString("Server: @%1 captured @%2.")
                     .arg(nicknames.at(i.second + 1), nicknames.at(i.first + 1))}));
         }
 
@@ -255,11 +256,11 @@ void Server::broadcastMessage() {
 
     if (flagGameOvered) {
         // TODO: gfy1729 - add "winner"
-        // emit sendMessage(generateMessage("Chat", {"Server", QString("@%1 won!").arg(serMap->winner)}));
-        emit sendMessage(generateMessage("Chat", {"Server", "Please wait for the host to click \"Rematch\"."}));
+        // emit sendMessage(generateMessage("Chat", {QString("Server: @%1 won!").arg(serMap->winner)}));
 
+        emit sendMessage(generateMessage("Chat", {"Server: Please wait for the host to click \"Rematch\"."}));
         disconnect(gameTimer, &QTimer::timeout, this, &Server::broadcastMessage);
-        
+
         // transfer replay files
         QString fileName = QString("replay_%1_%2")
                 .arg(QDateTime::currentDateTime().toString("yyMMddhhmmsszzz"))
