@@ -70,7 +70,7 @@ private:
     QList<QString> nicknames;
     QVector<int> teamMbrCnt;
 
-    QMutex disconnectMutex;
+    QMutex mutexUpdateStatus, mutexOnDisconnect, mutexOnNewConnection;
 
     QByteArray gameData;
     Recorder recorder;

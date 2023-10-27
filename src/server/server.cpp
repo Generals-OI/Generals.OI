@@ -62,6 +62,8 @@ void Server::clearClient() {
 }
 
 void Server::onNewConnection() {
+    mutexOnNewConnection.lock();
+
     QWebSocket *socket = server->nextPendingConnection();
     if (!socket) return;
 
@@ -72,13 +74,17 @@ void Server::onNewConnection() {
     }
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
-        disconnectMutex.lock();
+        mutexOnDisconnect.lock();
+
         auto itCurrent = clients.find(socket);
         if (itCurrent != clients.end()) {
             auto &currentClientInfo = itCurrent.value();
             if (!currentClientInfo.isSpec) {
+                auto currentClientId = currentClientInfo.idPlayer;
                 auto &lastClientInfo = clients[clientsIndex[cntPlayer]];
-                lastClientInfo.idPlayer = currentClientInfo.idPlayer;
+                lastClientInfo.idPlayer = currentClientId;
+                clientsIndex[currentClientId] = clientsIndex[cntPlayer];
+                clientsIndex[cntPlayer] = nullptr;
                 cntPlayer--;
                 if (currentClientInfo.isReadied)
                     cntReadied--;
@@ -95,7 +101,8 @@ void Server::onNewConnection() {
         socket->disconnect();
         socket->deleteLater();
         updateStatus();
-        disconnectMutex.unlock();
+
+        mutexOnDisconnect.unlock();
     });
 
     connect(this, &Server::sendMessage, socket, &QWebSocket::sendBinaryMessage);
@@ -236,6 +243,8 @@ void Server::onNewConnection() {
         if (!flagGameStarted && (msgType == "Connected" || msgType == "Readied" || msgType == "ChooseTeam"))
             updateStatus();
     });
+
+    mutexOnNewConnection.unlock();
 }
 
 void Server::broadcastMessage() {
@@ -308,6 +317,8 @@ bool Server::checkNickname(const QString &newNickname) {
 }
 
 void Server::updateStatus() {
+    mutexUpdateStatus.lock();
+
     if (!flagGameStarted) {
         QJsonArray data;
         QVector<QJsonArray> teamsInfo(maxPlayerNum);
@@ -323,6 +334,8 @@ void Server::updateStatus() {
         emit sendMessage(generateMessage("Status", data));
         serverWindow->showMessage(msg);
     }
+
+    mutexUpdateStatus.unlock();
 }
 
 int Server::getEmptyTeam() {
