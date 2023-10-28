@@ -1,4 +1,5 @@
 #include "server.h"
+#include <qmutex.h>
 
 Server::Server(int gameMode, double gameSpeed) :
         gameMode(gameMode), gameSpeed(gameSpeed) {
@@ -33,11 +34,16 @@ void Server::clearClient() {
     clients.clear();
 }
 
+QMutex clientsMutex;
+
 void Server::onNewConnection() {
     QWebSocket *socket = server->nextPendingConnection();
     if (!socket) return;
 
     connect(socket, &QWebSocket::disconnected, [this, socket]() -> void {
+
+        clientsMutex.lock();
+
         auto itCurrent = clients.find(socket);
         if (itCurrent != clients.end()) {
             auto &currentClientInfo = itCurrent.value();
@@ -57,14 +63,20 @@ void Server::onNewConnection() {
                     break;
                 }
         }
+
         socket->disconnect();
         socket->deleteLater();
         updateStatus();
+
+        clientsMutex.unlock();
     });
 
     connect(this, &Server::sendMessage, socket, &QWebSocket::sendBinaryMessage);
 
     connect(socket, &QWebSocket::binaryMessageReceived, [this, socket](const QByteArray &msg) -> void {
+
+        // mutex for cntPlayer clients clientsIndex teamMbrCnt
+
         auto json = loadJson(msg);
         auto msgType = json.first.toString();
         auto msgData = json.second.toArray();
@@ -83,31 +95,39 @@ void Server::onNewConnection() {
                     return;
                 }
                 if (cntPlayer < maxPlayerNum) {
+                    clientsMutex.lock();
                     int idPlayer = ++cntPlayer;
                     int idTeam = getEmptyTeam();
                     clients[socket] = PlayerInfo(playerNickname, idPlayer, idTeam, false, false);
                     clientsIndex[idPlayer] = socket;
                     teamMbrCnt[idTeam]++;
+                    clientsMutex.unlock();
                 } else {
                     socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
+                    clientsMutex.lock();
                     clients[socket] = PlayerInfo("[Spectator] " + playerNickname, -1, -1, true, true);
+                    clientsMutex.unlock();
                     qDebug() << "[server.cpp] Too many players, join as spectator";
                     return;
                 }
             } else {
                 socket->sendBinaryMessage(generateMessage("Status", {"You will enter as an spectator."}));
+                clientsMutex.lock();
                 clients[socket] = PlayerInfo("[Spectator]", -1, -1, true, false);
+                clientsMutex.unlock();
                 qDebug() << "[server.cpp] Game started, join as spectator";
                 return;
             }
         } else if (msgType == "ChooseTeam") {
             if (clients[socket].isSpect) return;
             auto idTeam = msgData.at(0).toInt();
+            clientsMutex.lock();
             teamMbrCnt[clients[socket].idTeam]--;
             if (idTeam < maxPlayerNum)
                 clients[socket].idTeam = idTeam;
             else
                 clients[socket].idTeam = getEmptyTeam();
+            clientsMutex.unlock();
             teamMbrCnt[clients[socket].idTeam]++;
         } else if (msgType == "Readied") {
             if (clients[socket].isReadied) return;
