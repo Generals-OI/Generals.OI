@@ -7,6 +7,7 @@
 #include "recorder.h"
 #include "serverWindow.h"
 #include "windowFrame.h"
+#include "serverTray.h"
 
 #include <QWebSocket>
 #include <QWebSocketServer>

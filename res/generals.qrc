@@ -36,5 +36,6 @@
         <file>img/CheckBox.png</file>
         <file>img/CheckBox-Checked.png</file>
         <file>img/GameButton.png</file>
+        <file>img/GitHub.png</file>
     </qresource>
 </RCC>

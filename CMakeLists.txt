@@ -35,6 +35,7 @@ include_directories(
         src/startWindow/teamButton
         src/windowFrame/titleBar
         src/server/serverWindow
+        src/server/serverTray
         src/windowFrame
         src/processJson
         src/replayWindow
@@ -141,8 +142,10 @@ set(
 
         src/gameMapGrid/gameButton/gameButton.cpp
         src/gameMapGrid/gameButton/gameButton.h
+        src/server/serverTray/serverTray.cpp
+        src/server/serverTray/serverTray.h
 
-#        src/gameMapEditor/gameMapEditor.cpp
+        #        src/gameMapEditor/gameMapEditor.cpp
 #        src/gameMapEditor/gameMapEditor.h
 #        src/gameMapEditor/gameMapEditor.ui
 #        src/gameMapEditor/sizeEditor.ui

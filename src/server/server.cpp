@@ -25,6 +25,7 @@ Server::Server() {
         connect(server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
         connect(serverWindow, &ServerWindow::createServer, this, &Server::onCreateServer);
         serverWindow->showMessage("Listened to port.");
+        new ServerTray(serverWindowFrame);
     } else {
         serverWindow->showMessage("Error: Cannot listen to port!");
         serverWindow->pbCreateServer->setEnabled(false);
