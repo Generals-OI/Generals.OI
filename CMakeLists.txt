@@ -30,7 +30,7 @@ include_directories(
         src/gameWindow
         src/gameInformation
         src/server
-        src/server/recorder
+        src/recorder
         src/startWindow
         src/startWindow/teamButton
         src/windowFrame/titleBar
@@ -114,8 +114,8 @@ set(
         src/server/server.cpp
         src/server/server.h
 
-        src/server/recorder/recorder.cpp
-        src/server/recorder/recorder.h
+        src/recorder/recorder.cpp
+        src/recorder/recorder.h
 
         src/server/serverWindow/serverWindow.cpp
         src/server/serverWindow/serverWindow.h
@@ -190,8 +190,8 @@ add_executable(
 
         src/test-recorder.cpp
 
-        src/server/recorder/recorder.cpp
-        src/server/recorder/recorder.h
+        src/recorder/recorder.cpp
+        src/recorder/recorder.h
 
         src/point/point.cpp
         src/point/point.h
